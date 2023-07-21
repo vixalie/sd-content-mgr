@@ -19,7 +19,13 @@ func InitDB(ctx *context.Context) error {
 	if err != nil {
 		return err
 	}
-	db.AutoMigrate(&entities.Model{}, &entities.ModelTags{}, &entities.Image{}, &entities.FileCache{})
+	db.AutoMigrate(
+		&entities.Model{},
+		&entities.ModelVersion{},
+		&entities.ModelTags{},
+		&entities.Image{},
+		&entities.FileCache{},
+	)
 	*ctx = context.WithValue(*ctx, DBConnection, db)
 	return nil
 }

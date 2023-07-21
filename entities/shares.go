@@ -22,6 +22,13 @@ const (
 	PrecisionFP32
 )
 
+const (
+	NSFWLeveNone int = iota
+	NSFWLevelSoft
+	NSFWLevelMature
+	NSFWLevelX
+)
+
 type CommonFields struct {
 	CreatedAt time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
