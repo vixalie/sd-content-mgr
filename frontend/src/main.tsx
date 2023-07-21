@@ -1,4 +1,4 @@
-import { ColorSchemeProvider, MantineProvider } from '@mantine/core';
+import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
@@ -11,7 +11,7 @@ import { useAppTheme } from './theme';
 
 function AppMain() {
   const preferredColorScheme = useColorScheme();
-  const [colorScheme, setColorScheme] = useState(preferredColorScheme);
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(preferredColorScheme);
   const updateColorScheme = value =>
     setColorScheme(value || (equals(colorScheme, 'dark') ? 'light' : 'dark'));
   const theme = useAppTheme(preferredColorScheme);

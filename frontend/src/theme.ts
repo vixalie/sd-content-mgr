@@ -1,3 +1,4 @@
+import { ColorScheme } from '@mantine/core';
 import { equals, ifElse, max, path, propEq, reverse } from 'ramda';
 
 const bgColorSelectFn = ifElse(
@@ -11,7 +12,7 @@ const fgColorSelectFn = ifElse(
   path(['colors', 'cfg', 8])
 );
 
-export function useAppTheme(scheme) {
+export function useAppTheme(scheme: ColorScheme = 'light') {
   return {
     colorScheme: scheme,
     focusRing: 'never',
