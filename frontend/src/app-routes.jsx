@@ -1,11 +1,11 @@
-import { createMemoryRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
 import { SetupHost } from './layout/setups/SetupHost';
 
-export const AppRoute = createMemoryRouter([
+export const AppRoute = createHashRouter([
   {
     path: '/',
     element: <MainLayout />,
