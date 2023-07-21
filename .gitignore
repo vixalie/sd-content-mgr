@@ -465,3 +465,4 @@ dist
 .pnp.*
 
 **/node_modules/
+*.db
