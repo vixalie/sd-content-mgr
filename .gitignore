@@ -466,3 +466,6 @@ dist
 
 **/node_modules/
 *.db
+**/build/
+build/
+**/dist/
