@@ -11,6 +11,9 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.24.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
@@ -19,7 +22,7 @@ require (
 )
 
 require (
-  archgrid.xyz/ag/toolsbox v0.1.3
+	archgrid.xyz/ag/toolsbox v0.1.3
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/glebarez/sqlite v1.9.0
 	github.com/go-ole/go-ole v1.2.6 // indirect
