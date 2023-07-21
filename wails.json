@@ -1,0 +1,12 @@
+{
+  "name": "SD Content Manager",
+  "outputfilename": "SD Content Manager",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm run build",
+  "frontend:dev:watcher": "pnpm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Midnite",
+    "email": "midnite@outlook.com"
+  }
+}
