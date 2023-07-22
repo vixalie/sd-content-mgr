@@ -76,7 +76,7 @@ export function MainLayout() {
           </Menu.Target>
 
           <Menu.Dropdown miw={130}>
-            <Menu.Item>关于...</Menu.Item>
+            <Menu.Item onClick={() => navigate('/about')}>关于...</Menu.Item>
             <Menu.Divider />
             <Menu.Item onClick={() => ConfirmNQuit()}>退出</Menu.Item>
           </Menu.Dropdown>

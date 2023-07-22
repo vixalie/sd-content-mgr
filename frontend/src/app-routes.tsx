@@ -1,4 +1,5 @@
 import { createHashRouter } from 'react-router-dom';
+import { About } from './layout/About.';
 import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
@@ -26,6 +27,10 @@ export const AppRoute = createHashRouter([
       {
         path: '/setup',
         element: <SetupHost />
+      },
+      {
+        path: '/about',
+        element: <About />
       }
     ]
   }
