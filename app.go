@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -41,4 +44,16 @@ func (a *App) shutdown(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+func (a *App) ConfirmNQuit() {
+	answer, _ := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+		Title:   "确认退出",
+		Message: "即将退出应用，是否确认？",
+		Type:    runtime.QuestionDialog,
+		Buttons: []string{"确认", "取消"},
+	})
+	if answer == "确认" || strings.ToUpper(answer) == "OK" {
+		runtime.Quit(a.ctx)
+	}
 }

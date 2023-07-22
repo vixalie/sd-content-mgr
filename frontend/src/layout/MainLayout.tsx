@@ -7,6 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { equals } from 'ramda';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { ConfirmNQuit } from '../../wailsjs/go/main/App';
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ export function MainLayout() {
           <Menu.Dropdown miw={130}>
             <Menu.Item>关于...</Menu.Item>
             <Menu.Divider />
-            <Menu.Item>退出</Menu.Item>
+            <Menu.Item onClick={() => ConfirmNQuit()}>退出</Menu.Item>
           </Menu.Dropdown>
         </Menu>
       </Stack>
