@@ -469,3 +469,5 @@ dist
 **/build/
 build/
 **/dist/
+config.yml
+config.yaml

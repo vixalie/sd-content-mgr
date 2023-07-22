@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"archgrid.xyz/ag/toolsbox/serial_code/hail"
+	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -21,6 +22,9 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+
+	// 创建应用配置功能
+	settings := config.NewApplicationSettings()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -43,9 +47,11 @@ func main() {
 				os.Exit(1)
 			}
 			app.startup(ctx)
+			settings.SetContext(ctx)
 		},
 		Bind: []interface{}{
 			app,
+			settings,
 		},
 	})
 
