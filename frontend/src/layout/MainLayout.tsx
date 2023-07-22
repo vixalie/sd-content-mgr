@@ -8,6 +8,7 @@ import {
 import { equals } from 'ramda';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { ConfirmNQuit } from '../../wailsjs/go/main/App';
+import { ActivatableNavLink } from '../components/ActivatableNavLink';
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -34,8 +35,8 @@ export function MainLayout() {
         })}
       >
         <Tooltip label="已安装模型" position="right">
-          <NavLink
-            onClick={() => navigate('/model')}
+          <ActivatableNavLink
+            to="/model"
             icon={
               <ThemeIcon size="lg" variant="light">
                 <IconBoxModel stroke={1} />
@@ -44,8 +45,8 @@ export function MainLayout() {
           />
         </Tooltip>
         <Tooltip label="内容维护" position="right">
-          <NavLink
-            onClick={() => navigate('/maintain')}
+          <ActivatableNavLink
+            to="/maintain"
             icon={
               <ThemeIcon size="lg" variant="light">
                 <IconStack3 stroke={1} />
@@ -54,8 +55,8 @@ export function MainLayout() {
           />
         </Tooltip>
         <Tooltip label="配置" position="right">
-          <NavLink
-            onClick={() => navigate('/setup')}
+          <ActivatableNavLink
+            to="/setup"
             icon={
               <ThemeIcon size="lg" variant="light">
                 <IconAdjustmentsHorizontal stroke={1} />
