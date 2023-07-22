@@ -1,7 +1,7 @@
 {
   "name": "civitai_sd_content_manager",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -38,5 +38,5 @@
     "vite": "^4.4.4",
     "zustand": "^4.3.9"
   },
-  "author": "midnite [midnite@outlook.com]"
+  "author": "vixalie[vixalie@outlook.com]"
 }
