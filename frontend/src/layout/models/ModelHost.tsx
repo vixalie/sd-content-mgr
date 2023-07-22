@@ -9,7 +9,7 @@ export function ModelHost() {
       direction="row"
       justify="flex-start"
       align="flex-start"
-      spacing={0}
+      gap={0}
       h="100vh"
       sx={{ overflowY: 'hidden' }}
     >

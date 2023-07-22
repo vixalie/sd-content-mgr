@@ -1,13 +1,4 @@
-import {
-  Box,
-  Flex,
-  Menu,
-  NavLink,
-  Stack,
-  ThemeIcon,
-  Tooltip,
-  useMantineTheme
-} from '@mantine/core';
+import { Box, Flex, Menu, NavLink, Stack, ThemeIcon, Tooltip } from '@mantine/core';
 import {
   IconAdjustmentsHorizontal,
   IconBoxModel,
@@ -18,7 +9,6 @@ import { equals } from 'ramda';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export function MainLayout() {
-  const theme = useMantineTheme();
   const navigate = useNavigate();
 
   return (
@@ -28,7 +18,7 @@ export function MainLayout() {
       direction="row"
       justify="flex-start"
       align="flex-start"
-      spacing={0}
+      gap={0}
       sx={{ overflowY: 'hidden' }}
     >
       <Stack

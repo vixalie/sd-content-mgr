@@ -2,6 +2,7 @@ import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core
 import { useColorScheme } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
+import { equals } from 'ramda';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
@@ -12,7 +13,7 @@ import { useAppTheme } from './theme';
 function AppMain() {
   const preferredColorScheme = useColorScheme();
   const [colorScheme, setColorScheme] = useState<ColorScheme>(preferredColorScheme);
-  const updateColorScheme = value =>
+  const updateColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (equals(colorScheme, 'dark') ? 'light' : 'dark'));
   const theme = useAppTheme(preferredColorScheme);
 
@@ -30,7 +31,7 @@ function AppMain() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <AppMain />
   </React.StrictMode>
