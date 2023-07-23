@@ -1,5 +1,5 @@
 import { NavLink as Link } from '@mantine/core';
-import { FC } from 'react';
+import { ForwardRefExoticComponent, ForwardedRef, forwardRef } from 'react';
 import { NavLink, NavLinkProps } from 'react-router-dom';
 
 type ActivatableNavLinkProps = {
@@ -9,15 +9,15 @@ type ActivatableNavLinkProps = {
   disabled?: boolean;
 };
 
-export function ActivatableNavLink({
-  to,
-  icon,
-  label,
-  disabled
-}: ActivatableNavLinkProps): FC<ActivatableNavLinkProps> {
-  return (
-    <NavLink to={to} style={disabled && { pointerEvents: 'none' }}>
-      {({ isActive }) => <Link active={isActive} icon={icon} label={label} disabled={disabled} />}
-    </NavLink>
-  );
-}
+export const ActivatableNavLink = forwardRef(
+  (
+    { to, icon, label, disabled }: ActivatableNavLinkProps,
+    ref: ForwardedRef
+  ): ForwardRefExoticComponent<ActivatableNavLinkProps> => {
+    return (
+      <NavLink to={to} style={disabled && { pointerEvents: 'none' }} ref={ref}>
+        {({ isActive }) => <Link active={isActive} icon={icon} label={label} disabled={disabled} />}
+      </NavLink>
+    );
+  }
+);
