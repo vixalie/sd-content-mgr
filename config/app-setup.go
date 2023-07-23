@@ -86,10 +86,16 @@ func (a ApplicationSettings) IsPathValid(path string) bool {
 	return os.IsExist(err)
 }
 
-func (a ApplicationSettings) SelectOneDirectory() string {
+func (a ApplicationSettings) SelectOneDirectory(basePath *string) string {
+	var defaultDirectory string
+	if basePath != nil {
+		defaultDirectory = *basePath
+	} else {
+		defaultDirectory = "."
+	}
 	directory, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
 		Title:                      "选择一个文件夹",
-		DefaultDirectory:           ".",
+		DefaultDirectory:           defaultDirectory,
 		ShowHiddenFiles:            false,
 		CanCreateDirectories:       false,
 		TreatPackagesAsDirectories: false,

@@ -38,7 +38,7 @@ export const SetupWebUI: FC = () => {
           autoClose: 3000,
           withCloseButton: false
         });
-        queryClient.invalidateQueries('webui-setting');
+        queryClient.invalidateQueries('webui-config');
       } else {
         notifications.show({
           title: '保存失败',
@@ -62,20 +62,61 @@ export const SetupWebUI: FC = () => {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack spacing="md" align="stretch">
             <PathSelectInput label="WebUI根路径" {...form.getInputProps('basePath')} />
-            <PathSelectInput label="大模型(ckpt)目录" {...form.getInputProps('checkpoint')} />
+            <PathSelectInput
+              label="大模型(ckpt)目录"
+              {...form.getInputProps('checkpoint')}
+              basePath={currentSetting?.basePath}
+            />
             <PathSelectInput
               label="大模型配置(ckpt配置)目录"
               {...form.getInputProps('configuration')}
+              basePath={currentSetting?.basePath}
             />
-            <PathSelectInput label="Lora目录" {...form.getInputProps('lora')} />
-            <PathSelectInput label="LyCORIS目录" {...form.getInputProps('locon')} />
-            <PathSelectInput label="VAE目录" {...form.getInputProps('vae')} />
-            <PathSelectInput label="Embedding目录" {...form.getInputProps('embedding')} />
-            <PathSelectInput label="Hypernetwork目录" {...form.getInputProps('hypernet')} />
-            <PathSelectInput label="Controlnet目录" {...form.getInputProps('controlnet')} />
-            <PathSelectInput label="ESRGAN目录" {...form.getInputProps('esrgan')} />
-            <PathSelectInput label="RealESRGAN目录" {...form.getInputProps('realesrgan')} />
-            <PathSelectInput label="SwinIR目录" {...form.getInputProps('swinir')} />
+            <PathSelectInput
+              label="Lora目录"
+              {...form.getInputProps('lora')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="LyCORIS目录"
+              {...form.getInputProps('locon')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="VAE目录"
+              {...form.getInputProps('vae')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="Embedding目录"
+              {...form.getInputProps('embedding')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="Hypernetwork目录"
+              {...form.getInputProps('hypernet')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="Controlnet目录"
+              {...form.getInputProps('controlnet')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="ESRGAN目录"
+              {...form.getInputProps('esrgan')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="RealESRGAN目录"
+              {...form.getInputProps('realesrgan')}
+              basePath={currentSetting?.basePath}
+            />
+            <PathSelectInput
+              label="SwinIR目录"
+              {...form.getInputProps('swinir')}
+              basePath={currentSetting?.basePath}
+            />
             <Group spacing="md" py="sm">
               <Button type="submit" variant="filled">
                 保存

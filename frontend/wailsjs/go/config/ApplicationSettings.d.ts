@@ -15,6 +15,6 @@ export function SaveNewProxySetting(arg1:boolean,arg2:string,arg3:string,arg4:nu
 
 export function SaveNewWebUIConfig(arg1:config.A111StableDiffusionWebUIConfig):Promise<boolean>;
 
-export function SelectOneDirectory():Promise<string>;
+export function SelectOneDirectory(arg1:any):Promise<string>;
 
 export function SetContext(arg1:context.Context):Promise<void>;

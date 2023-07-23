@@ -26,8 +26,8 @@ export function SaveNewWebUIConfig(arg1) {
   return window['go']['config']['ApplicationSettings']['SaveNewWebUIConfig'](arg1);
 }
 
-export function SelectOneDirectory() {
-  return window['go']['config']['ApplicationSettings']['SelectOneDirectory']();
+export function SelectOneDirectory(arg1) {
+  return window['go']['config']['ApplicationSettings']['SelectOneDirectory'](arg1);
 }
 
 export function SetContext(arg1) {

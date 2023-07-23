@@ -30,7 +30,7 @@ export function useProtocols(): SegmentedControlItem[] {
 
 export function useProxySetting(): ProxySetting | null | undefined {
   const { data } = useQuery({
-    queryKey: ['proxy-protocol-setting'],
+    queryKey: ['proxy-setting'],
     queryFn: async () => {
       return await GetCurrentProxySetting();
     },

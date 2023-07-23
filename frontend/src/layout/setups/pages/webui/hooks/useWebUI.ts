@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { GetCurrentWebUIConfig, SaveNewWebUIConfig } from '@wails/go/config/ApplicationSettings';
 import { useCallback } from 'react';
 
-export function useWebUIConfig(): WebUISetting {
+export function useWebUIConfig(): WebUISetting | null | undefined {
   const { data } = useQuery({
     queryKey: ['webui-config'],
     queryFn: async () => {

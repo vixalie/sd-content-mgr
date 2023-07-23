@@ -43,7 +43,7 @@ export function SetupProxy(): FC {
           autoClose: 3000,
           withCloseButton: false
         });
-        queryClient.invalidateQueries('proxy-protocol-setting');
+        queryClient.invalidateQueries('proxy-setting');
       } else {
         notifications.show({
           title: '保存失败',
