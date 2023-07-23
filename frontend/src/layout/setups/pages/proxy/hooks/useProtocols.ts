@@ -35,12 +35,12 @@ export function useProxySetting(): ProxySetting | null | undefined {
       return await GetCurrentProxySetting();
     },
     select: data => ({
-      mode: data.UseProxy ? 'proxy' : 'direct',
-      protocol: data.Protocol,
-      host: data.Host,
-      port: data.Port,
-      username: data.User,
-      password: data.Password
+      mode: data.useProxy ? 'proxy' : 'direct',
+      protocol: data.protocol,
+      host: data.host,
+      port: data.port,
+      username: data.user,
+      password: data.password
     })
   });
 

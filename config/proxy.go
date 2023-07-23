@@ -14,12 +14,12 @@ const (
 )
 
 type ProxyConfig struct {
-	UseProxy bool          `yaml:"use_proxy"`
-	Protocol ProxyProtocol `yaml:"protocol"`
-	Host     string        `yaml:"host"`
-	Port     *int          `yaml:"port,omitempty"`
-	User     *string       `yaml:"user,omitempty"`
-	Password *string       `yaml:"password,omitempty"`
+	UseProxy bool          `yaml:"use_proxy" json:"useProxy"`
+	Protocol ProxyProtocol `yaml:"protocol" json:"protocol"`
+	Host     string        `yaml:"host" json:"host"`
+	Port     *int          `yaml:"port,omitempty" json:"port,omitempty"`
+	User     *string       `yaml:"user,omitempty" json:"user,omitempty"`
+	Password *string       `yaml:"password,omitempty" json:"password,omitempty"`
 }
 
 func AvailableProxyProtocols() map[string]string {
