@@ -5,6 +5,7 @@ import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
 import { SetupHost } from './layout/setups/SetupHost';
+import { SetupComfyUI } from './layout/setups/pages/comfyui/SetupComfyUI';
 import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
 import { SetupWebUI } from './layout/setups/pages/webui/SetupWebUI';
 
@@ -40,7 +41,7 @@ export const AppRoute = createHashRouter([
           },
           {
             path: 'comfy',
-            element: null
+            element: <SetupComfyUI />
           }
         ]
       },

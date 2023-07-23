@@ -25,12 +25,12 @@ export interface WebUISetting {
 export interface ComfyUISettting {
   basePath: string;
   checkpoint: string;
-  checkpointConfig: string;
+  configuration: string;
   clip: string;
   clipVision: string;
   diffusers: string;
   embedding: string;
-  gligan: string;
+  gligen: string;
   hypernet: string;
   lora: string;
   locon: string;

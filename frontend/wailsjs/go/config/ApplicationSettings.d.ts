@@ -3,6 +3,8 @@
 import {config} from '../models';
 import {context} from '../models';
 
+export function GetCurrentComfyUIConfig():Promise<config.ComfyUIConfig>;
+
 export function GetCurrentProxySetting():Promise<config.ProxyConfig>;
 
 export function GetCurrentWebUIConfig():Promise<config.A111StableDiffusionWebUIConfig>;
@@ -10,6 +12,8 @@ export function GetCurrentWebUIConfig():Promise<config.A111StableDiffusionWebUIC
 export function GetProxyServiceProtocols():Promise<{[key: string]: string}>;
 
 export function IsPathValid(arg1:string):Promise<boolean>;
+
+export function SaveNewComfyUIConfig(arg1:config.ComfyUIConfig):Promise<boolean>;
 
 export function SaveNewProxySetting(arg1:boolean,arg2:string,arg3:string,arg4:number,arg5:string,arg6:string):Promise<boolean>;
 

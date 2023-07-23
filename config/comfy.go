@@ -3,22 +3,22 @@ package config
 import "gopkg.in/yaml.v3"
 
 type ComfyUIConfig struct {
-	BasePath                string `yaml:"base_path"`
-	Checkpoint              string `yaml:"checkpoint"`
-	Clip                    string `yaml:"clip"`
-	ClipVision              string `yaml:"clip_vision"`
-	CheckpointConfiguration string `yaml:"configuration"`
-	Diffuser                string `yaml:"diffusers"`
-	Embedding               string `yaml:"embedding"`
-	GLIGAN                  string `yaml:"gligan"`
-	Hypernet                string `yaml:"hypernet"`
-	Lora                    string `yaml:"lora"`
-	LyCORIS                 string `yaml:"locon"`
-	Styles                  string `yaml:"styles"`
-	UNet                    string `yaml:"unet"`
-	Upscaler                string `yaml:"upscaler"`
-	Vae                     string `yaml:"vae"`
-	ExtraModelPathsFile     string `yaml:"extra_model_paths_file"`
+	BasePath                string `yaml:"base_path" json:"basePath"`
+	Checkpoint              string `yaml:"checkpoint" json:"checkpoint"`
+	Clip                    string `yaml:"clip" json:"clip"`
+	ClipVision              string `yaml:"clip_vision" json:"clipVision"`
+	CheckpointConfiguration string `yaml:"configuration" json:"configuration"`
+	Diffuser                string `yaml:"diffusers" json:"diffuser"`
+	Embedding               string `yaml:"embedding" json:"embedding"`
+	GLIGEN                  string `yaml:"gligen" json:"gligen"`
+	Hypernet                string `yaml:"hypernet" json:"hypernet"`
+	Lora                    string `yaml:"lora" json:"lora"`
+	LyCORIS                 string `yaml:"locon" json:"locon"`
+	Styles                  string `yaml:"styles" json:"styles"`
+	UNet                    string `yaml:"unet" json:"unet"`
+	Upscaler                string `yaml:"upscaler" json:"upscaler"`
+	Vae                     string `yaml:"vae" json:"vae"`
+	ExtraModelPathsFile     string `yaml:"extra_model_paths_file" json:"extraModelPathsFile"`
 }
 
 type AdaptComfyUIConfig struct {
