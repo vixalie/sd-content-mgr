@@ -19,7 +19,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react"
+    "jsxImportSource": "@emotion/react",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@wails/*": [
+        "./wailsjs/*"
+      ]
+    }
   },
   "include": [
     "src"
