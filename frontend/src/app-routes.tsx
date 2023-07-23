@@ -6,6 +6,7 @@ import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
 import { SetupHost } from './layout/setups/SetupHost';
 import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
+import { SetupWebUI } from './layout/setups/pages/webui/SetupWebUI';
 
 export const AppRoute = createHashRouter([
   {
@@ -32,6 +33,14 @@ export const AppRoute = createHashRouter([
           {
             path: 'proxy',
             element: <SetupProxy />
+          },
+          {
+            path: 'webui',
+            element: <SetupWebUI />
+          },
+          {
+            path: 'comfy',
+            element: null
           }
         ]
       },

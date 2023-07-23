@@ -1,6 +1,12 @@
 package config
 
-import "context"
+import (
+	"context"
+	"os"
+	"path/filepath"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+)
 
 type ApplicationSettings struct {
 	ctx context.Context
@@ -50,6 +56,59 @@ func (a ApplicationSettings) SaveNewProxySetting(use bool, protocol string, host
 			return false
 		}
 	}
+	err := ApplicationSetup.Save()
+	if err != nil {
+		return false
+	}
+	ApplicationSetup = LoadConfiguration()
+	return true
+}
+
+func (a ApplicationSettings) IsPathValid(path string) bool {
+	// join webui base path
+	if ApplicationSetup.WebUIConfig != nil && ApplicationSetup.WebUIConfig.BasePath != "" {
+		path := filepath.Join(ApplicationSetup.WebUIConfig.BasePath, path)
+		_, err := os.Stat(path)
+		if os.IsExist(err) {
+			return true
+		}
+	}
+	// join comfyui base path
+	if ApplicationSetup.ComfyUIConfig != nil && ApplicationSetup.ComfyUIConfig.BasePath != "" {
+		path := filepath.Join(ApplicationSetup.ComfyUIConfig.BasePath, path)
+		_, err := os.Stat(path)
+		if os.IsExist(err) {
+			return true
+		}
+	}
+	// check absolute path
+	_, err := os.Stat(path)
+	return os.IsExist(err)
+}
+
+func (a ApplicationSettings) SelectOneDirectory() string {
+	directory, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title:                      "选择一个文件夹",
+		DefaultDirectory:           ".",
+		ShowHiddenFiles:            false,
+		CanCreateDirectories:       false,
+		TreatPackagesAsDirectories: false,
+	})
+	if err != nil {
+		return ""
+	}
+	return directory
+}
+
+func (a ApplicationSettings) GetCurrentWebUIConfig() *A111StableDiffusionWebUIConfig {
+	if ApplicationSetup == nil {
+		return nil
+	}
+	return ApplicationSetup.WebUIConfig
+}
+
+func (a ApplicationSettings) SaveNewWebUIConfig(config A111StableDiffusionWebUIConfig) bool {
+	ApplicationSetup.WebUIConfig = &config
 	err := ApplicationSetup.Save()
 	if err != nil {
 		return false

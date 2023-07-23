@@ -5,8 +5,16 @@ import {context} from '../models';
 
 export function GetCurrentProxySetting():Promise<config.ProxyConfig>;
 
+export function GetCurrentWebUIConfig():Promise<config.A111StableDiffusionWebUIConfig>;
+
 export function GetProxyServiceProtocols():Promise<{[key: string]: string}>;
 
+export function IsPathValid(arg1:string):Promise<boolean>;
+
 export function SaveNewProxySetting(arg1:boolean,arg2:string,arg3:string,arg4:number,arg5:string,arg6:string):Promise<boolean>;
+
+export function SaveNewWebUIConfig(arg1:config.A111StableDiffusionWebUIConfig):Promise<boolean>;
+
+export function SelectOneDirectory():Promise<string>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
