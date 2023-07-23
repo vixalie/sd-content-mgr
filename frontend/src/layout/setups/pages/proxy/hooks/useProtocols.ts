@@ -39,7 +39,7 @@ export function useProxySetting(): ProxySetting | null | undefined {
       protocol: data.Protocol,
       host: data.Host,
       port: data.Port,
-      username: data.Username,
+      username: data.User,
       password: data.Password
     })
   });

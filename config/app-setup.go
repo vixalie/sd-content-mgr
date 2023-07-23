@@ -22,7 +22,15 @@ func (a ApplicationSettings) GetCurrentProxySetting() *ProxyConfig {
 	if ApplicationSetup == nil {
 		return nil
 	}
-	return ApplicationSetup.ProxyConfig
+	oldPass := ApplicationSetup.ProxyConfig.GetPassword()
+	return &ProxyConfig{
+		UseProxy: ApplicationSetup.ProxyConfig.UseProxy,
+		Protocol: ApplicationSetup.ProxyConfig.Protocol,
+		Host:     ApplicationSetup.ProxyConfig.Host,
+		Port:     ApplicationSetup.ProxyConfig.Port,
+		User:     ApplicationSetup.ProxyConfig.User,
+		Password: &oldPass,
+	}
 }
 
 func (a ApplicationSettings) SaveNewProxySetting(use bool, protocol string, host string, port int, usernamem, password string) bool {
