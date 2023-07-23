@@ -20,6 +20,7 @@ type PathSelectInputProps = {
   placeholder?: string;
   maw?: TextInputProps['maw'];
   miw?: TextInputProps['miw'];
+  basePath?: string;
 };
 
 export const PathSelectInput: ForwardRefExoticComponent<PathSelectInputProps> = forwardRef(
@@ -37,7 +38,7 @@ export const PathSelectInput: ForwardRefExoticComponent<PathSelectInputProps> = 
       props.onChange?.(value);
     }, []);
     const selectDirectory = useCallback(async () => {
-      const selectedDirectory = await SelectOneDirectory();
+      const selectedDirectory = await SelectOneDirectory(props.basePath ?? null);
       if (!isEmpty(selectedDirectory)) {
         await handleChange(selectedDirectory);
       }
