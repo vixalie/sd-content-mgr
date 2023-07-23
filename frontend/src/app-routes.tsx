@@ -5,6 +5,7 @@ import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
 import { SetupHost } from './layout/setups/SetupHost';
+import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
 
 export const AppRoute = createHashRouter([
   {
@@ -17,19 +18,25 @@ export const AppRoute = createHashRouter([
         element: <Welcome />
       },
       {
-        path: '/model',
+        path: 'model',
         element: <ModelHost />
       },
       {
-        path: '/maintain',
+        path: 'maintain',
         element: <MaintainHost />
       },
       {
-        path: '/setup',
-        element: <SetupHost />
+        path: 'setup',
+        element: <SetupHost />,
+        children: [
+          {
+            path: 'proxy',
+            element: <SetupProxy />
+          }
+        ]
       },
       {
-        path: '/about',
+        path: 'about',
         element: <About />
       }
     ]

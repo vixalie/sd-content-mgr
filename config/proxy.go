@@ -14,6 +14,7 @@ const (
 )
 
 type ProxyConfig struct {
+	UseProxy bool          `yaml:"use_proxy"`
 	Protocol ProxyProtocol `yaml:"protocol"`
 	Host     string        `yaml:"host"`
 	Port     *int          `yaml:"port,omitempty"`
@@ -21,11 +22,11 @@ type ProxyConfig struct {
 	Password *string       `yaml:"password,omitempty"`
 }
 
-func AvailableProxyProtocols() map[string]ProxyProtocol {
-	return map[string]ProxyProtocol{
-		"HTTP":   ProtocolHttp,
-		"HTTPs":  ProtocolHttps,
-		"Socks5": ProtocolSocks5,
+func AvailableProxyProtocols() map[string]string {
+	return map[string]string{
+		"HTTP":   string(ProtocolHttp),
+		"HTTPS":  string(ProtocolHttps),
+		"Socks5": string(ProtocolSocks5),
 	}
 }
 
