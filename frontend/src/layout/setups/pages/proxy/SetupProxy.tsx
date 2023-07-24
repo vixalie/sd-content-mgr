@@ -40,16 +40,6 @@ export function SetupProxy(): FC {
       username: currentSetting?.username ?? '',
       password: currentSetting?.password ?? ''
     });
-  }, []);
-  useEffect(() => {
-    form.setValues({
-      mode: currentSetting?.mode ?? 'direct',
-      protocol: currentSetting?.protocol ?? '',
-      host: currentSetting?.host ?? '',
-      port: currentSetting?.port ?? 80,
-      username: currentSetting?.username ?? '',
-      password: currentSetting?.password ?? ''
-    });
   }, [currentSetting]);
 
   return (

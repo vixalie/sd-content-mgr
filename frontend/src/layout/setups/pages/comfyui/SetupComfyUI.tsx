@@ -32,9 +32,6 @@ export const SetupComfyUI: FC = () => {
 
   useEffect(() => {
     form.setValues(currentSetting);
-  }, []);
-  useEffect(() => {
-    form.setValues(currentSetting);
   }, [currentSetting]);
 
   return (
