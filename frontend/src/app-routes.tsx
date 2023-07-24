@@ -6,8 +6,11 @@ import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
 import { SetupHost } from './layout/setups/SetupHost';
 import { SetupComfyUI } from './layout/setups/pages/comfyui/SetupComfyUI';
+import { loadComfyUIConfig } from './layout/setups/pages/comfyui/hooks/useComfyUI';
 import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
+import { loadProxyConfigData } from './layout/setups/pages/proxy/hooks/useProtocols';
 import { SetupWebUI } from './layout/setups/pages/webui/SetupWebUI';
+import { loadWebUIConfig } from './layout/setups/pages/webui/hooks/useWebUI';
 
 export const AppRoute = createHashRouter([
   {
@@ -33,15 +36,18 @@ export const AppRoute = createHashRouter([
         children: [
           {
             path: 'proxy',
-            element: <SetupProxy />
+            element: <SetupProxy />,
+            loader: loadProxyConfigData
           },
           {
             path: 'webui',
-            element: <SetupWebUI />
+            element: <SetupWebUI />,
+            loader: loadWebUIConfig
           },
           {
             path: 'comfy',
-            element: <SetupComfyUI />
+            element: <SetupComfyUI />,
+            loader: loadComfyUIConfig
           }
         ]
       },

@@ -1,35 +1,35 @@
 import { WebUISetting } from '@/models';
-import { useQuery } from '@tanstack/react-query';
-import { GetCurrentWebUIConfig, SaveNewWebUIConfig } from '@wails/go/config/ApplicationSettings';
+import { notifications } from '@mantine/notifications';
+import {
+  ClearWebUIConfig,
+  GetCurrentWebUIConfig,
+  SaveNewWebUIConfig
+} from '@wails/go/config/ApplicationSettings';
 import { useCallback } from 'react';
+import { useRevalidator } from 'react-router-dom';
 
-export function useWebUIConfig(): WebUISetting | null | undefined {
-  const { data } = useQuery({
-    queryKey: ['webui-config'],
-    queryFn: async () => {
-      const data = await GetCurrentWebUIConfig();
-      return {
-        basePath: data?.basePath ?? '',
-        checkpoint: data?.checkpoint ?? '',
-        configuration: data?.configuration ?? '',
-        lora: data?.lora ?? '',
-        locon: data?.locon ?? '',
-        vae: data?.vae ?? '',
-        embedding: data?.embedding ?? '',
-        hypernet: data?.hypernet ?? '',
-        controlnet: data?.controlnet ?? '',
-        esrgan: data?.esrgan ?? '',
-        realesrgan: data?.realEsrgan ?? '',
-        swinir: data?.swinIR ?? ''
-      };
-    }
-  });
-  return data;
+export async function loadWebUIConfig(): Promise<WebUISetting> {
+  const data = await GetCurrentWebUIConfig();
+  return {
+    basePath: data?.basePath ?? '',
+    checkpoint: data?.checkpoint ?? '',
+    configuration: data?.configuration ?? '',
+    lora: data?.lora ?? '',
+    locon: data?.locon ?? '',
+    vae: data?.vae ?? '',
+    embedding: data?.embedding ?? '',
+    hypernet: data?.hypernet ?? '',
+    controlnet: data?.controlnet ?? '',
+    esrgan: data?.esrgan ?? '',
+    realesrgan: data?.realEsrgan ?? '',
+    swinir: data?.swinIR ?? ''
+  };
 }
 
-export function usePersistWebUIConfig(): (config: WebUISetting) => Promise<boolean> {
+export function usePersistWebUIConfig(): (config: WebUISetting) => Promise<void> {
+  const revalidator = useRevalidator();
   const persisitHandler = useCallback(async (config: WebUISetting) => {
-    return await SaveNewWebUIConfig({
+    const result = await SaveNewWebUIConfig({
       basePath: config.basePath,
       checkpoint: config.checkpoint,
       configuration: config.configuration,
@@ -43,6 +43,50 @@ export function usePersistWebUIConfig(): (config: WebUISetting) => Promise<boole
       realEsrgan: config.realesrgan,
       swinIR: config.swinir
     });
+    if (result) {
+      notifications.show({
+        title: '保存成功',
+        message: 'SD WebUI设置已保存',
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+      revalidator.revalidate();
+    } else {
+      notifications.show({
+        title: '保存失败',
+        message: 'SD WebUI设置保存失败',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    }
   }, []);
   return persisitHandler;
+}
+
+export function useClearWebUIConfig(): () => Promise<void> {
+  const revalidator = useRevalidator();
+  const clearHandler = useCallback(async () => {
+    const result = await ClearWebUIConfig();
+    if (result) {
+      notifications.show({
+        title: '清除成功',
+        message: 'SD WebUI设置已清除',
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+      revalidator.revalidate();
+    } else {
+      notifications.show({
+        title: '清除失败',
+        message: 'SD WebUI设置清除失败',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    }
+  }, []);
+  return clearHandler;
 }

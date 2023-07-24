@@ -8,19 +8,17 @@ import {
   PasswordInput,
   ScrollArea,
   SegmentedControl,
+  SegmentedControlItem,
   Text,
   TextInput
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
-import { FC, useCallback, useEffect } from 'react';
-import { usePersistProxySetting, useProtocols, useProxySetting } from './hooks/useProtocols';
+import { FC, useEffect } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import { usePersistProxySetting } from './hooks/useProtocols';
 
 export function SetupProxy(): FC {
-  const queryClient = useQueryClient();
-  const protocols = useProtocols();
-  const currentSetting = useProxySetting();
+  const [protocols, currentSetting] = useLoaderData<[SegmentedControlItem[], ProxySetting]>();
   const form = useForm<ProxySetting>({
     initialValues: {
       mode: currentSetting?.mode ?? 'direct',
@@ -31,32 +29,18 @@ export function SetupProxy(): FC {
       password: currentSetting?.password ?? ''
     }
   });
-  const saveProxy = usePersistProxySetting();
-  const handleSubmit = useCallback(
-    async values => {
-      const result = await saveProxy(values);
-      if (result) {
-        notifications.show({
-          title: '保存成功',
-          message: '代理设置已保存',
-          color: 'green',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-        queryClient.invalidateQueries('proxy-setting');
-      } else {
-        notifications.show({
-          title: '保存失败',
-          message: '代理设置保存失败',
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-      }
-    },
-    [saveProxy]
-  );
+  const handleSubmit = usePersistProxySetting();
 
+  useEffect(() => {
+    form.setValues({
+      mode: currentSetting?.mode ?? 'direct',
+      protocol: currentSetting?.protocol ?? '',
+      host: currentSetting?.host ?? '',
+      port: currentSetting?.port ?? 80,
+      username: currentSetting?.username ?? '',
+      password: currentSetting?.password ?? ''
+    });
+  }, []);
   useEffect(() => {
     form.setValues({
       mode: currentSetting?.mode ?? 'direct',

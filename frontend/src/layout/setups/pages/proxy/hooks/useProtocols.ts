@@ -1,6 +1,6 @@
 import { ProxySetting } from '@/models';
 import { SegmentedControlItem } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import {
   GetCurrentProxySetting,
   GetProxyServiceProtocols,
@@ -8,48 +8,28 @@ import {
 } from '@wails/go/config/ApplicationSettings';
 import { equals, keys } from 'ramda';
 import { useCallback } from 'react';
+import { useRevalidator } from 'react-router-dom';
 
-export function useProtocols(): SegmentedControlItem[] {
-  const { data } = useQuery({
-    queryKey: ['proxy-protocols'],
-    queryFn: async () => {
-      const protocols = await GetProxyServiceProtocols();
-      return protocols;
-    },
-    select: data => {
-      let result: SegmentedControlItem[] = [];
-      for (const protocol of keys(data)) {
-        result.push({ label: protocol, value: data[protocol] });
-      }
-      return result;
+export async function loadProxyConfigData(): Promise<[SegmentedControlItem[], ProxySetting]> {
+  const protocols = await GetProxyServiceProtocols();
+  const setting = await GetCurrentProxySetting();
+  return [
+    keys(protocols).map(key => ({ label: key, value: protocols[key] })),
+    {
+      mode: setting.useProxy ? 'proxy' : 'direct',
+      protocol: setting.protocol,
+      host: setting.host,
+      port: setting.port,
+      username: setting.user,
+      password: setting.password
     }
-  });
-
-  return data ?? [];
-}
-
-export function useProxySetting(): ProxySetting | null | undefined {
-  const { data } = useQuery({
-    queryKey: ['proxy-setting'],
-    queryFn: async () => {
-      return await GetCurrentProxySetting();
-    },
-    select: data => ({
-      mode: data.useProxy ? 'proxy' : 'direct',
-      protocol: data.protocol,
-      host: data.host,
-      port: data.port,
-      username: data.user,
-      password: data.password
-    })
-  });
-
-  return data;
+  ];
 }
 
 export function usePersistProxySetting(): (formValue: ProxySetting) => Promise<boolean> {
+  const revalidator = useRevalidator();
   const persisitHandler = useCallback(async (formValue: ProxySetting) => {
-    return await SaveNewProxySetting(
+    const result = await SaveNewProxySetting(
       equals(formValue.mode, 'proxy'),
       formValue.protocol,
       formValue.host ?? '',
@@ -57,6 +37,24 @@ export function usePersistProxySetting(): (formValue: ProxySetting) => Promise<b
       formValue.username ?? '',
       formValue.password ?? ''
     );
+    if (result) {
+      notifications.show({
+        title: '保存成功',
+        message: '代理设置已保存',
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+      revalidator.revalidate();
+    } else {
+      notifications.show({
+        title: '保存失败',
+        message: '代理设置保存失败',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    }
   }, []);
 
   return persisitHandler;

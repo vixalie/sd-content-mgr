@@ -3,14 +3,11 @@ import { ComfyUISettting } from '@/models';
 import { Box, Button, Group, ScrollArea, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useEffect } from 'react';
-import {
-  useClearComfyUIConfig,
-  useComfyUIConfig,
-  usePersistComfyUIConfig
-} from './hooks/useComfyUI';
+import { useLoaderData } from 'react-router-dom';
+import { useClearComfyUIConfig, usePersistComfyUIConfig } from './hooks/useComfyUI';
 
 export const SetupComfyUI: FC = () => {
-  const currentSetting = useComfyUIConfig();
+  const currentSetting = useLoaderData<ComfyUISetting>();
   const form = useForm<ComfyUISettting>({
     initialValues: {
       basePath: currentSetting?.basePath ?? '',

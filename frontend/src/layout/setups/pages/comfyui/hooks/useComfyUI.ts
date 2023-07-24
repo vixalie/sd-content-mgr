@@ -1,42 +1,36 @@
 import { ComfyUISettting } from '@/models';
 import { notifications } from '@mantine/notifications';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ClearComfyUIConfig,
   GetCurrentComfyUIConfig,
   SaveNewComfyUIConfig
 } from '@wails/go/config/ApplicationSettings';
 import { useCallback } from 'react';
+import { useRevalidator } from 'react-router-dom';
 
-export function useComfyUIConfig(): ComfyUISettting | null | undefined {
-  const { data } = useQuery({
-    queryKey: ['comfyui-config'],
-    queryFn: async (): Promise<ComfyUISettting> => {
-      const data = await GetCurrentComfyUIConfig();
-      return {
-        basePath: data?.basePath ?? '',
-        checkpoint: data?.checkpoint ?? '',
-        configuration: data?.configuration ?? '',
-        clip: data?.clip ?? '',
-        clipVision: data?.clipVision ?? '',
-        diffusers: data?.diffuser ?? '',
-        embedding: data?.embedding ?? '',
-        gligen: data?.gligen ?? '',
-        hypernet: data?.hypernet ?? '',
-        lora: data?.lora ?? '',
-        locon: data?.locon ?? '',
-        styles: data?.styles ?? '',
-        unet: data?.unet ?? '',
-        upscaler: data?.upscaler ?? '',
-        vae: data?.vae ?? ''
-      };
-    }
-  });
-  return data;
+export async function loadComfyUIConfig(): Promise<ComfyUISettting> {
+  const data = await GetCurrentComfyUIConfig();
+  return {
+    basePath: data?.basePath ?? '',
+    checkpoint: data?.checkpoint ?? '',
+    configuration: data?.configuration ?? '',
+    clip: data?.clip ?? '',
+    clipVision: data?.clipVision ?? '',
+    diffusers: data?.diffuser ?? '',
+    embedding: data?.embedding ?? '',
+    gligen: data?.gligen ?? '',
+    hypernet: data?.hypernet ?? '',
+    lora: data?.lora ?? '',
+    locon: data?.locon ?? '',
+    styles: data?.styles ?? '',
+    unet: data?.unet ?? '',
+    upscaler: data?.upscaler ?? '',
+    vae: data?.vae ?? ''
+  };
 }
 
 export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<void> {
-  const queryClient = useQueryClient();
+  const revalidator = useRevalidator();
   const persisitHandler = useCallback(async (config: ComfyUISettting) => {
     const result = await SaveNewComfyUIConfig({
       basePath: config.basePath,
@@ -64,7 +58,7 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
         autoClose: 3000,
         withCloseButton: false
       });
-      queryClient.invalidateQueries('comfyui-config');
+      revalidator.revalidate();
     } else {
       notifications.show({
         title: '保存失败',
@@ -79,7 +73,7 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
 }
 
 export function useClearComfyUIConfig(): () => Promise<void> {
-  const queryClient = useQueryClient();
+  const revalidator = useRevalidator();
   const clearHandler = useCallback(async () => {
     const result = await ClearComfyUIConfig();
     if (result) {
@@ -90,7 +84,7 @@ export function useClearComfyUIConfig(): () => Promise<void> {
         autoClose: 3000,
         withCloseButton: false
       });
-      queryClient.invalidateQueries('comfyui-config');
+      revalidator.revalidate();
     } else {
       notifications.show({
         title: '清除失败',

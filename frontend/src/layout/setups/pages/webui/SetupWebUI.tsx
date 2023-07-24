@@ -2,14 +2,12 @@ import { PathSelectInput } from '@/components/PathSelectInput';
 import { WebUISetting } from '@/models';
 import { Box, Button, Group, ScrollArea, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
-import { usePersistWebUIConfig, useWebUIConfig } from './hooks/useWebUI';
+import { useEffect } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import { useClearWebUIConfig, usePersistWebUIConfig } from './hooks/useWebUI';
 
 export const SetupWebUI: FC = () => {
-  const queryClient = useQueryClient();
-  const currentSetting = useWebUIConfig();
+  const currentSetting = useLoaderData<WebUISetting>();
   const form = useForm<WebUISetting>({
     initialValues: {
       basePath: currentSetting?.basePath ?? '',
@@ -26,32 +24,12 @@ export const SetupWebUI: FC = () => {
       swinir: currentSetting?.swinir ?? ''
     }
   });
-  const saveWebUIConfig = usePersistWebUIConfig();
-  const handleSubmit = useCallback(
-    async (values: WebUISetting) => {
-      const result = await saveWebUIConfig(values);
-      if (result) {
-        notifications.show({
-          title: '保存成功',
-          message: 'SD WebUI设置已保存',
-          color: 'green',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-        queryClient.invalidateQueries('webui-config');
-      } else {
-        notifications.show({
-          title: '保存失败',
-          message: 'SD WebUI设置保存失败',
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-      }
-    },
-    [saveWebUIConfig]
-  );
+  const handleSubmit = usePersistWebUIConfig();
+  const clearConfig = useClearWebUIConfig();
 
+  useEffect(() => {
+    form.setValues(currentSetting);
+  }, []);
   useEffect(() => {
     form.setValues(currentSetting);
   }, [currentSetting]);
@@ -120,6 +98,9 @@ export const SetupWebUI: FC = () => {
             <Group spacing="md" py="sm">
               <Button type="submit" variant="filled">
                 保存
+              </Button>
+              <Button variant="light" color="red" onClick={clearConfig}>
+                清除配置
               </Button>
             </Group>
           </Stack>
