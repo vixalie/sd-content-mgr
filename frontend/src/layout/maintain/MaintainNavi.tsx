@@ -1,5 +1,5 @@
+import { ActivatableNavLink } from '@/components/ActivatableNavLink';
 import { Stack } from '@mantine/core';
-import { ActivatableNavLink } from '../../components/ActivatableNavLink';
 
 export function MaintainNavigation() {
   return (
