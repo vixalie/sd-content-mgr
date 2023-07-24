@@ -48,6 +48,7 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
       unet: config.unet,
       upscaler: config.upscaler,
       vae: config.vae,
+      controlnet: config.controlnet,
       extraModelPathsFile: 'extra_model_paths.yaml'
     });
     if (result) {
