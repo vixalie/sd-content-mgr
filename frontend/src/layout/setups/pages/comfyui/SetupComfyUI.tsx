@@ -24,6 +24,7 @@ export const SetupComfyUI: FC = () => {
       styles: currentSetting?.styles ?? '',
       unet: currentSetting?.unet ?? '',
       upscaler: currentSetting?.upscaler ?? '',
+      controlnet: currentSetting?.controlnet ?? '',
       vae: currentSetting?.vae ?? ''
     }
   });
@@ -103,6 +104,11 @@ export const SetupComfyUI: FC = () => {
             <PathSelectInput
               label="VAE模型路径"
               {...form.getInputProps('vae')}
+              basePath={currentSetting?.basePath ?? form.values.basePath ?? ''}
+            />
+            <PathSelectInput
+              label="ControlNet模型路径"
+              {...form.getInputProps('controlnet')}
               basePath={currentSetting?.basePath ?? form.values.basePath ?? ''}
             />
             <Group spacing="md" py="sm">

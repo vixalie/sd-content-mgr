@@ -38,4 +38,5 @@ export interface ComfyUISettting {
   unet: string;
   upscaler: string;
   vae: string;
+  controlnet: string;
 }
