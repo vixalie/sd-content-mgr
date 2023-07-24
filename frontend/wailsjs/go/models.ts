@@ -50,6 +50,7 @@ export namespace config {
 	    unet: string;
 	    upscaler: string;
 	    vae: string;
+	    controlnet: string;
 	    extraModelPathsFile: string;
 	
 	    static createFrom(source: any = {}) {
@@ -73,6 +74,7 @@ export namespace config {
 	        this.unet = source["unet"];
 	        this.upscaler = source["upscaler"];
 	        this.vae = source["vae"];
+	        this.controlnet = source["controlnet"];
 	        this.extraModelPathsFile = source["extraModelPathsFile"];
 	    }
 	}

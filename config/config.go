@@ -1,9 +1,18 @@
 package config
 
 import (
+	"errors"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
+)
+
+type UIName string
+
+const (
+	WebUI   UIName = "webui"
+	ComfyUI UIName = "comfyui"
 )
 
 type Configuration struct {
@@ -47,4 +56,73 @@ func init() {
 		return
 	}
 	ApplicationSetup = LoadConfiguration()
+}
+
+func MatchSoftware(soft string) UIName {
+	switch strings.ToLower(soft) {
+	case "a111":
+		fallthrough
+	case "webui":
+		return WebUI
+	case "comfyui":
+		return ComfyUI
+	default:
+		return WebUI
+	}
+}
+
+func GetWebUIModelPath(model string) ([]string, error) {
+	if ApplicationSetup.WebUIConfig == nil {
+		return nil, errors.New("SD WebUI的模型路径尚未配置。")
+	}
+	switch strings.ToLower(model) {
+	case "ckpt":
+		return []string{ApplicationSetup.WebUIConfig.Checkpoint}, nil
+	case "hypernet":
+		return []string{ApplicationSetup.WebUIConfig.Hypernet}, nil
+	case "texture":
+		return []string{ApplicationSetup.WebUIConfig.Embedding}, nil
+	case "lora":
+		return []string{ApplicationSetup.WebUIConfig.Lora}, nil
+	case "locon":
+		return []string{ApplicationSetup.WebUIConfig.LyCORIS}, nil
+	case "vae":
+		return []string{ApplicationSetup.WebUIConfig.Vae}, nil
+	case "controlnet":
+		return []string{ApplicationSetup.WebUIConfig.Controlnet}, nil
+	case "upscaler":
+		return []string{
+			ApplicationSetup.WebUIConfig.ESRGAN,
+			ApplicationSetup.WebUIConfig.RealESRGAN,
+			ApplicationSetup.WebUIConfig.SwinIR,
+		}, nil
+	default:
+		return nil, errors.New("未定义的模型类型")
+	}
+}
+
+func GetComfyModelPath(model string) ([]string, error) {
+	if ApplicationSetup.ComfyUIConfig == nil {
+		return nil, errors.New("SD ComfyUI的模型路径尚未配置。")
+	}
+	switch strings.ToLower(model) {
+	case "ckpt":
+		return []string{ApplicationSetup.ComfyUIConfig.Checkpoint}, nil
+	case "hypernet":
+		return []string{ApplicationSetup.ComfyUIConfig.Hypernet}, nil
+	case "texture":
+		return []string{ApplicationSetup.ComfyUIConfig.Embedding}, nil
+	case "lora":
+		fallthrough
+	case "locon":
+		return []string{ApplicationSetup.ComfyUIConfig.Lora}, nil
+	case "vae":
+		return []string{ApplicationSetup.ComfyUIConfig.Vae}, nil
+	case "controlnet":
+		return []string{ApplicationSetup.ComfyUIConfig.Controlnet}, nil
+	case "upscaler":
+		return []string{ApplicationSetup.ComfyUIConfig.Upscaler}, nil
+	default:
+		return nil, errors.New("未定义的模型类型")
+	}
 }

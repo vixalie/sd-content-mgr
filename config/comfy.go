@@ -18,6 +18,7 @@ type ComfyUIConfig struct {
 	UNet                    string `yaml:"unet" json:"unet"`
 	Upscaler                string `yaml:"upscaler" json:"upscaler"`
 	Vae                     string `yaml:"vae" json:"vae"`
+	Controlnet              string `yaml:"controlnet" json:"controlnet"`
 	ExtraModelPathsFile     string `yaml:"extra_model_paths_file" json:"extraModelPathsFile"`
 }
 
