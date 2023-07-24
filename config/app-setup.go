@@ -123,6 +123,16 @@ func (a ApplicationSettings) SaveNewWebUIConfig(config A111StableDiffusionWebUIC
 	return true
 }
 
+func (a ApplicationSettings) ClearWebUIConfig() bool {
+	ApplicationSetup.WebUIConfig = nil
+	err := ApplicationSetup.Save()
+	if err != nil {
+		return false
+	}
+	ApplicationSetup = LoadConfiguration()
+	return true
+}
+
 func (a ApplicationSettings) GetCurrentComfyUIConfig() *ComfyUIConfig {
 	if ApplicationSetup == nil {
 		return nil
@@ -132,6 +142,16 @@ func (a ApplicationSettings) GetCurrentComfyUIConfig() *ComfyUIConfig {
 
 func (a ApplicationSettings) SaveNewComfyUIConfig(config ComfyUIConfig) bool {
 	ApplicationSetup.ComfyUIConfig = &config
+	err := ApplicationSetup.Save()
+	if err != nil {
+		return false
+	}
+	ApplicationSetup = LoadConfiguration()
+	return true
+}
+
+func (a ApplicationSettings) ClearComfyUIConfig() bool {
+	ApplicationSetup.ComfyUIConfig = nil
 	err := ApplicationSetup.Save()
 	if err != nil {
 		return false

@@ -1,6 +1,8 @@
 import { ComfyUISettting } from '@/models';
-import { useQuery } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  ClearComfyUIConfig,
   GetCurrentComfyUIConfig,
   SaveNewComfyUIConfig
 } from '@wails/go/config/ApplicationSettings';
@@ -33,9 +35,10 @@ export function useComfyUIConfig(): ComfyUISettting | null | undefined {
   return data;
 }
 
-export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<boolean> {
+export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<void> {
+  const queryClient = useQueryClient();
   const persisitHandler = useCallback(async (config: ComfyUISettting) => {
-    return await SaveNewComfyUIConfig({
+    const result = await SaveNewComfyUIConfig({
       basePath: config.basePath,
       checkpoint: config.checkpoint,
       configuration: config.configuration,
@@ -53,6 +56,50 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
       vae: config.vae,
       extraModelPathsFile: 'extra_model_paths.yaml'
     });
+    if (result) {
+      notifications.show({
+        title: '保存成功',
+        message: 'SD ComfyUI设置已保存',
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+      queryClient.invalidateQueries('comfyui-config');
+    } else {
+      notifications.show({
+        title: '保存失败',
+        message: 'SD ComfyUI设置保存失败',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    }
   }, []);
   return persisitHandler;
+}
+
+export function useClearComfyUIConfig(): () => Promise<void> {
+  const queryClient = useQueryClient();
+  const clearHandler = useCallback(async () => {
+    const result = await ClearComfyUIConfig();
+    if (result) {
+      notifications.show({
+        title: '清除成功',
+        message: 'SD ComfyUI设置已清除',
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+      queryClient.invalidateQueries('comfyui-config');
+    } else {
+      notifications.show({
+        title: '清除失败',
+        message: 'SD ComfyUI设置清除失败',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    }
+  }, []);
+  return clearHandler;
 }

@@ -2,13 +2,14 @@ import { PathSelectInput } from '@/components/PathSelectInput';
 import { ComfyUISettting } from '@/models';
 import { Box, Button, Group, ScrollArea, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
-import { useComfyUIConfig, usePersistComfyUIConfig } from './hooks/useComfyUI';
+import { useEffect } from 'react';
+import {
+  useClearComfyUIConfig,
+  useComfyUIConfig,
+  usePersistComfyUIConfig
+} from './hooks/useComfyUI';
 
 export const SetupComfyUI: FC = () => {
-  const queryClient = useQueryClient();
   const currentSetting = useComfyUIConfig();
   const form = useForm<ComfyUISettting>({
     initialValues: {
@@ -29,32 +30,12 @@ export const SetupComfyUI: FC = () => {
       vae: currentSetting?.vae ?? ''
     }
   });
-  const saveComfyUIConfig = usePersistComfyUIConfig();
-  const handleSubmit = useCallback(
-    async (values: ComfyUISettting) => {
-      const result = await saveComfyUIConfig(values);
-      if (result) {
-        notifications.show({
-          title: '保存成功',
-          message: 'SD ComfyUI设置已保存',
-          color: 'green',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-        queryClient.invalidateQueries('comfyui-config');
-      } else {
-        notifications.show({
-          title: '保存失败',
-          message: 'SD ComfyUI设置保存失败',
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-      }
-    },
-    [saveComfyUIConfig]
-  );
+  const handleSubmit = usePersistComfyUIConfig();
+  const clearConfig = useClearComfyUIConfig();
 
+  useEffect(() => {
+    form.setValues(currentSetting);
+  }, []);
   useEffect(() => {
     form.setValues(currentSetting);
   }, [currentSetting]);
@@ -134,7 +115,7 @@ export const SetupComfyUI: FC = () => {
               <Button type="submit" variant="filled">
                 保存
               </Button>
-              <Button variant="light" color="red">
+              <Button variant="light" color="red" onClick={clearConfig}>
                 清除配置
               </Button>
             </Group>

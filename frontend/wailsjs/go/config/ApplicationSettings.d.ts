@@ -3,6 +3,10 @@
 import {config} from '../models';
 import {context} from '../models';
 
+export function ClearComfyUIConfig():Promise<boolean>;
+
+export function ClearWebUIConfig():Promise<boolean>;
+
 export function GetCurrentComfyUIConfig():Promise<config.ComfyUIConfig>;
 
 export function GetCurrentProxySetting():Promise<config.ProxyConfig>;
