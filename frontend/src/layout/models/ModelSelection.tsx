@@ -14,12 +14,12 @@ export function ModelSelection() {
         ]}
       />
       <Select label="模型类别" placeholder="选择一个模型类别" data={MoldelSelections} />
-      <TextInput label="检索模型名称" placeholder="输入模型检索词以检索" />
       <Select
         label="模型分类目录"
         placeholder="选择一个模型存放目录"
         data={[{ label: '/', value: '/' }]}
       />
+      <TextInput label="检索模型名称" placeholder="输入模型检索词以检索" />
       <Box sx={{ flexGrow: 1 }}>
         <ScrollArea />
       </Box>
