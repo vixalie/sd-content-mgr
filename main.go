@@ -7,6 +7,7 @@ import (
 	"archgrid.xyz/ag/toolsbox/serial_code/hail"
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
+	"github.com/vixalie/sd-content-manager/models"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -25,6 +26,8 @@ func main() {
 
 	// 创建应用配置功能
 	settings := config.NewApplicationSettings()
+	// 创建应用中模型控制功能。
+	modelController := models.NewModelController()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -48,10 +51,12 @@ func main() {
 			}
 			app.startup(ctx)
 			settings.SetContext(ctx)
+			modelController.SetContext(ctx)
 		},
 		Bind: []interface{}{
 			app,
 			settings,
+			modelController,
 		},
 	})
 
