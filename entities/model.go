@@ -4,21 +4,24 @@ import "time"
 
 type Model struct {
 	CommonFields
-	Id                      string      `gorm:"primaryKey;type:text"`
-	ModelName               string      `gorm:"type:text"`
-	Description             *string     `gorm:"type:text"`
-	AuthorId                *string     `gorm:"type:text"`
-	Author                  *string     `gorm:"type:text"`
-	NSFW                    *bool       `gorm:"type:boolean"`
-	PersonOfInterest        *bool       `gorm:"type:boolean"`
-	Tags                    []ModelTags `gorm:"foreignKey:ModelId;references:Id"`
-	CivitaiModelId          *int        `gorm:"type:integer"`
-	CivitaiOriginalResponse []byte      `gorm:"type:blob"`
+	Id                      string         `gorm:"primaryKey;type:text"`
+	ModelName               string         `gorm:"type:text"`
+	Description             *string        `gorm:"type:text"`
+	AuthorId                *string        `gorm:"type:text"`
+	Author                  *string        `gorm:"type:text"`
+	NSFW                    *bool          `gorm:"type:boolean"`
+	PersonOfInterest        *bool          `gorm:"type:boolean"`
+	Tags                    []ModelTags    `gorm:"foreignKey:ModelId;references:Id"`
+	CivitaiModelId          *int           `gorm:"type:integer"`
+	CivitaiOriginalResponse []byte         `gorm:"type:blob"`
+	Versions                []ModelVersion `gorm:"foreignKey:ModelId;references:Id"`
 }
 
 type ModelVersion struct {
 	CommonFields
 	VersionId               string     `gorm:"primaryKey;type:text"`
+	ModelId                 string     `gorm:"type:text;index"`
+	Model                   *Model     `gorm:"foreignKey:ModelId;references:Id"`
 	VersionName             string     `gorm:"type:text"`
 	ActivatePrompt          []string   `gorm:"type:text;serializer:json"`
 	ModelHash               *string    `gorm:"type:text;unique"`
@@ -36,7 +39,7 @@ type ModelVersion struct {
 	DownloadedAt            *time.Time `gorm:"type:time"`
 	LastSyncedAt            *time.Time `gorm:"type:time"`
 	CoverUsed               *string    `gorm:"type:text"`
-	Covers                  []string   `gorm:"type:text;serializer:json"`
+	Covers                  []Image    `gorm:"foreignKey:ModelVersionId;references:Id"`
 	Gallery                 []string   `gorm:"type:text;serializer:json"`
 	CivitaiVersionId        *int       `gorm:"type:integer"`
 	CivitaiFileId           *int       `gorm:"type:integer"`
