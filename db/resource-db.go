@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
+	"os"
 
 	"github.com/glebarez/sqlite"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
 
@@ -12,20 +14,27 @@ type dbConnection string
 
 const DBConnection dbConnection = "db"
 
-func InitDB(ctx *context.Context) error {
-	db, err := gorm.Open(sqlite.Open("sdres.db"), &gorm.Config{
+var CacheDB *gorm.DB
+
+func init() {
+	CacheDB, err := gorm.Open(sqlite.Open("sdres.db"), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		return err
+		runtime.MessageDialog(context.TODO(), runtime.MessageDialogOptions{
+			Type:    runtime.ErrorDialog,
+			Title:   "初始化错误",
+			Message: "数据库创建失败",
+			Buttons: []string{"OK"},
+		})
+		println("Error:", err.Error())
+		os.Exit(1)
 	}
-	db.AutoMigrate(
+	CacheDB.AutoMigrate(
 		&entities.Model{},
 		&entities.ModelVersion{},
 		&entities.ModelTags{},
 		&entities.Image{},
 		&entities.FileCache{},
 	)
-	*ctx = context.WithValue(*ctx, DBConnection, db)
-	return nil
 }
