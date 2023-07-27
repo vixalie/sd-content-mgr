@@ -16,6 +16,7 @@ import (
 	"github.com/vixalie/sd-content-manager/entities"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sync/semaphore"
+	"gorm.io/gorm"
 )
 
 type SimpleModelDescript struct {
@@ -77,7 +78,7 @@ func scanModelFiles(ctx context.Context, software, model, subdir, keyword string
 			if err := semaphore.Acquire(ctx, 1); err != nil {
 				return descriptions, fmt.Errorf("扫描控制过程失败，无法继续处理未扫描模型文件，%w", err)
 			}
-			go scanModelFile(&ctx, semaphore, uncachedFile)
+			go scanModelFile(ctx, semaphore, uncachedFile)
 		}
 		// 未完成扫描的文件同样记录进入数据库，但不提供任何对应的模型信息。
 		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "finish"})
@@ -96,23 +97,24 @@ func scanModelFiles(ctx context.Context, software, model, subdir, keyword string
 }
 
 // 注意本函数会运行在独立的协程中，不要返回任何错误，每次也应该值处理一个文件或者一个模型。
-func scanModelFile(ctx *context.Context, weighted *semaphore.Weighted, filePath string) {
-	defer runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "progress", "amount": 1})
+func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, filePath string) {
+	defer runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "progress", "amount": 1})
 	defer weighted.Release(1)
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	thumbnailPath, descriptionPath, err := collectAccompanyFile(filePath)
 	if err != nil {
-		runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未找到模型对应的Civitai Info文件和缩略图文件。", "error": err.Error()})
+		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未找到模型对应的Civitai Info文件和缩略图文件。", "error": err.Error()})
 		return
 	}
 	fileBaseName := filepath.Base(filePath)
 	fileHash, err := sha256.SumFile256Hex(filePath)
 	if err != nil {
-		runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件Hash校验值。", "error": err.Error()})
+		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件Hash校验值。", "error": err.Error()})
 		return
 	}
 	fileCrc32, err := crc32.SumFile(filePath)
 	if err != nil {
-		runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件CRC32校验值。", "error": err.Error()})
+		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件CRC32校验值。", "error": err.Error()})
 		return
 	}
 	var modelDescription *ModelVersion
@@ -120,12 +122,12 @@ func scanModelFile(ctx *context.Context, weighted *semaphore.Weighted, filePath 
 		// 这里处理的是Civitai Info文件已经被发现的情形。
 		modelInfoFileContent, err := os.ReadFile(*descriptionPath)
 		if err != nil {
-			runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能打开模型Civitai Info文件。", "error": err.Error()})
+			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能打开模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
 		}
-		err = parseCivitaiModelVersionResponse(modelInfoFileContent)
+		err = parseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
 		if err != nil {
-			runtime.EventsEmit(*ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能解析模型Civitai Info文件。", "error": err.Error()})
+			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能解析模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
 		}
 		// 这里继续保存从模型Version中可以提取的各种信息。
@@ -146,7 +148,7 @@ TERMINATE_PARSE:
 		// 当模型描述不等于空的时候，需要向文件中登记其对应的模型信息。
 		fileCache.RelatedModelVersionId = &modelDescription.Id
 	}
-	db.CacheDB.Create(&fileCache)
+	dbConn.Create(&fileCache)
 }
 
 // 返回值分别为伴随模型的缩略图路径和Civitai描述文件路径。需要传入的模型文件路径为绝对路径。如果模型没有对应的缩略图或描述文件，则返回nil。
@@ -190,12 +192,13 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 // 对于文件是否是已经保存在数据库中的判断，是使用文件的完整绝对路径来实现的，因此，如果文件移动了位置，那么就会导致文件无法被正确识别。
 func searchUncachedFiles(ctx context.Context, files []string) ([]string, error) {
 	var (
+		dbConn                      = ctx.Value(db.DBConnection).(*gorm.DB)
 		uncachedFilePathes []string = make([]string, 0)
 	)
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
-		uncachedFiles := make([]entities.FileCache, 0)
-		db.CacheDB.Not("fullpath IN ?", fileGroup).Find(&uncachedFiles)
+		var uncachedFiles []entities.FileCache
+		dbConn.Not("fullpath IN ?", fileGroup).Find(&uncachedFiles)
 		for _, filePath := range uncachedFiles {
 			uncachedFilePathes = append(uncachedFilePathes, filePath.FullPath)
 		}
@@ -207,12 +210,13 @@ func searchUncachedFiles(ctx context.Context, files []string) ([]string, error) 
 // 重新从数据库按照遍历得到的文件检索模型信息。
 func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript, error) {
 	var (
+		dbConn                             = ctx.Value(db.DBConnection).(*gorm.DB)
 		descriptions []SimpleModelDescript = make([]SimpleModelDescript, 0)
 	)
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
 		fileCache := make([]entities.FileCache, 0)
-		db.CacheDB.Where("fullpath IN ?", fileGroup).Find(&fileCache)
+		dbConn.Where("fullpath IN ?", fileGroup).Find(&fileCache)
 		for _, cache := range fileCache {
 			var (
 				relatedModel *int
