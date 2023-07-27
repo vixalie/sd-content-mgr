@@ -11,7 +11,13 @@ import { EventBusContext, eventBus } from './EventBus';
 import { AppRoute } from './app-routes';
 import { useAppTheme } from './theme';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 function AppMain() {
   const preferredColorScheme = useColorScheme();

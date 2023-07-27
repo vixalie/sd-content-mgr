@@ -2,9 +2,9 @@ package entities
 
 type FileCache struct {
 	CommonFields
-	FileIdentityHash      string        `gorm:"primaryKey;type:text"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
+	FullPath              string        `gorm:"primaryKey;type:text"`
+	FileIdentityHash      string        `gorm:"type:text;index"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
 	FileName              string        `gorm:"type:text"`
-	FullPath              string        `gorm:"type:text;index"`
 	ThumbnailPath         *string       `gorm:"type:text"`
 	CivitaiInfoPath       *string       `gorm:"type:text"`    // 如果本项目不为空，那么模型一定存在详细信息。
 	Size                  uint64        `gorm:"type:integer"` // 字节数量

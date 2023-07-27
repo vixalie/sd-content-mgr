@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"archgrid.xyz/ag/toolsbox/hash/crc32"
 	"archgrid.xyz/ag/toolsbox/hash/sha256"
@@ -72,14 +73,19 @@ func scanModelFiles(ctx context.Context, software, model, subdir, keyword string
 	// 如果存在数据库中未保存的文件，那么就需要对这些文件进行扫描处理
 	if len(uncachedFiles) > 0 {
 		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "start", "amount": len(uncachedFiles)})
-		var semaphore = semaphore.NewWeighted(10)
+		var (
+			semaphore = semaphore.NewWeighted(10)
+			group     sync.WaitGroup
+		)
 		// 扫描并解析其伴随文件
 		for _, uncachedFile := range uncachedFiles {
 			if err := semaphore.Acquire(ctx, 1); err != nil {
 				return descriptions, fmt.Errorf("扫描控制过程失败，无法继续处理未扫描模型文件，%w", err)
 			}
-			go scanModelFile(ctx, semaphore, uncachedFile)
+			group.Add(1)
+			go scanModelFile(ctx, semaphore, &group, uncachedFile)
 		}
+		group.Wait()
 		// 未完成扫描的文件同样记录进入数据库，但不提供任何对应的模型信息。
 		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "finish"})
 	}
@@ -89,17 +95,20 @@ func scanModelFiles(ctx context.Context, software, model, subdir, keyword string
 		return descriptions, fmt.Errorf("查询模型信息出错，%w", err)
 	}
 	// 对文件列表使用关键词过滤，保留文件名和模型名称中包含关键词的文件。
-	descriptions = lo.Filter(descriptions, func(item SimpleModelDescript, _ int) bool {
-		fileName := filepath.Base(item.FilePath)
-		return strings.Contains(item.Name, keyword) || strings.Contains(fileName, keyword)
-	})
+	if len(keyword) > 0 {
+		descriptions = lo.Filter(descriptions, func(item SimpleModelDescript, _ int) bool {
+			fileName := filepath.Base(item.FilePath)
+			return strings.Contains(item.Name, keyword) || strings.Contains(fileName, keyword)
+		})
+	}
 	return descriptions, nil
 }
 
 // 注意本函数会运行在独立的协程中，不要返回任何错误，每次也应该值处理一个文件或者一个模型。
-func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, filePath string) {
+func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *sync.WaitGroup, filePath string) {
 	defer runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "progress", "amount": 1})
 	defer weighted.Release(1)
+	defer group.Done()
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	thumbnailPath, descriptionPath, err := collectAccompanyFile(filePath)
 	if err != nil {
@@ -163,6 +172,8 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 	}
 	modelDir := filepath.Dir(modelFilePath)
 	modelFileName := modelFile.Name()
+	ext := filepath.Ext(modelFileName)
+	modelFileBaseName := strings.TrimSuffix(modelFileName, ext)
 	var (
 		thumbnailPath   *string
 		descriptionPath *string
@@ -176,11 +187,11 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 			continue
 		}
 		fileName := strings.ToLower(file.Name())
-		if strings.HasPrefix(fileName, modelFileName) {
+		if strings.HasPrefix(fileName, modelFileBaseName) {
 			if strings.HasSuffix(fileName, ".png") || strings.HasSuffix(fileName, ".jpg") {
 				absPath := filepath.Join(modelDir, file.Name())
 				thumbnailPath = &absPath
-			} else if strings.HasSuffix(file.Name(), ".civitai.info") {
+			} else if strings.HasSuffix(fileName, ".civitai.info") {
 				absPath := filepath.Join(modelDir, file.Name())
 				descriptionPath = &absPath
 			}
@@ -192,18 +203,21 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 // 对于文件是否是已经保存在数据库中的判断，是使用文件的完整绝对路径来实现的，因此，如果文件移动了位置，那么就会导致文件无法被正确识别。
 func searchUncachedFiles(ctx context.Context, files []string) ([]string, error) {
 	var (
-		dbConn                      = ctx.Value(db.DBConnection).(*gorm.DB)
-		uncachedFilePathes []string = make([]string, 0)
+		dbConn             = ctx.Value(db.DBConnection).(*gorm.DB)
+		uncachedFilePathes = make([]string, 0)
+		cachedFilePaths    = make([]string, 0)
 	)
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
-		var uncachedFiles []entities.FileCache
-		dbConn.Not("full_path IN ?", fileGroup).Find(&uncachedFiles)
-		for _, filePath := range uncachedFiles {
-			uncachedFilePathes = append(uncachedFilePathes, filePath.FullPath)
+		var cachedFiles []entities.FileCache
+		dbConn.Where("full_path IN ?", fileGroup).Find(&cachedFiles)
+		for _, filePath := range cachedFiles {
+			cachedFilePaths = append(cachedFilePaths, filePath.FullPath)
 		}
 	}
-
+	uncachedFilePathes = lo.Filter(files, func(item string, _ int) bool {
+		return !lo.Contains(cachedFilePaths, item)
+	})
 	return uncachedFilePathes, nil
 }
 
