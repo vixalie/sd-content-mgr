@@ -111,10 +111,7 @@ func persistModelVersion(ctx context.Context, versionInfo *ModelVersion, origina
 func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entities.ModelFile, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelFiles = make([]entities.ModelFile, 0)
-	hailEngine, err := hail.Get()
-	if err != nil {
-		return nil, fmt.Errorf("无法获取Hail ID生成器，%w", err)
-	}
+	hailEngine := ctx.Value("hail").(*hail.HailAlgorithm)
 	for _, file := range versionInfo.Files {
 		fileRecord := entities.ModelFile{
 			VersionId:    versionInfo.Id,
@@ -142,10 +139,7 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 func persistVersionImages(ctx context.Context, versionInfo *ModelVersion) ([]entities.Image, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var images = make([]entities.Image, 0)
-	hailEngine, err := hail.Get()
-	if err != nil {
-		return images, fmt.Errorf("无法获取Hail ID生成器，%w", err)
-	}
+	hailEngine := ctx.Value("hail").(*hail.HailAlgorithm)
 	for _, image := range versionInfo.Images {
 		imageId := hailEngine.GeneratePrefixedString("IM")
 		meta, err := json.Marshal(image.Meta)

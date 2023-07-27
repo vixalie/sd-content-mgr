@@ -38,7 +38,19 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			hail.Initialize(1)
-			err := db.InitDB(&ctx)
+			hailEngine, err := hail.Get()
+			if err != nil {
+				runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
+					Type:    runtime.ErrorDialog,
+					Title:   "初始化错误",
+					Message: "Hail ID引擎创建失败",
+					Buttons: []string{"OK"},
+				})
+				println("Error:", err.Error())
+				os.Exit(1)
+			}
+			ctx = context.WithValue(ctx, "hail", hailEngine)
+			err = db.InitDB(&ctx)
 			if err != nil {
 				runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
 					Type:    runtime.ErrorDialog,

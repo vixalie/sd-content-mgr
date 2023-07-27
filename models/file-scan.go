@@ -10,6 +10,7 @@ import (
 
 	"archgrid.xyz/ag/toolsbox/hash/crc32"
 	"archgrid.xyz/ag/toolsbox/hash/sha256"
+	"archgrid.xyz/ag/toolsbox/serial_code/hail"
 	"archgrid.xyz/ag/toolsbox/serialize/hex"
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/config"
@@ -144,7 +145,9 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 TERMINATE_PARSE:
 	// 处理实际的文件信息，将文件保存到数据库的FileCache中。
 	fileInfo, _ := os.Stat(filePath)
+	hail := ctx.Value("hail").(*hail.HailAlgorithm)
 	fileCache := entities.FileCache{
+		Id:               hail.GeneratePrefixedString("F"),
 		FileIdentityHash: fileHash,
 		FileName:         fileBaseName,
 		FullPath:         filePath,
@@ -173,7 +176,7 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 	modelDir := filepath.Dir(modelFilePath)
 	modelFileName := modelFile.Name()
 	ext := filepath.Ext(modelFileName)
-	modelFileBaseName := strings.TrimSuffix(modelFileName, ext)
+	modelFileBaseName := strings.ToLower(strings.TrimSuffix(modelFileName, ext))
 	var (
 		thumbnailPath   *string
 		descriptionPath *string
