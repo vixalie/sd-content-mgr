@@ -17,7 +17,6 @@ func NewFileLoader() *FileLoader {
 func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	var err error
 	requestedFilename := req.URL.Path
-	println("Requesting file:", requestedFilename)
 	fileData, err := os.ReadFile(requestedFilename)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
