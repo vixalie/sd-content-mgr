@@ -103,3 +103,30 @@ export namespace config {
 
 }
 
+export namespace models {
+	
+	export class SimpleModelDescript {
+	    name: string;
+	    filePath: string;
+	    type: string;
+	    thumbnailPath: string;
+	    fileHash: string;
+	    related: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new SimpleModelDescript(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.filePath = source["filePath"];
+	        this.type = source["type"];
+	        this.thumbnailPath = source["thumbnailPath"];
+	        this.fileHash = source["fileHash"];
+	        this.related = source["related"];
+	    }
+	}
+
+}
+

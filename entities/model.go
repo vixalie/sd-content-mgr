@@ -2,54 +2,51 @@ package entities
 
 import "time"
 
+type CivitaiCreator struct {
+	Username string  `json:"username"`
+	Image    *string `json:"image"`
+}
+
 type Model struct {
 	CommonFields
-	Id                      string         `gorm:"primaryKey;type:text"`
-	ModelName               string         `gorm:"type:text"`
-	Description             *string        `gorm:"type:text"`
-	AuthorId                *string        `gorm:"type:text"`
-	Author                  *string        `gorm:"type:text"`
-	NSFW                    *bool          `gorm:"type:boolean"`
-	PersonOfInterest        *bool          `gorm:"type:boolean"`
-	Tags                    []ModelTags    `gorm:"foreignKey:ModelId;references:Id"`
-	CivitaiModelId          *int           `gorm:"type:integer"`
-	CivitaiOriginalResponse []byte         `gorm:"type:blob"`
-	Versions                []ModelVersion `gorm:"foreignKey:ModelId;references:Id"`
+	Id                      int             `gorm:"primaryKey;type:integer"`
+	Name                    string          `gorm:"type:text"`
+	Description             *string         `gorm:"type:text"`
+	Author                  *CivitaiCreator `gorm:"type:text;serializer:json"`
+	NSFW                    *bool           `gorm:"type:boolean"`
+	PersonOfInterest        *bool           `gorm:"type:boolean"`
+	Type                    string          `gorm:"type:text"`
+	Mode                    *string         `gorm:"type:text"`
+	CivitaiOriginalResponse []byte          `gorm:"type:blob"`
+	LastSyncedAt            *time.Time      `gorm:"type:time"`
+	Tags                    []ModelTags     `gorm:"foreignKey:ModelId;references:Id"`
+	Versions                []ModelVersion  `gorm:"foreignKey:ModelId;references:Id"`
 }
 
 type ModelVersion struct {
 	CommonFields
-	VersionId               string     `gorm:"primaryKey;type:text"`
-	ModelId                 string     `gorm:"type:text;index"`
-	Model                   *Model     `gorm:"foreignKey:ModelId;references:Id"`
-	VersionName             string     `gorm:"type:text"`
-	ActivatePrompt          []string   `gorm:"type:text;serializer:json"`
-	ModelHash               *string    `gorm:"type:text;unique"`
-	ModelCRC32              *uint32    `gorm:"type:integer"`
-	FileIdentityHash        *string    `gorm:"type:text;unique"`
-	FileCRC32               *uint32    `gorm:"type:integer"`
-	FileName                *string    `gorm:"type:text"`
-	BaseModel               *string    `gorm:"type:text"`
-	Size                    *uint64    `gorm:"type:integer"`
-	Type                    int        `gorm:"type:integer"`
-	Precision               *int       `gorm:"type:integer"`
-	PageUrl                 *string    `gorm:"type:text"`
-	DownloadUrl             *string    `gorm:"type:text"`
-	DirectDownloadUrl       *string    `gorm:"type:text"`
-	DownloadedAt            *time.Time `gorm:"type:time"`
-	LastSyncedAt            *time.Time `gorm:"type:time"`
-	CoverUsed               *string    `gorm:"type:text"`
-	Covers                  []Image    `gorm:"foreignKey:ModelVersionId;references:Id"`
-	Gallery                 []string   `gorm:"type:text;serializer:json"`
-	CivitaiVersionId        *int       `gorm:"type:integer"`
-	CivitaiFileId           *int       `gorm:"type:integer"`
-	CivitaiOriginalFileName *string    `gorm:"type:text"`
-	CivitaiOriginalResponse []byte     `gorm:"type:blob"`
-	CivitaiCreatedAt        *time.Time `gorm:"type:time"`
-	CivitaiUpdatedAt        *time.Time `gorm:"type:time"`
+	Id                      int         `gorm:"primaryKey;type:integer"`
+	ModelId                 *int        `gorm:"type:integer;index"`
+	Model                   *Model      `gorm:"foreignKey:ModelId;references:Id"`
+	VersionName             string      `gorm:"type:text"`
+	ActivatePrompt          []string    `gorm:"type:text;serializer:json"`
+	BaseModel               *string     `gorm:"type:text"`
+	PageUrl                 *string     `gorm:"type:text"`
+	DownloadUrl             *string     `gorm:"type:text"`
+	DownloadedAt            *time.Time  `gorm:"type:time"`
+	LastSyncedAt            *time.Time  `gorm:"type:time"`
+	CoverUsed               *string     `gorm:"type:text"`
+	Covers                  []Image     `gorm:"foreignKey:ModelVersionId;references:Id"`
+	Gallery                 []string    `gorm:"type:text;serializer:json"`
+	PrimaryFileId           *int64      `gorm:"type:integer;index"`
+	PrimaryFile             *ModelFile  `gorm:"foreignKey:Id;references:PrimaryFileId"`
+	Files                   []ModelFile `gorm:"foreignKey:VersionId;references:Id"`
+	CivitaiOriginalResponse []byte      `gorm:"type:blob"`
+	CivitaiCreatedAt        *time.Time  `gorm:"type:time"`
+	CivitaiUpdatedAt        *time.Time  `gorm:"type:time"`
 }
 
 type ModelTags struct {
-	ModelId string `gorm:"primaryKey;type:text"`
-	Tag     string `gorm:"primaryKey;type:text"`
+	ModelId int    `gorm:"primaryKey;type:integer"`
+	Tag     string `gorm:"primaryKey;type:text;index"`
 }

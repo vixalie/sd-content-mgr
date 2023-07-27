@@ -3,7 +3,7 @@ import { Box, ScrollArea, Select, Stack, TextInput } from '@mantine/core';
 import { useDebouncedState, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
-import { GetModelSubCategoryDirs } from '@wails/go/models/ModelController';
+import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { isNil } from 'ramda';
 import { useState } from 'react';
 
@@ -34,6 +34,24 @@ export function ModelSelection() {
         console.error(e);
         notifications.show({
           message: '未能扫描指定模型目录！',
+          color: 'red',
+          autoClose: 3000,
+          withCloseButton: false
+        });
+      }
+    }
+  });
+  useQuery({
+    queryKey: ['model-sub-cate', uiTools, modelCategory, modelSubPath, keyword],
+    enabled: !isNil(modelCategory) && !isNil(modelSubPath),
+    queryFn: async () => {
+      try {
+        const modelList = await ListModelFiles(uiTools, modelCategory, modelSubPath, keyword);
+        console.log('Models: ', modelList);
+      } catch (e) {
+        console.error('列举模型列表出错：', e);
+        notifications.show({
+          message: `列举模型列表出错！${e}`,
           color: 'red',
           autoClose: 3000,
           withCloseButton: false

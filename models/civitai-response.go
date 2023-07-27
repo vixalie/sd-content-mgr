@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/vixalie/sd-content-manager/entities"
 )
 
 type CivitaiCreator struct {
@@ -19,32 +20,18 @@ type ModelBriefDescription struct {
 	Mode *string `json:"mode"`
 }
 
-type ModelFileMeta struct {
-	FP     *string `json:"fp,omitempty"`
-	Size   *string `json:"size,omitempty"`
-	Format *string `json:"format,omitempty"`
-}
-
-type ModelFileHashes struct {
-	AutoV1 *string `json:"AutoV1,omitempty"`
-	AutoV2 *string `json:"AutoV2,omitempty"`
-	Sha256 *string `json:"SHA256,omitempty"`
-	CRC32  *string `json:"CRC32,omitempty"`
-	Blake3 *string `json:"BLAKE3,omitempty"`
-}
-
 type ModelFileEntry struct {
-	Name             *string          `json:"name"`
-	Id               *int             `json:"id"`
-	SizeKB           int64            `json:"sizeKB"`
-	Type             *string          `json:"type"`
-	PickleScanResult string           `json:"pickleScanResult"`
-	VirusScanResult  string           `json:"virusScanResult"`
-	ScannedAt        *time.Time       `json:"scannedAt"`
-	Metadata         *ModelFileMeta   `json:"metadata"`
-	Hashes           *ModelFileHashes `json:"hashes"`
-	Primary          *bool            `json:"primary"`
-	DownloadUrl      *string          `json:"downloadUrl"`
+	Name             *string                   `json:"name"`
+	Id               *int                      `json:"id"`
+	SizeKB           decimal.Decimal           `json:"sizeKB"`
+	Type             *string                   `json:"type"`
+	PickleScanResult string                    `json:"pickleScanResult"`
+	VirusScanResult  string                    `json:"virusScanResult"`
+	ScannedAt        *time.Time                `json:"scannedAt"`
+	Metadata         *entities.ModelFileMeta   `json:"metadata"`
+	Hashes           *entities.ModelFileHashes `json:"hashes"`
+	Primary          *bool                     `json:"primary"`
+	DownloadUrl      *string                   `json:"downloadUrl"`
 }
 
 type ModelStat struct {
@@ -69,7 +56,8 @@ type ModelVersion struct {
 	Model        ModelBriefDescription `json:"model"`
 	BaseModel    *string               `json:"baseModel"`
 	ModelId      int                   `json:"modelId"`
-	CreatedAt    time.Time             `json:"createdAt"`
+	CreatedAt    *time.Time            `json:"createdAt"`
+	UpdatedAt    *time.Time            `json:"updatedAt"`
 	DownloadUrl  string                `json:"downloadUrl"`
 	TrainedWords []string              `json:"trainedWords"`
 	Files        []ModelFileEntry      `json:"files"`

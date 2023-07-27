@@ -17,3 +17,7 @@ func (m *ModelController) SetContext(ctx context.Context) {
 func (m ModelController) GetModelSubCategoryDirs(software, model string) ([]string, error) {
 	return scanModelSubCategoryDirs(software, model)
 }
+
+func (m ModelController) ListModelFiles(software, model, subdir, keyword string) ([]SimpleModelDescript, error) {
+	return scanModelFiles(m.ctx, software, model, subdir, keyword)
+}
