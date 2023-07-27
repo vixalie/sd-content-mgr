@@ -10,6 +10,7 @@ import (
 	"github.com/vixalie/sd-content-manager/models"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/net/context"
 )
@@ -31,10 +32,13 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "SD Content Manager",
-		Width:            1280,
-		Height:           768,
-		Assets:           assets,
+		Title:  "SD Content Manager",
+		Width:  1280,
+		Height: 768,
+		AssetServer: &assetserver.Options{
+			Assets:  assets,
+			Handler: NewFileLoader(),
+		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			hail.Initialize(1)
