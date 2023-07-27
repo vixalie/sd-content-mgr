@@ -20,18 +20,18 @@ import (
 // 需要先检索数据库中是否已经存在相应的Model记录和Model Version记录。
 //
 // 这个方法不会返回任何内容，智慧在出现错误的时候返回错误信息。所有成功的解析结果都会直接保存到数据库中。
-func parseCivitaiModelVersionResponse(ctx context.Context, versionResponse []byte) error {
-	var versionInfo *ModelVersion
-	err := json.Unmarshal(versionResponse, versionInfo)
+func parseCivitaiModelVersionResponse(ctx context.Context, versionResponse []byte) (*ModelVersion, error) {
+	var versionInfo ModelVersion
+	err := json.Unmarshal(versionResponse, &versionInfo)
 	if err != nil {
-		return fmt.Errorf("civitai info文件解析失败，%w", err)
+		return nil, fmt.Errorf("civitai info文件解析失败，%w", err)
 	}
-	err = persistModelFromVersion(ctx, versionInfo)
+	err = persistModelFromVersion(ctx, &versionInfo)
 	if err != nil {
-		return fmt.Errorf("无法提取模型信息，%w", err)
+		return nil, fmt.Errorf("无法提取模型信息，%w", err)
 	}
-	err = persistModelVersion(ctx, versionInfo, versionResponse)
-	return err
+	err = persistModelVersion(ctx, &versionInfo, versionResponse)
+	return &versionInfo, err
 }
 
 // 注意，这个方法生成的Model信息未残缺信息，因为其数据来源是Model Version中携带的反推信息。
@@ -39,7 +39,7 @@ func persistModelFromVersion(ctx context.Context, versionInfo *ModelVersion) err
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	// 首先从数据库中检索一下是否已经存在指定的模型，如果存在则直接返回。
 	var model *entities.Model
-	dbConn.Where("civitai_model_id = ?", versionInfo.ModelId).First(&entities.Model{}).First(model)
+	dbConn.Where("id = ?", versionInfo.ModelId).First(&entities.Model{}).First(model)
 	if model == nil {
 		model = &entities.Model{
 			Id:               versionInfo.ModelId,

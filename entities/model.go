@@ -18,7 +18,7 @@ type Model struct {
 	Type                    string          `gorm:"type:text"`
 	Mode                    *string         `gorm:"type:text"`
 	CivitaiOriginalResponse []byte          `gorm:"type:blob"`
-	LastSyncedAt            *time.Time      `gorm:"type:time"`
+	LastSyncedAt            *time.Time      `gorm:"type:datetime"`
 	Tags                    []ModelTags     `gorm:"foreignKey:ModelId;references:Id"`
 	Versions                []ModelVersion  `gorm:"foreignKey:ModelId;references:Id"`
 }
@@ -33,8 +33,8 @@ type ModelVersion struct {
 	BaseModel               *string     `gorm:"type:text"`
 	PageUrl                 *string     `gorm:"type:text"`
 	DownloadUrl             *string     `gorm:"type:text"`
-	DownloadedAt            *time.Time  `gorm:"type:time"`
-	LastSyncedAt            *time.Time  `gorm:"type:time"`
+	DownloadedAt            *time.Time  `gorm:"type:datetime"`
+	LastSyncedAt            *time.Time  `gorm:"type:datetime"`
 	CoverUsed               *string     `gorm:"type:text"`
 	Covers                  []Image     `gorm:"foreignKey:VersionId;references:Id"`
 	Gallery                 []string    `gorm:"type:text;serializer:json"`
@@ -42,8 +42,8 @@ type ModelVersion struct {
 	PrimaryFile             *ModelFile  `gorm:"foreignKey:Id;references:PrimaryFileId"`
 	Files                   []ModelFile `gorm:"foreignKey:VersionId;references:Id"`
 	CivitaiOriginalResponse []byte      `gorm:"type:blob"`
-	CivitaiCreatedAt        *time.Time  `gorm:"type:time"`
-	CivitaiUpdatedAt        *time.Time  `gorm:"type:time"`
+	CivitaiCreatedAt        *time.Time  `gorm:"type:datetime"`
+	CivitaiUpdatedAt        *time.Time  `gorm:"type:datetime"`
 }
 
 type ModelTags struct {

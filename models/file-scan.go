@@ -132,10 +132,11 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 		// 这里处理的是Civitai Info文件已经被发现的情形。
 		modelInfoFileContent, err := os.ReadFile(*descriptionPath)
 		if err != nil {
+			fmt.Printf("Info Read Error: %v\n", err)
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能打开模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
 		}
-		err = parseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
+		modelDescription, err = parseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
 		if err != nil {
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能解析模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
@@ -233,7 +234,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
 		fileCache := make([]entities.FileCache, 0)
-		dbConn.Where("full_path IN ?", fileGroup).Find(&fileCache)
+		dbConn.Joins("RelatedModel").Joins("RelatedModel.Model").Where("full_path IN ?", fileGroup).Find(&fileCache)
 		for _, cache := range fileCache {
 			var (
 				relatedModel *int
@@ -241,7 +242,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				versionName  string
 				modelType    *string
 			)
-			if cache.RelatedModelVersionId != nil {
+			if cache.RelatedModel != nil {
 				modelName = cache.RelatedModel.Model.Name
 				versionName = cache.RelatedModel.VersionName
 				relatedModel = &cache.RelatedModel.Model.Id
@@ -250,6 +251,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				modelName = filepath.Base(cache.FullPath)
 				versionName = ""
 			}
+			fmt.Printf("Model: %s; version: %s\n", modelName, versionName)
 			description := SimpleModelDescript{
 				Name:           modelName,
 				VersionName:    versionName,

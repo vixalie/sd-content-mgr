@@ -12,7 +12,7 @@ type Image struct {
 	Fingerprint    *string         `gorm:"type:text;unique"`
 	LocalStorePath *string         `gorm:"type:text"`
 	DownloadUrl    string          `gorm:"type:text"`
-	DownloadedAt   *time.Time      `gorm:"type:time"`
+	DownloadedAt   *time.Time      `gorm:"type:datetime"`
 	Width          *int            `gorm:"type:integer"`
 	Height         *int            `gorm:"type:integer"`
 	Size           *uint64         `gorm:"type:integer"`

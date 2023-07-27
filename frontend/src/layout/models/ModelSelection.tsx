@@ -5,8 +5,9 @@ import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
+import { EventsOff, EventsOn } from '@wails/runtime';
 import { isNil } from 'ramda';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
@@ -62,6 +63,11 @@ export function ModelSelection() {
       }
     }
   });
+
+  useEffect(() => {
+    EventsOn('scanUncachedFiles', msg => console.log('Scan Uncached: ', msg));
+    return () => EventsOff('scanUncachedFiles');
+  }, []);
 
   return (
     <Stack spacing="sm" h="inherit">
