@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	archgrid.xyz/ag/toolsbox v0.1.3
+	archgrid.xyz/ag/toolsbox v0.1.4
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/glebarez/sqlite v1.9.0
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -54,4 +54,4 @@ require (
 )
 
 // replace github.com/wailsapp/wails/v2 v2.5.1 => /Users/midnite/Projects/go/pkg/mod
-replace archgrid.xyz/ag/toolsbox v0.1.3 => git.archgrid.xyz/xt/ag_toolsbox v0.1.3
+replace archgrid.xyz/ag/toolsbox v0.1.4 => git.archgrid.xyz/xt/ag_toolsbox v0.1.4
