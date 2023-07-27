@@ -107,11 +107,14 @@ export namespace models {
 	
 	export class SimpleModelDescript {
 	    name: string;
+	    versionName: string;
 	    filePath: string;
-	    type: string;
-	    thumbnailPath: string;
+	    type?: string;
+	    thumbnailPath?: string;
 	    fileHash: string;
 	    related: boolean;
+	    relatedModel?: number;
+	    relatedVersion?: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new SimpleModelDescript(source);
@@ -120,11 +123,14 @@ export namespace models {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
+	        this.versionName = source["versionName"];
 	        this.filePath = source["filePath"];
 	        this.type = source["type"];
 	        this.thumbnailPath = source["thumbnailPath"];
 	        this.fileHash = source["fileHash"];
 	        this.related = source["related"];
+	        this.relatedModel = source["relatedModel"];
+	        this.relatedVersion = source["relatedVersion"];
 	    }
 	}
 

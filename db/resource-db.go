@@ -34,6 +34,7 @@ func init() {
 		&entities.Model{},
 		&entities.ModelVersion{},
 		&entities.ModelTags{},
+		&entities.ModelFile{},
 		&entities.Image{},
 		&entities.FileCache{},
 	)

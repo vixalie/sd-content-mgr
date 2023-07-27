@@ -36,7 +36,7 @@ type ModelVersion struct {
 	DownloadedAt            *time.Time  `gorm:"type:time"`
 	LastSyncedAt            *time.Time  `gorm:"type:time"`
 	CoverUsed               *string     `gorm:"type:text"`
-	Covers                  []Image     `gorm:"foreignKey:ModelVersionId;references:Id"`
+	Covers                  []Image     `gorm:"foreignKey:VersionId;references:Id"`
 	Gallery                 []string    `gorm:"type:text;serializer:json"`
 	PrimaryFileId           *int64      `gorm:"type:integer;index"`
 	PrimaryFile             *ModelFile  `gorm:"foreignKey:Id;references:PrimaryFileId"`
