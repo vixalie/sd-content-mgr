@@ -1,11 +1,13 @@
 import { MoldelSelections } from '@/constants/models';
-import { Box, ScrollArea, Select, Stack, TextInput } from '@mantine/core';
+import { Box, Select, Stack, TextInput } from '@mantine/core';
 import { useDebouncedState, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
+import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { isNil } from 'ramda';
 import { useState } from 'react';
+import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
 
@@ -21,6 +23,7 @@ export function ModelSelection() {
     defaultValue: '/'
   });
   const [keyword, setKeyword] = useDebouncedState('', 500);
+  const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
   useQuery({
     queryKey: ['model-sub-cate', uiTools, modelCategory],
     enabled: !isNil(modelCategory),
@@ -47,7 +50,7 @@ export function ModelSelection() {
     queryFn: async () => {
       try {
         const modelList = await ListModelFiles(uiTools, modelCategory, modelSubPath, keyword);
-        console.log('Models: ', modelList);
+        setModelList(modelList);
       } catch (e) {
         console.error('列举模型列表出错：', e);
         notifications.show({
@@ -92,8 +95,12 @@ export function ModelSelection() {
         value={keyword}
         onChange={event => setKeyword(event.currentTarget.value)}
       />
-      <Box sx={{ flexGrow: 1 }}>
-        <ScrollArea />
+      <Box w="100%" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+        <Stack spacing="md">
+          {modelList.map(model => (
+            <ModelListItem item={model} />
+          ))}
+        </Stack>
       </Box>
     </Stack>
   );

@@ -14,7 +14,7 @@ export function SetupHost() {
       sx={{ overflowY: 'hidden' }}
     >
       <Stack
-        w={230}
+        w={330}
         h="100%"
         p="md"
         sx={theme => ({
