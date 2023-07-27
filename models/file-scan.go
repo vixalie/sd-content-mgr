@@ -198,7 +198,7 @@ func searchUncachedFiles(ctx context.Context, files []string) ([]string, error) 
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
 		var uncachedFiles []entities.FileCache
-		dbConn.Not("fullpath IN ?", fileGroup).Find(&uncachedFiles)
+		dbConn.Not("full_path IN ?", fileGroup).Find(&uncachedFiles)
 		for _, filePath := range uncachedFiles {
 			uncachedFilePathes = append(uncachedFilePathes, filePath.FullPath)
 		}
@@ -216,7 +216,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 	fileGroups := lo.Chunk(files, 50)
 	for _, fileGroup := range fileGroups {
 		fileCache := make([]entities.FileCache, 0)
-		dbConn.Where("fullpath IN ?", fileGroup).Find(&fileCache)
+		dbConn.Where("full_path IN ?", fileGroup).Find(&fileCache)
 		for _, cache := range fileCache {
 			var (
 				relatedModel *int
