@@ -24,7 +24,17 @@ export const AppRoute = createHashRouter([
       },
       {
         path: 'model',
-        element: <ModelHost />
+        element: <ModelHost />,
+        children: [
+          {
+            path: 'uncached/:modelId',
+            element: null
+          },
+          {
+            path: 'version/:modelVersionId',
+            element: null
+          }
+        ]
       },
       {
         path: 'maintain',

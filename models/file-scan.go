@@ -22,6 +22,7 @@ import (
 )
 
 type SimpleModelDescript struct {
+	Id             string  `json:"id"`
 	Name           string  `json:"name"`
 	VersionName    string  `json:"versionName"`
 	FilePath       string  `json:"filePath"`
@@ -72,8 +73,9 @@ func scanModelFiles(ctx context.Context, software, model, subdir, keyword string
 		return descriptions, fmt.Errorf("查询未缓存文件出错，%w", err)
 	}
 	// 如果存在数据库中未保存的文件，那么就需要对这些文件进行扫描处理
+	totalUncachedFiles := len(uncachedFiles)
 	if len(uncachedFiles) > 0 {
-		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "start", "amount": len(uncachedFiles)})
+		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "start", "amount": totalUncachedFiles})
 		var (
 			semaphore = semaphore.NewWeighted(10)
 			group     sync.WaitGroup
@@ -242,7 +244,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				versionName  string
 				modelType    *string
 			)
-			if cache.RelatedModel != nil {
+			if cache.RelatedModelVersionId != nil {
 				modelName = cache.RelatedModel.Model.Name
 				versionName = cache.RelatedModel.VersionName
 				relatedModel = &cache.RelatedModel.Model.Id
@@ -251,8 +253,8 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				modelName = filepath.Base(cache.FullPath)
 				versionName = ""
 			}
-			fmt.Printf("Model: %s; version: %s\n", modelName, versionName)
 			description := SimpleModelDescript{
+				Id:             cache.Id,
 				Name:           modelName,
 				VersionName:    versionName,
 				FilePath:       cache.FullPath,

@@ -106,6 +106,7 @@ export namespace config {
 export namespace models {
 	
 	export class SimpleModelDescript {
+	    id: string;
 	    name: string;
 	    versionName: string;
 	    filePath: string;
@@ -122,6 +123,7 @@ export namespace models {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
 	        this.name = source["name"];
 	        this.versionName = source["versionName"];
 	        this.filePath = source["filePath"];

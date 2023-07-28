@@ -1,12 +1,13 @@
 import { MoldelSelections } from '@/constants/models';
-import { Box, Select, Stack, TextInput } from '@mantine/core';
-import { useDebouncedState, useUncontrolled } from '@mantine/hooks';
+import { ActionIcon, Box, Select, Stack, TextInput } from '@mantine/core';
+import { useDebouncedValue, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
-import { isNil } from 'ramda';
+import { isEmpty, isNil, prop, props } from 'ramda';
 import { useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
 
@@ -23,7 +24,8 @@ export function ModelSelection() {
   const [modelSubPath, setModelSubPath] = useUncontrolled<string>({
     defaultValue: '/'
   });
-  const [keyword, setKeyword] = useDebouncedState('', 500);
+  const [keyword, setKeyword] = useState('');
+  const [debouncedKeyword] = useDebouncedValue(keyword, 500);
   const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
   useQuery({
     queryKey: ['model-sub-cate', uiTools, modelCategory],
@@ -46,11 +48,17 @@ export function ModelSelection() {
     }
   });
   useQuery({
-    queryKey: ['model-sub-cate', uiTools, modelCategory, modelSubPath, keyword],
+    queryKey: ['model-sub-cate', uiTools, modelCategory, modelSubPath, debouncedKeyword],
     enabled: !isNil(modelCategory) && !isNil(modelSubPath),
     queryFn: async () => {
       try {
-        const modelList = await ListModelFiles(uiTools, modelCategory, modelSubPath, keyword);
+        setModelList([]);
+        const modelList = await ListModelFiles(
+          uiTools,
+          modelCategory,
+          modelSubPath,
+          debouncedKeyword
+        );
         setModelList(modelList);
       } catch (e) {
         console.error('列举模型列表出错：', e);
@@ -65,8 +73,40 @@ export function ModelSelection() {
   });
 
   useEffect(() => {
-    EventsOn('scanUncachedFiles', msg => console.log('Scan Uncached: ', msg));
-    return () => EventsOff('scanUncachedFiles');
+    EventsOn('scanUncachedFiles', msg => {
+      switch (prop('state', msg)) {
+        case 'start':
+          notifications.show({
+            id: 'uncached-files-scan',
+            title: '正在扫描模型',
+            message: `正在扫描未缓存的模型文件。总数：${prop('amount', msg)}`,
+            autoClose: false,
+            withCloseButton: false,
+            loading: true,
+            color: 'blue'
+          });
+          break;
+        case 'progress':
+          break;
+        case 'finish':
+          notifications.update({
+            id: 'uncached-files-scan',
+            title: '扫描完成',
+            message: `已经完成未扫描模型文件的扫描。`,
+            autoClose: 3000,
+            withCloseButton: false,
+            loading: false,
+            color: 'green'
+          });
+          break;
+        case 'error':
+          console.error('[error]模型扫描出现错误：', props('message', msg), props('error', msg));
+          break;
+      }
+    });
+    return () => {
+      EventsOff('scanUncachedFiles');
+    };
   }, []);
 
   return (
@@ -100,11 +140,26 @@ export function ModelSelection() {
         placeholder="输入模型检索词以检索"
         value={keyword}
         onChange={event => setKeyword(event.currentTarget.value)}
+        rightSection={
+          !isEmpty(keyword) && (
+            <ActionIcon onClick={() => setKeyword('')} variant="transparent">
+              <IconX stroke={1} size="0.8rem" />
+            </ActionIcon>
+          )
+        }
       />
       <Box w="100%" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <Stack spacing="md">
           {modelList.map(model => (
-            <ModelListItem item={model} />
+            <ModelListItem
+              item={model}
+              to={
+                model.related
+                  ? `/model/version/${model.relatedVersion}`
+                  : `/model/uncached/${model.id}`
+              }
+              key={model.id}
+            />
           ))}
         </Stack>
       </Box>
