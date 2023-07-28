@@ -4,19 +4,19 @@ import "time"
 
 type Image struct {
 	CommonFields
-	Id             string          `gorm:"primaryKey;type:text"`
-	VersionId      *int            `gorm:"type:integer;index"`
-	Version        *ModelVersion   `gorm:"foreignKey:VersionId;references:Id"`
-	FileName       string          `gorm:"type:text"`
-	BlurHash       string          `gorm:"type:text"`
-	Fingerprint    *string         `gorm:"type:text;unique"`
-	LocalStorePath *string         `gorm:"type:text"`
-	DownloadUrl    string          `gorm:"type:text"`
-	DownloadedAt   *time.Time      `gorm:"type:datetime"`
-	Width          *int            `gorm:"type:integer"`
-	Height         *int            `gorm:"type:integer"`
-	Size           *uint64         `gorm:"type:integer"`
-	NSFW           *int            `gorm:"type:integer"`
-	Meta           *map[string]any `gorm:"type:text;serializer:json"`
-	RawMeta        []byte          `gorm:"type:blob"`
+	Id             string          `gorm:"primaryKey;type:text" json:"id"`
+	VersionId      *int            `gorm:"type:integer;index" json:"versionId"`
+	Version        *ModelVersion   `gorm:"foreignKey:VersionId;references:Id" json:"modelVersion"`
+	FileName       string          `gorm:"type:text" json:"fileName"`
+	BlurHash       string          `gorm:"type:text" json:"blurHash"`
+	Fingerprint    *string         `gorm:"type:text;unique" json:"fingerprint"`
+	LocalStorePath *string         `gorm:"type:text" json:"localPath"`
+	DownloadUrl    string          `gorm:"type:text" json:"-"`
+	DownloadedAt   *time.Time      `gorm:"type:datetime" json:"-"`
+	Width          *int            `gorm:"type:integer" json:"width"`
+	Height         *int            `gorm:"type:integer" json:"height"`
+	Size           *uint64         `gorm:"type:integer" json:"size"`
+	NSFW           *int            `gorm:"type:integer" json:"nsfw"`
+	Meta           *map[string]any `gorm:"type:text;serializer:json" json:"meta"`
+	RawMeta        []byte          `gorm:"type:blob" json:"-"`
 }

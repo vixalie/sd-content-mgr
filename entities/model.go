@@ -9,44 +9,44 @@ type CivitaiCreator struct {
 
 type Model struct {
 	CommonFields
-	Id                      int             `gorm:"primaryKey;type:integer"`
-	Name                    string          `gorm:"type:text"`
-	Description             *string         `gorm:"type:text"`
-	Author                  *CivitaiCreator `gorm:"type:text;serializer:json"`
-	NSFW                    *bool           `gorm:"type:boolean"`
-	PersonOfInterest        *bool           `gorm:"type:boolean"`
-	Type                    string          `gorm:"type:text"`
-	Mode                    *string         `gorm:"type:text"`
-	CivitaiOriginalResponse []byte          `gorm:"type:blob"`
-	LastSyncedAt            *time.Time      `gorm:"type:datetime"`
-	Tags                    []ModelTags     `gorm:"foreignKey:ModelId;references:Id"`
-	Versions                []ModelVersion  `gorm:"foreignKey:ModelId;references:Id"`
+	Id                      int             `gorm:"primaryKey;type:integer" json:"id"`
+	Name                    string          `gorm:"type:text" json:"name"`
+	Description             *string         `gorm:"type:text" json:"description"`
+	Author                  *CivitaiCreator `gorm:"type:text;serializer:json" json:"author"`
+	NSFW                    *bool           `gorm:"type:boolean" json:"nsfw"`
+	PersonOfInterest        *bool           `gorm:"type:boolean" json:"poi"`
+	Type                    string          `gorm:"type:text" json:"type"`
+	Mode                    *string         `gorm:"type:text" json:"mode"`
+	CivitaiOriginalResponse []byte          `gorm:"type:blob" json:"-"`
+	LastSyncedAt            *time.Time      `gorm:"type:datetime" json:"lastSyncedAt"`
+	Tags                    []ModelTags     `gorm:"foreignKey:ModelId;references:Id" json:"tags"`
+	Versions                []ModelVersion  `gorm:"foreignKey:ModelId;references:Id" json:"versions"`
 }
 
 type ModelVersion struct {
 	CommonFields
-	Id                      int         `gorm:"primaryKey;type:integer"`
-	ModelId                 *int        `gorm:"type:integer;index"`
-	Model                   *Model      `gorm:"foreignKey:ModelId;references:Id"`
-	VersionName             string      `gorm:"type:text"`
-	ActivatePrompt          []string    `gorm:"type:text;serializer:json"`
-	BaseModel               *string     `gorm:"type:text"`
-	PageUrl                 *string     `gorm:"type:text"`
-	DownloadUrl             *string     `gorm:"type:text"`
-	DownloadedAt            *time.Time  `gorm:"type:datetime"`
-	LastSyncedAt            *time.Time  `gorm:"type:datetime"`
-	CoverUsed               *string     `gorm:"type:text"`
-	Covers                  []Image     `gorm:"foreignKey:VersionId;references:Id"`
-	Gallery                 []string    `gorm:"type:text;serializer:json"`
-	PrimaryFileId           *int64      `gorm:"type:integer;index"`
-	PrimaryFile             *ModelFile  `gorm:"foreignKey:Id;references:PrimaryFileId"`
-	Files                   []ModelFile `gorm:"foreignKey:VersionId;references:Id"`
-	CivitaiOriginalResponse []byte      `gorm:"type:blob"`
-	CivitaiCreatedAt        *time.Time  `gorm:"type:datetime"`
-	CivitaiUpdatedAt        *time.Time  `gorm:"type:datetime"`
+	Id                      int         `gorm:"primaryKey;type:integer" json:"id"`
+	ModelId                 *int        `gorm:"type:integer;index" json:"modelId"`
+	Model                   *Model      `gorm:"foreignKey:ModelId;references:Id" json:"model"`
+	VersionName             string      `gorm:"type:text" json:"versionName"`
+	ActivatePrompt          []string    `gorm:"type:text;serializer:json" json:"activatePrompt"`
+	BaseModel               *string     `gorm:"type:text" json:"baseModel"`
+	PageUrl                 *string     `gorm:"type:text" json:"pageUrl"`
+	DownloadUrl             *string     `gorm:"type:text" json:"-"`
+	DownloadedAt            *time.Time  `gorm:"type:datetime" json:"downloadedAt"`
+	LastSyncedAt            *time.Time  `gorm:"type:datetime" json:"lastSyncedAt"`
+	CoverUsed               *string     `gorm:"type:text" json:"coverUsed"`
+	Covers                  []Image     `gorm:"foreignKey:VersionId;references:Id" json:"covers"`
+	Gallery                 []string    `gorm:"type:text;serializer:json" json:"gallery"`
+	PrimaryFileId           *int64      `gorm:"type:integer;index" json:"-"`
+	PrimaryFile             *ModelFile  `gorm:"foreignKey:Id;references:PrimaryFileId" json:"-"`
+	Files                   []ModelFile `gorm:"foreignKey:VersionId;references:Id" json:"-"`
+	CivitaiOriginalResponse []byte      `gorm:"type:blob" json:"-"`
+	CivitaiCreatedAt        *time.Time  `gorm:"type:datetime" json:"civitaiCreatedAt"`
+	CivitaiUpdatedAt        *time.Time  `gorm:"type:datetime" json:"civitaiUpdatedAt"`
 }
 
 type ModelTags struct {
-	ModelId int    `gorm:"primaryKey;type:integer"`
-	Tag     string `gorm:"primaryKey;type:text;index"`
+	ModelId int    `gorm:"primaryKey;type:integer" json:"modelId"`
+	Tag     string `gorm:"primaryKey;type:text;index" json:"tag"`
 }
