@@ -7,11 +7,12 @@ import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
-import { isEmpty, isNil, prop, props } from 'ramda';
+import { isEmpty, isNil, prop, props, sortBy } from 'ramda';
 import { useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
+const sortByName = sortBy(prop('name'));
 
 export function ModelSelection() {
   const [modelCatePath, setModelCatePath] = useState<string[]>([hostPathSelection]);
@@ -59,7 +60,7 @@ export function ModelSelection() {
           modelSubPath,
           debouncedKeyword
         );
-        setModelList(modelList);
+        setModelList(sortByName(modelList));
       } catch (e) {
         console.error('列举模型列表出错：', e);
         notifications.show({
