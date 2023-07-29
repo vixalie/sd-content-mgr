@@ -22,16 +22,19 @@ import (
 )
 
 type SimpleModelDescript struct {
-	Id             string  `json:"id"`
-	Name           string  `json:"name"`
-	VersionName    string  `json:"versionName"`
-	FilePath       string  `json:"filePath"`
-	Type           *string `json:"type"`
-	ThumbnailPath  *string `json:"thumbnailPath"`
-	FileHash       string  `json:"fileHash"`
-	Related        bool    `json:"related"`
-	RelatedModel   *int    `json:"relatedModel"`
-	RelatedVersion *int    `json:"relatedVersion"`
+	Id             string   `json:"id"`
+	Name           string   `json:"name"`
+	VersionName    string   `json:"versionName"`
+	FilePath       string   `json:"filePath"`
+	Type           *string  `json:"type"`
+	ThumbnailPath  *string  `json:"thumbnailPath"`
+	FileHash       string   `json:"fileHash"`
+	ActivatePrompt []string `json:"activatePrompt"`
+	Memo           *string  `json:"memo"`
+	BaseModel      *string  `json:"baseModel"`
+	Related        bool     `json:"related"`
+	RelatedModel   *int     `json:"relatedModel"`
+	RelatedVersion *int     `json:"relatedVersion"`
 }
 
 var modelExts = []string{".safetensors", ".pt", ".pth", ".pickle"}
@@ -239,16 +242,18 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 		dbConn.Joins("RelatedModel").Joins("RelatedModel.Model").Where("full_path IN ?", fileGroup).Find(&fileCache)
 		for _, cache := range fileCache {
 			var (
-				relatedModel *int
-				modelName    string
-				versionName  string
-				modelType    *string
+				relatedModel    *int
+				modelName       string
+				versionName     string
+				modelType       *string
+				activatePrompts = make([]string, 0)
 			)
 			if cache.RelatedModelVersionId != nil {
 				modelName = cache.RelatedModel.Model.Name
 				versionName = cache.RelatedModel.VersionName
 				relatedModel = &cache.RelatedModel.Model.Id
 				modelType = &cache.RelatedModel.Model.Type
+				activatePrompts = cache.RelatedModel.ActivatePrompt
 			} else {
 				modelName = filepath.Base(cache.FullPath)
 				versionName = ""
@@ -261,6 +266,9 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				Type:           modelType,
 				ThumbnailPath:  cache.ThumbnailPath,
 				FileHash:       cache.FileIdentityHash,
+				ActivatePrompt: append(activatePrompts, cache.AdditionalPrompts...),
+				Memo:           cache.Memo,
+				BaseModel:      cache.BaseModel,
 				Related:        cache.RelatedModelVersionId != nil,
 				RelatedModel:   relatedModel,
 				RelatedVersion: cache.RelatedModelVersionId,

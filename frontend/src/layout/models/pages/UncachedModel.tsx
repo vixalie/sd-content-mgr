@@ -17,6 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
 import { useLoaderData } from 'react-router-dom';
+import { BaseModelDescription } from './components/BaseModelDescription';
 
 export const UncachedModel: FC = () => {
   const fileInfo: entities.FileCache = useLoaderData();
@@ -55,9 +56,7 @@ export const UncachedModel: FC = () => {
                   </Box>
                 </Tooltip>
               </TwoLineInfoCell>
-              <TwoLineInfoCell title={'基础模型'} level={5}>
-                <Text></Text>
-              </TwoLineInfoCell>
+              <BaseModelDescription fileId={fileInfo.id} baseModel={fileInfo.baseModel} />
               <TwoLineInfoCell title={'模型备注'} level={5}>
                 <Text></Text>
               </TwoLineInfoCell>

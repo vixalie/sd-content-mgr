@@ -38,3 +38,7 @@ func (m ModelController) BreakModelFileParts(fileId string) ([]string, error) {
 func (m ModelController) RenameModelFile(fileId, newName string) error {
 	return renameModelFile(m.ctx, fileId, newName)
 }
+
+func (m ModelController) RecordFileBaseModel(fileId, baseModel string) error {
+	return recordCustomBaseModel(m.ctx, fileId, baseModel)
+}

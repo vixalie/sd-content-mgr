@@ -65,3 +65,15 @@ func renameModelFile(ctx context.Context, fileId, newName string) error {
 	result = dbConn.Save(&file)
 	return result.Error
 }
+
+func recordCustomBaseModel(ctx context.Context, fileId, baseModel string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.FileCache
+	result := dbConn.Where("id = ?", fileId).First(&file)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
+	}
+	file.BaseModel = &baseModel
+	result = dbConn.Save(&file)
+	return result.Error
+}

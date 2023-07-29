@@ -12,6 +12,8 @@ export function GetModelSubCategoryDirs(arg1:string,arg2:string):Promise<Array<s
 
 export function ListModelFiles(arg1:string,arg2:string,arg3:string,arg4:string):Promise<Array<models.SimpleModelDescript>>;
 
+export function RecordFileBaseModel(arg1:string,arg2:string):Promise<void>;
+
 export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;

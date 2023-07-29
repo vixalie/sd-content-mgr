@@ -10,6 +10,9 @@ type FileCache struct {
 	CivitaiInfoPath       *string       `gorm:"type:text" json:"infoPath"`    // 如果本项目不为空，那么模型一定存在详细信息。
 	Size                  uint64        `gorm:"type:integer" json:"fileSize"` // 字节数量
 	CRC32                 string        `gorm:"type:text" json:"crc"`         // 注意位序，这里似乎应该是使用小端序
+	Memo                  *string       `gorm:"type:text" json:"memo"`
+	AdditionalPrompts     []string      `gorm:"type:text;serializer:json" json:"additionalPrompts"`
+	BaseModel             *string       `gorm:"type:text" json:"baseModel"` // 这一项仅在文件不对应任何模型的时候才器作用，仅作为记录功能使用。
 	RelatedModelFile      *ModelFile    `gorm:"foreignKey:FileIdentityHash;references:IdentityHash" json:"-"`
 	RelatedModelVersionId *int          `gorm:"type:integer;index" json:"relatedModelVersionId"`
 	RelatedModel          *ModelVersion `gorm:"foreignKey:RelatedModelVersionId;references:Id" json:"relatedModel"`

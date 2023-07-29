@@ -18,6 +18,10 @@ export function ListModelFiles(arg1, arg2, arg3, arg4) {
   return window['go']['models']['ModelController']['ListModelFiles'](arg1, arg2, arg3, arg4);
 }
 
+export function RecordFileBaseModel(arg1, arg2) {
+  return window['go']['models']['ModelController']['RecordFileBaseModel'](arg1, arg2);
+}
+
 export function RenameModelFile(arg1, arg2) {
   return window['go']['models']['ModelController']['RenameModelFile'](arg1, arg2);
 }

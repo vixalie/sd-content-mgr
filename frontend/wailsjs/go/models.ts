@@ -305,6 +305,9 @@ export namespace entities {
 	    infoPath?: string;
 	    fileSize: number;
 	    crc: string;
+	    memo?: string;
+	    additionalPrompts: string[];
+	    baseModel?: string;
 	    relatedModelVersionId?: number;
 	    relatedModel?: ModelVersion;
 	
@@ -322,6 +325,9 @@ export namespace entities {
 	        this.infoPath = source["infoPath"];
 	        this.fileSize = source["fileSize"];
 	        this.crc = source["crc"];
+	        this.memo = source["memo"];
+	        this.additionalPrompts = source["additionalPrompts"];
+	        this.baseModel = source["baseModel"];
 	        this.relatedModelVersionId = source["relatedModelVersionId"];
 	        this.relatedModel = this.convertValues(source["relatedModel"], ModelVersion);
 	    }
@@ -448,6 +454,9 @@ export namespace models {
 	    type?: string;
 	    thumbnailPath?: string;
 	    fileHash: string;
+	    activatePrompt: string[];
+	    memo?: string;
+	    baseModel?: string;
 	    related: boolean;
 	    relatedModel?: number;
 	    relatedVersion?: number;
@@ -465,6 +474,9 @@ export namespace models {
 	        this.type = source["type"];
 	        this.thumbnailPath = source["thumbnailPath"];
 	        this.fileHash = source["fileHash"];
+	        this.activatePrompt = source["activatePrompt"];
+	        this.memo = source["memo"];
+	        this.baseModel = source["baseModel"];
 	        this.related = source["related"];
 	        this.relatedModel = source["relatedModel"];
 	        this.relatedVersion = source["relatedVersion"];
