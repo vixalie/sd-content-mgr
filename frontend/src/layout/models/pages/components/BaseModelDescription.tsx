@@ -10,12 +10,13 @@ import { useRevalidator } from 'react-router-dom';
 type BaseModelDescriptionProps = {
   fileId: string;
   baseModel?: string;
-  onComplete?: (newValue: string) => void;
+  onComplete?: (newValue?: string) => void;
 };
 
 export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProps>> = ({
   fileId,
   baseModel,
+  onComplete,
   children
 }) => {
   const [editing, setEditing] = useState<boolean>(false);
@@ -26,6 +27,7 @@ export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProp
     try {
       await RecordFileBaseModel(fileId, model);
       setEditing(false);
+      onComplete?.(model);
       revalidator.revalidate();
       notifications.show({
         title: '模型元信息已更新',
@@ -47,7 +49,7 @@ export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProp
         withCloseButton: false
       });
     }
-  }, [model, fileId, revalidator]);
+  }, [model, fileId, revalidator, onComplete]);
 
   useLayoutEffect(() => {
     if (editing) {
