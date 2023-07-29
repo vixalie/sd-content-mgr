@@ -49,7 +49,7 @@ export function ModelSelection() {
     }
   });
   useQuery({
-    queryKey: ['model-sub-cate', uiTools, modelCategory, modelSubPath, debouncedKeyword],
+    queryKey: ['model-cate-list', uiTools, modelCategory, modelSubPath, debouncedKeyword],
     enabled: !isNil(modelCategory) && !isNil(modelSubPath),
     queryFn: async () => {
       try {

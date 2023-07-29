@@ -1,6 +1,10 @@
 package models
 
-import "context"
+import (
+	"context"
+
+	"github.com/vixalie/sd-content-manager/entities"
+)
 
 type ModelController struct {
 	ctx context.Context
@@ -20,4 +24,17 @@ func (m ModelController) GetModelSubCategoryDirs(software, model string) ([]stri
 
 func (m ModelController) ListModelFiles(software, model, subdir, keyword string) ([]SimpleModelDescript, error) {
 	return scanModelFiles(m.ctx, software, model, subdir, keyword)
+}
+
+func (m ModelController) FetchUncachedFileInfo(fileId string) (*entities.FileCache, error) {
+	return fetchUncachedFileInfo(m.ctx, fileId)
+}
+
+func (m ModelController) BreakModelFileParts(fileId string) ([]string, error) {
+	fileName, fileExt, err := breakModelFileParts(m.ctx, fileId)
+	return []string{fileName, fileExt}, err
+}
+
+func (m ModelController) RenameModelFile(fileId, newName string) error {
+	return renameModelFile(m.ctx, fileId, newName)
 }
