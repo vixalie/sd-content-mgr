@@ -76,6 +76,7 @@ export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProp
           </ActionIcon>
         )
       }
+      contentW={editing ? '100%' : undefined}
       level={5}
     >
       {editing ? (
