@@ -1,3 +1,4 @@
+import { ActivatePrompts } from '@/components/ActivatePrompts';
 import { ModelMemo } from '@/components/ModelMemo';
 import { RenameableFile } from '@/components/RenameableFile';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
@@ -59,9 +60,7 @@ export const UncachedModel: FC = () => {
               </TwoLineInfoCell>
               <BaseModelDescription fileId={fileInfo.id} baseModel={fileInfo.baseModel} />
               <ModelMemo fileId={fileInfo.id} memo={fileInfo.memo} />
-              <TwoLineInfoCell title={'激活提示词'} level={5}>
-                <Text></Text>
-              </TwoLineInfoCell>
+              <ActivatePrompts editable fileId={fileInfo.id} prompts={fileInfo.additionalPrompts} />
             </Stack>
           </ScrollArea>
         </Grid.Col>

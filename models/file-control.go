@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
 	"gorm.io/gorm"
@@ -86,6 +87,35 @@ func recordModelMemo(ctx context.Context, fileId, memo string) error {
 		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
 	}
 	file.Memo = &memo
+	result = dbConn.Save(&file)
+	return result.Error
+}
+
+func recordModelActivatePrompts(ctx context.Context, fileId, prompts string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.FileCache
+	result := dbConn.Where("id = ?", fileId).First(&file)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
+	}
+	newPrompts := lo.Map(strings.Split(prompts, ","), func(prompt string, _ int) string {
+		return strings.TrimSpace(prompt)
+	})
+	file.AdditionalPrompts = lo.Uniq(append(file.AdditionalPrompts, newPrompts...))
+	result = dbConn.Save(&file)
+	return result.Error
+}
+
+func deleteModelPrompts(ctx context.Context, fileId string, prompts []string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.FileCache
+	result := dbConn.Where("id = ?", fileId).First(&file)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
+	}
+	file.AdditionalPrompts = lo.Uniq(lo.Reject(file.AdditionalPrompts, func(prompt string, _ int) bool {
+		return lo.Contains(prompts, prompt)
+	}))
 	result = dbConn.Save(&file)
 	return result.Error
 }

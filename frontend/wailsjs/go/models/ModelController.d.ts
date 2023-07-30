@@ -6,6 +6,8 @@ import {context} from '../models';
 
 export function BreakModelFileParts(arg1:string):Promise<Array<string>>;
 
+export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
+
 export function FetchUncachedFileInfo(arg1:string):Promise<entities.FileCache>;
 
 export function GetModelSubCategoryDirs(arg1:string,arg2:string):Promise<Array<string>>;
@@ -15,6 +17,8 @@ export function ListModelFiles(arg1:string,arg2:string,arg3:string,arg4:string):
 export function RecordFileBaseModel(arg1:string,arg2:string):Promise<void>;
 
 export function RecordFileMemo(arg1:string,arg2:string):Promise<void>;
+
+export function RecordFilePrompts(arg1:string,arg2:string):Promise<void>;
 
 export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
 

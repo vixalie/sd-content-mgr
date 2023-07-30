@@ -46,3 +46,11 @@ func (m ModelController) RecordFileBaseModel(fileId, baseModel string) error {
 func (m ModelController) RecordFileMemo(fileId, memo string) error {
 	return recordModelMemo(m.ctx, fileId, memo)
 }
+
+func (m ModelController) RecordFilePrompts(fileId, prompts string) error {
+	return recordModelActivatePrompts(m.ctx, fileId, prompts)
+}
+
+func (m ModelController) DeleteFilePrompts(fileId string, prompts []string) error {
+	return deleteModelPrompts(m.ctx, fileId, prompts)
+}

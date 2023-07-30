@@ -6,6 +6,10 @@ export function BreakModelFileParts(arg1) {
   return window['go']['models']['ModelController']['BreakModelFileParts'](arg1);
 }
 
+export function DeleteFilePrompts(arg1, arg2) {
+  return window['go']['models']['ModelController']['DeleteFilePrompts'](arg1, arg2);
+}
+
 export function FetchUncachedFileInfo(arg1) {
   return window['go']['models']['ModelController']['FetchUncachedFileInfo'](arg1);
 }
@@ -24,6 +28,10 @@ export function RecordFileBaseModel(arg1, arg2) {
 
 export function RecordFileMemo(arg1, arg2) {
   return window['go']['models']['ModelController']['RecordFileMemo'](arg1, arg2);
+}
+
+export function RecordFilePrompts(arg1, arg2) {
+  return window['go']['models']['ModelController']['RecordFilePrompts'](arg1, arg2);
 }
 
 export function RenameModelFile(arg1, arg2) {
