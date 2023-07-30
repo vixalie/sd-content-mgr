@@ -1,3 +1,4 @@
+import { ModelMemo } from '@/components/ModelMemo';
 import { RenameableFile } from '@/components/RenameableFile';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
 import {
@@ -57,9 +58,7 @@ export const UncachedModel: FC = () => {
                 </Tooltip>
               </TwoLineInfoCell>
               <BaseModelDescription fileId={fileInfo.id} baseModel={fileInfo.baseModel} />
-              <TwoLineInfoCell title={'模型备注'} level={5}>
-                <Text></Text>
-              </TwoLineInfoCell>
+              <ModelMemo fileId={fileInfo.id} memo={fileInfo.memo} />
               <TwoLineInfoCell title={'激活提示词'} level={5}>
                 <Text></Text>
               </TwoLineInfoCell>

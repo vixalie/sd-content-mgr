@@ -42,3 +42,7 @@ func (m ModelController) RenameModelFile(fileId, newName string) error {
 func (m ModelController) RecordFileBaseModel(fileId, baseModel string) error {
 	return recordCustomBaseModel(m.ctx, fileId, baseModel)
 }
+
+func (m ModelController) RecordFileMemo(fileId, memo string) error {
+	return recordModelMemo(m.ctx, fileId, memo)
+}

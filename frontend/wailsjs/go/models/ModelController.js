@@ -22,6 +22,10 @@ export function RecordFileBaseModel(arg1, arg2) {
   return window['go']['models']['ModelController']['RecordFileBaseModel'](arg1, arg2);
 }
 
+export function RecordFileMemo(arg1, arg2) {
+  return window['go']['models']['ModelController']['RecordFileMemo'](arg1, arg2);
+}
+
 export function RenameModelFile(arg1, arg2) {
   return window['go']['models']['ModelController']['RenameModelFile'](arg1, arg2);
 }

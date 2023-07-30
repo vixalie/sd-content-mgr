@@ -14,6 +14,8 @@ export function ListModelFiles(arg1:string,arg2:string,arg3:string,arg4:string):
 
 export function RecordFileBaseModel(arg1:string,arg2:string):Promise<void>;
 
+export function RecordFileMemo(arg1:string,arg2:string):Promise<void>;
+
 export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
