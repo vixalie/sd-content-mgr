@@ -161,7 +161,7 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         <Flex direction="row" justify="flex-start" align="flex-start" wrap="wrap" gap="md">
           <Chip.Group multiple value={selectedPrompts} onChange={setSelectedPrompts}>
             {(prompts ?? []).map(prompt => (
-              <Chip variant="filled" value={prompt}>
+              <Chip variant="filled" value={prompt} key={prompt}>
                 {prompt}
               </Chip>
             ))}

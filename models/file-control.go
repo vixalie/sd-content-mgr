@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -116,6 +117,54 @@ func deleteModelPrompts(ctx context.Context, fileId string, prompts []string) er
 	file.AdditionalPrompts = lo.Uniq(lo.Reject(file.AdditionalPrompts, func(prompt string, _ int) bool {
 		return lo.Contains(prompts, prompt)
 	}))
+	result = dbConn.Save(&file)
+	return result.Error
+}
+
+func copyModelThumbnail(modelFileFullPath, originImageFilePath string) (string, error) {
+	_, err := os.Stat(originImageFilePath)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("文件系统中不存在指定的缩略图源文件，%w", err)
+	}
+	imageExt := filepath.Ext(originImageFilePath)
+	fileName := strings.TrimSuffix(filepath.Base(modelFileFullPath), filepath.Ext(modelFileFullPath))
+	thumbnailPath := filepath.Join(filepath.Dir(modelFileFullPath), fileName+".preview"+imageExt)
+	targetThumbnailFile, err := os.Create(thumbnailPath)
+	if err != nil {
+		return "", fmt.Errorf("创建缩略图文件失败，%w", err)
+	}
+	defer targetThumbnailFile.Close()
+	originImageFile, err := os.Open(originImageFilePath)
+	if err != nil {
+		return "", fmt.Errorf("打开缩略图源文件失败，%w", err)
+	}
+	defer originImageFile.Close()
+	_, err = io.Copy(targetThumbnailFile, originImageFile)
+	if err != nil {
+		return "", fmt.Errorf("复制缩略图失败，%w", err)
+	}
+	return thumbnailPath, nil
+}
+
+func copyFileThumbnail(ctx context.Context, fileId, originImageFilePath string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.FileCache
+	result := dbConn.Where("id = ?", fileId).First(&file)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
+	}
+	_, err := os.Stat(*file.ThumbnailPath)
+	if os.IsExist(err) {
+		err = os.Remove(*file.ThumbnailPath)
+		if err != nil {
+			return fmt.Errorf("删除原缩略图失败，%w", err)
+		}
+	}
+	thumbnailPath, err := copyModelThumbnail(file.FullPath, originImageFilePath)
+	if err != nil {
+		return nil
+	}
+	file.ThumbnailPath = &thumbnailPath
 	result = dbConn.Save(&file)
 	return result.Error
 }

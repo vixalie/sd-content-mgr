@@ -15,15 +15,38 @@ import {
   Text,
   Tooltip
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
-import { useLoaderData } from 'react-router-dom';
+import { ChooseAndSetFileThumbnail } from '@wails/go/models/ModelController';
+import { useCallback } from 'react';
+import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { BaseModelDescription } from './components/BaseModelDescription';
 
 export const UncachedModel: FC = () => {
   const fileInfo: entities.FileCache = useLoaderData();
   const queryClient = useQueryClient();
+  const revalidator = useRevalidator();
+
+  const selectCover = useCallback(async () => {
+    try {
+      const result = await ChooseAndSetFileThumbnail(fileInfo.id);
+      if (result) {
+        revalidator.revalidate();
+        queryClient.invalidateQueries(['model-cate-list']);
+      }
+    } catch (e) {
+      console.error('[error]选择并设置封面', e);
+      notifications.show({
+        title: '设置封面失败',
+        message: `未能成功复制并记录缩略图文件，${e.message}`,
+        color: 'red',
+        autoClose: 5000,
+        withCloseButton: false
+      });
+    }
+  }, [fileInfo]);
 
   return (
     <Stack px="md" py="lg" spacing="md">
@@ -36,7 +59,10 @@ export const UncachedModel: FC = () => {
       <Grid gutter="md">
         <Grid.Col span={7}>
           <AspectRatio ratio={2 / 3} maw={450} mx="auto">
-            <Image src={fileInfo.thumbnailPath} withPlaceholder />
+            <Image
+              src={`${fileInfo.thumbnailPath}?${Math.round(Math.random() * 100000)}`}
+              withPlaceholder
+            />
           </AspectRatio>
         </Grid.Col>
         <Grid.Col span={5}>
@@ -45,7 +71,9 @@ export const UncachedModel: FC = () => {
               <TwoLineInfoCell title="信息编辑" level={5}>
                 <Group>
                   <Button variant="light">尝试获取模型描述</Button>
-                  <Button variant="light">设置模型封面</Button>
+                  <Button variant="light" onClick={selectCover}>
+                    设置模型封面
+                  </Button>
                 </Group>
               </TwoLineInfoCell>
               <TwoLineInfoCell title="文件大小" level={5}>

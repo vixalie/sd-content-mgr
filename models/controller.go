@@ -2,8 +2,10 @@ package models
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type ModelController struct {
@@ -53,4 +55,24 @@ func (m ModelController) RecordFilePrompts(fileId, prompts string) error {
 
 func (m ModelController) DeleteFilePrompts(fileId string, prompts []string) error {
 	return deleteModelPrompts(m.ctx, fileId, prompts)
+}
+
+func (m ModelController) ChooseAndSetFileThumbnail(fileId string) (bool, error) {
+	selectedFile, err := runtime.OpenFileDialog(m.ctx, runtime.OpenDialogOptions{
+		Title: "选择缩略图来源文件",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "图片文件", Pattern: "*.jpg;*.jpeg;*.png"},
+		},
+	})
+	if err != nil {
+		return false, fmt.Errorf("未指定缩略图来源文件，%w", err)
+	}
+	if len(selectedFile) == 0 {
+		return false, nil
+	}
+	err = copyFileThumbnail(m.ctx, fileId, selectedFile)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

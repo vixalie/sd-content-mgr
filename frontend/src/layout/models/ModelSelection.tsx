@@ -46,6 +46,7 @@ export function ModelSelection() {
           withCloseButton: false
         });
       }
+      return [];
     }
   });
   useQuery({
@@ -70,6 +71,7 @@ export function ModelSelection() {
           withCloseButton: false
         });
       }
+      return [];
     }
   });
 

@@ -6,6 +6,8 @@ import {context} from '../models';
 
 export function BreakModelFileParts(arg1:string):Promise<Array<string>>;
 
+export function ChooseAndSetFileThumbnail(arg1:string):Promise<boolean>;
+
 export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
 export function FetchUncachedFileInfo(arg1:string):Promise<entities.FileCache>;

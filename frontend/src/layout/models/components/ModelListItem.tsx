@@ -30,7 +30,11 @@ export const ModelListItem: FC<ModelListItemProps> = ({
           <Grid.Col span={3} p={4}>
             <Center>
               <AspectRatio ratio={1 / 2} h="100%" w="100%">
-                <Image fit="contain" withPlaceholder src={item.thumbnailPath} />
+                <Image
+                  fit="contain"
+                  withPlaceholder
+                  src={`${item.thumbnailPath}?${Math.round(Math.random() * 100000)}`}
+                />
               </AspectRatio>
             </Center>
           </Grid.Col>

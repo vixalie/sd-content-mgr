@@ -6,6 +6,10 @@ export function BreakModelFileParts(arg1) {
   return window['go']['models']['ModelController']['BreakModelFileParts'](arg1);
 }
 
+export function ChooseAndSetFileThumbnail(arg1) {
+  return window['go']['models']['ModelController']['ChooseAndSetFileThumbnail'](arg1);
+}
+
 export function DeleteFilePrompts(arg1, arg2) {
   return window['go']['models']['ModelController']['DeleteFilePrompts'](arg1, arg2);
 }
