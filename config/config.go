@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -125,4 +127,24 @@ func GetComfyModelPath(model string) ([]string, error) {
 	default:
 		return nil, errors.New("未定义的模型类型")
 	}
+}
+
+func GetProxyUrl() *url.URL {
+	if ApplicationSetup.ProxyConfig == nil || !ApplicationSetup.ProxyConfig.UseProxy {
+		return nil
+	}
+	var host string
+	if ApplicationSetup.ProxyConfig.Port == nil {
+		host = ApplicationSetup.ProxyConfig.Host
+	} else {
+		host = fmt.Sprintf("%s:%d", ApplicationSetup.ProxyConfig.Host, *ApplicationSetup.ProxyConfig.Port)
+	}
+	proxyUrl := url.URL{
+		Scheme: string(ApplicationSetup.ProxyConfig.Protocol),
+		Host:   host,
+	}
+	if ApplicationSetup.ProxyConfig.User != nil {
+		proxyUrl.User = url.UserPassword(*ApplicationSetup.ProxyConfig.User, ApplicationSetup.ProxyConfig.GetPassword())
+	}
+	return &proxyUrl
 }
