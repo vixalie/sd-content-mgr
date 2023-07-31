@@ -29,6 +29,8 @@ func main() {
 	settings := config.NewApplicationSettings()
 	// 创建应用中模型控制功能。
 	modelController := models.NewModelController()
+	// 创建本地文件加载功能
+	fileLoader := NewFileLoader()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -37,7 +39,7 @@ func main() {
 		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets:  assets,
-			Handler: NewFileLoader(),
+			Handler: fileLoader,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
@@ -67,6 +69,7 @@ func main() {
 			}
 			app.startup(ctx)
 			settings.SetContext(ctx)
+			fileLoader.SetContext(ctx)
 			modelController.SetContext(ctx)
 		},
 		Bind: []interface{}{
