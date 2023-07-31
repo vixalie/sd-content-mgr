@@ -22,6 +22,7 @@
     "@tsmx/human-readable": "^2.0.1",
     "embla-carousel-react": "^7.0.0",
     "events": "^3.3.0",
+    "nanoid": "^4.0.2",
     "ramda": "^0.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

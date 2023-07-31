@@ -1,6 +1,7 @@
 import { AspectRatio, Badge, Center, Grid, Image, Stack, Text } from '@mantine/core';
 import { useHover } from '@mantine/hooks';
 import type { models } from '@wails/go/models.ts';
+import { nanoid } from 'nanoid';
 import { isEmpty } from 'ramda';
 import { NavLink, NavLinkProps } from 'react-router-dom';
 
@@ -30,11 +31,7 @@ export const ModelListItem: FC<ModelListItemProps> = ({
           <Grid.Col span={3} p={4}>
             <Center>
               <AspectRatio ratio={1 / 2} h="100%" w="100%">
-                <Image
-                  fit="contain"
-                  withPlaceholder
-                  src={`${item.thumbnailPath}?${Math.round(Math.random() * 100000)}`}
-                />
+                <Image fit="contain" withPlaceholder src={`${item.thumbnailPath}?${nanoid()}`} />
               </AspectRatio>
             </Center>
           </Grid.Col>

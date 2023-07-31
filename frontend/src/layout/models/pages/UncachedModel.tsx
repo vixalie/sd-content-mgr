@@ -20,6 +20,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
 import { ChooseAndSetFileThumbnail } from '@wails/go/models/ModelController';
+import { nanoid } from 'nanoid';
 import { useCallback } from 'react';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { BaseModelDescription } from './components/BaseModelDescription';
@@ -59,10 +60,7 @@ export const UncachedModel: FC = () => {
       <Grid gutter="md">
         <Grid.Col span={7}>
           <AspectRatio ratio={2 / 3} maw={450} mx="auto">
-            <Image
-              src={`${fileInfo.thumbnailPath}?${Math.round(Math.random() * 100000)}`}
-              withPlaceholder
-            />
+            <Image src={`${fileInfo.thumbnailPath}?${nanoid()}`} withPlaceholder />
           </AspectRatio>
         </Grid.Col>
         <Grid.Col span={5}>
