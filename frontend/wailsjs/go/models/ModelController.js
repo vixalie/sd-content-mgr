@@ -14,6 +14,14 @@ export function DeleteFilePrompts(arg1, arg2) {
   return window['go']['models']['ModelController']['DeleteFilePrompts'](arg1, arg2);
 }
 
+export function FetchCachedFileInfo(arg1) {
+  return window['go']['models']['ModelController']['FetchCachedFileInfo'](arg1);
+}
+
+export function FetchSameSerialVersions(arg1) {
+  return window['go']['models']['ModelController']['FetchSameSerialVersions'](arg1);
+}
+
 export function FetchUncachedFileInfo(arg1) {
   return window['go']['models']['ModelController']['FetchUncachedFileInfo'](arg1);
 }

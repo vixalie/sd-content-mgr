@@ -482,6 +482,20 @@ export namespace models {
 	        this.relatedVersion = source["relatedVersion"];
 	    }
 	}
+	export class SimplifiedModelVersion {
+	    id: number;
+	    versionName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SimplifiedModelVersion(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.versionName = source["versionName"];
+	    }
+	}
 
 }
 

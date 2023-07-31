@@ -20,7 +20,8 @@ export function ModelHost() {
         sx={theme => ({
           backgroundColor: equals(theme.colorScheme, 'dark')
             ? path(['cbg', 1], theme.colors)
-            : path(['cbg', 7], theme.colors)
+            : path(['cbg', 7], theme.colors),
+          flexShrink: 0
         })}
       >
         <ModelSelection />

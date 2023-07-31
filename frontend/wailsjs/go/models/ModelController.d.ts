@@ -10,6 +10,10 @@ export function ChooseAndSetFileThumbnail(arg1:string):Promise<boolean>;
 
 export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
+export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;
+
+export function FetchSameSerialVersions(arg1:number):Promise<Array<models.SimplifiedModelVersion>>;
+
 export function FetchUncachedFileInfo(arg1:string):Promise<entities.FileCache>;
 
 export function GetModelSubCategoryDirs(arg1:string,arg2:string):Promise<Array<string>>;

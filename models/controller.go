@@ -32,6 +32,14 @@ func (m ModelController) FetchUncachedFileInfo(fileId string) (*entities.FileCac
 	return fetchUncachedFileInfo(m.ctx, fileId)
 }
 
+func (m ModelController) FetchCachedFileInfo(modelId int) (*entities.ModelVersion, error) {
+	return fetchCachedModelInfo(m.ctx, modelId)
+}
+
+func (m ModelController) FetchSameSerialVersions(modelVersionId int) ([]SimplifiedModelVersion, error) {
+	return fetchSimplifiedModelVersions(m.ctx, modelVersionId)
+}
+
 func (m ModelController) BreakModelFileParts(fileId string) ([]string, error) {
 	fileName, fileExt, err := breakModelFileParts(m.ctx, fileId)
 	return []string{fileName, fileExt}, err

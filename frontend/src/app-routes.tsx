@@ -4,6 +4,7 @@ import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { ModelHost } from './layout/models/ModelHost';
+import { CachedModel } from './layout/models/pages/CachedModel';
 import { UncachedModel } from './layout/models/pages/UncachedModel';
 import { SetupHost } from './layout/setups/SetupHost';
 import { SetupComfyUI } from './layout/setups/pages/comfyui/SetupComfyUI';
@@ -12,6 +13,7 @@ import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
 import { loadProxyConfigData } from './layout/setups/pages/proxy/hooks/useProtocols';
 import { SetupWebUI } from './layout/setups/pages/webui/SetupWebUI';
 import { loadWebUIConfig } from './layout/setups/pages/webui/hooks/useWebUI';
+import { loadCachedVersionInfo, loadSameSerialVersions } from './queries/cached-files';
 import { loadUncachedFileInfo } from './queries/uncached-file';
 
 export const AppRoute = createHashRouter([
@@ -35,7 +37,12 @@ export const AppRoute = createHashRouter([
           },
           {
             path: 'version/:modelVersionId',
-            element: null
+            element: <CachedModel />,
+            loader: async ({ params }) => {
+              const fileInfo = await loadCachedVersionInfo(params);
+              const versions = await loadSameSerialVersions(params);
+              return [fileInfo, versions];
+            }
           }
         ]
       },
