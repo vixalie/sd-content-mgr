@@ -58,9 +58,13 @@ export const UncachedModel: FC = () => {
       />
       <Divider size="sm" />
       <Grid gutter="md">
-        <Grid.Col span={7}>
-          <AspectRatio ratio={2 / 3} maw={450} mx="auto">
-            <Image src={`${fileInfo.thumbnailPath}?${nanoid()}`} withPlaceholder />
+        <Grid.Col span={7} py="md">
+          <AspectRatio ratio={3 / 4} w={450} mx="auto">
+            <Image
+              src={`/local_file/${fileInfo.thumbnailPath}?${nanoid()}`}
+              withPlaceholder
+              sx={{ height: '90%' }}
+            />
           </AspectRatio>
         </Grid.Col>
         <Grid.Col span={5}>
