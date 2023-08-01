@@ -160,7 +160,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
             <IconAward stroke={1} />
           </ActionIcon>
         </Tooltip>
-        <Tooltip label="例图备注" position="top">
+        <Tooltip label="例图生成信息" position="top">
           <ActionIcon>
             <IconInfoCircle stroke={1} />
           </ActionIcon>
