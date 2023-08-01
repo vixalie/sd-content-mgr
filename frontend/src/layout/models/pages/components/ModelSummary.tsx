@@ -13,7 +13,7 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
   return (
     <Grid gutter="md" h="100%">
       <Grid.Col span={7} h="100%" p="md">
-        <ImageSlide images={modelVersion.covers} />
+        <ImageSlide images={modelVersion.covers} currentCover={modelVersion.coverUsed} />
       </Grid.Col>
       <Grid.Col span={5} h="100%">
         <ScrollArea>

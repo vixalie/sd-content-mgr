@@ -22,6 +22,7 @@ import { useDisclosure, useElementSize } from '@mantine/hooks';
 import {
   IconAlertTriangleFilled,
   IconAward,
+  IconAwardFilled,
   IconChevronLeft,
   IconChevronRight,
   IconEyeExclamation,
@@ -30,7 +31,7 @@ import {
 import { entities } from '@wails/go/models';
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
-import { has, prop } from 'ramda';
+import { equals, has, prop } from 'ramda';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 const ImageContainer = styled.div`
@@ -113,9 +114,11 @@ export const ModelImage: FC<ModelImageProps> = ({ image, maxWidth, maxHeight }) 
 
 type ImageSlideProps = {
   images: entities.Image[];
+  currentCover?: string;
 };
 
-export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
+export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
+  const theme = useMantineTheme();
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [opened, { open, close }] = useDisclosure(false);
   const { ref, width, height } = useElementSize();
@@ -161,8 +164,12 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
           </ActionIcon>
         </Tooltip>
         <Tooltip label="设为缩略图" position="top">
-          <ActionIcon>
-            <IconAward stroke={1} />
+          <ActionIcon color={equals(currentCover, images[activeImageIndex].id) && 'yellow'}>
+            {equals(currentCover, images[activeImageIndex].id) ? (
+              <IconAwardFilled stroke={1} />
+            ) : (
+              <IconAward stroke={1} />
+            )}
           </ActionIcon>
         </Tooltip>
         <Tooltip label="例图生成信息" position="top">
