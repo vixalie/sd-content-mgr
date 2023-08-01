@@ -41,7 +41,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	case strings.HasPrefix(requestPath, "/model_version_image/"):
-		requestImageId := strings.TrimPrefix(requestPath, "/model_version_image/")
+		requestImageId := strings.TrimSuffix(strings.TrimPrefix(requestPath, "/model_version_image/"), ".image")
 		image, err := remote.FetchImageFile(h.ctx, requestImageId)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)

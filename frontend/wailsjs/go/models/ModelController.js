@@ -18,6 +18,10 @@ export function FetchCachedFileInfo(arg1) {
   return window['go']['models']['ModelController']['FetchCachedFileInfo'](arg1);
 }
 
+export function FetchModelImage(arg1) {
+  return window['go']['models']['ModelController']['FetchModelImage'](arg1);
+}
+
 export function FetchSameSerialVersions(arg1) {
   return window['go']['models']['ModelController']['FetchSameSerialVersions'](arg1);
 }

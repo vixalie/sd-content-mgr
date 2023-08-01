@@ -18,7 +18,7 @@ import (
 func FetchImageFile(ctx context.Context, imageFileId string) (*entities.Image, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var imageFile entities.Image
-	result := dbConn.First(&imageFile, imageFileId)
+	result := dbConn.First(&imageFile, "id = ?", imageFileId)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -29,7 +29,7 @@ func FetchImageFile(ctx context.Context, imageFileId string) (*entities.Image, e
 func SureImageFile(ctx context.Context, image *entities.Image) error {
 	if image.LocalStorePath != nil {
 		_, err := os.Stat(*image.LocalStorePath)
-		if os.IsExist(err) {
+		if !os.IsNotExist(err) {
 			return nil
 		}
 	}
@@ -45,15 +45,18 @@ func SureImageFile(ctx context.Context, image *entities.Image) error {
 	downloadEvent.Start()
 	resp, err := client.Get(image.DownloadUrl)
 	if err != nil {
+		fmt.Printf("无法访问Civitai，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("无法访问Civitai，%w", err))
 		return fmt.Errorf("无法访问Civitai，%w", err)
 	}
 	imageFilePath, err := filepath.Abs("./model-images/")
 	if err != nil {
+		fmt.Printf("获取图片文件保存路径失败，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("获取图片文件保存路径失败，%w", err))
 		return fmt.Errorf("获取图片文件保存路径失败，%w", err)
 	}
 	if err := os.MkdirAll(imageFilePath, os.ModePerm); err != nil {
+		fmt.Printf("创建图片文件保存目录失败，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("创建图片文件保存目录失败，%w", err))
 		return fmt.Errorf("创建图片文件保存目录失败，%w", err)
 	}
@@ -69,13 +72,15 @@ func SureImageFile(ctx context.Context, image *entities.Image) error {
 		downloadEvent.Failed(errors.New("不支持的图片格式"))
 		return errors.New("不支持的图片格式")
 	}
-	targetFile, err := os.Open(imageFileName)
+	targetFile, err := os.OpenFile(imageFileName, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
+		fmt.Printf("创建图片文件失败，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("创建图片文件失败，%w", err))
 		return fmt.Errorf("创建图片文件失败，%w", err)
 	}
 	defer targetFile.Close()
 	if _, err := io.Copy(targetFile, io.TeeReader(resp.Body, &downloadEvent)); err != nil {
+		fmt.Printf("保存图片文件失败，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("保存图片文件失败，%w", err))
 		return fmt.Errorf("保存图片文件失败，%w", err)
 	}

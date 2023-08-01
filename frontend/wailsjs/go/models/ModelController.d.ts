@@ -12,6 +12,8 @@ export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
 export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;
 
+export function FetchModelImage(arg1:string):Promise<entities.Image>;
+
 export function FetchSameSerialVersions(arg1:number):Promise<Array<models.SimplifiedModelVersion>>;
 
 export function FetchUncachedFileInfo(arg1:string):Promise<entities.FileCache>;

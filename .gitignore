@@ -471,3 +471,4 @@ build/
 **/dist/
 config.yml
 config.yaml
+model-images/

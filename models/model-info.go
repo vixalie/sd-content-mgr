@@ -29,3 +29,10 @@ func fetchSimplifiedModelVersions(ctx context.Context, modelVersionId int) ([]Si
 	})
 	return relatedModelVersions, result.Error
 }
+
+func fetchModelImage(ctx context.Context, imageId string) (entities.Image, error) {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var image entities.Image
+	result := dbConn.First(&image, "id = ?", imageId)
+	return image, result.Error
+}

@@ -84,3 +84,7 @@ func (m ModelController) ChooseAndSetFileThumbnail(fileId string) (bool, error) 
 	}
 	return true, nil
 }
+
+func (m ModelController) FetchModelImage(imageId string) (entities.Image, error) {
+	return fetchModelImage(m.ctx, imageId)
+}
