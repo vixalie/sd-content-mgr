@@ -77,6 +77,9 @@ func main() {
 			settings,
 			modelController,
 		},
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
+		},
 	})
 
 	if err != nil {
