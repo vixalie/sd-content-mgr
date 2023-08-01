@@ -1,3 +1,4 @@
+import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
 import styled from '@emotion/styled';
 import {
   ActionIcon,
@@ -5,17 +6,19 @@ import {
   Badge,
   Box,
   Center,
+  Drawer,
   Flex,
   Group,
   Image,
   Loader,
   LoadingOverlay,
+  Stack,
   Text,
   ThemeIcon,
   Tooltip,
   useMantineTheme
 } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { useDisclosure, useElementSize } from '@mantine/hooks';
 import {
   IconAlertTriangleFilled,
   IconAward,
@@ -27,7 +30,7 @@ import {
 import { entities } from '@wails/go/models';
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
-import { prop } from 'ramda';
+import { has, prop } from 'ramda';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 const ImageContainer = styled.div`
@@ -114,6 +117,7 @@ type ImageSlideProps = {
 
 export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  const [opened, { open, close }] = useDisclosure(false);
   const { ref, width, height } = useElementSize();
   const [nsfwColor, nsfwDescription] = useMemo(() => {
     switch (images[activeImageIndex].nsfw ?? 0) {
@@ -127,6 +131,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
         return ['red', 'NSFW+'];
     }
   }, [activeImageIndex, images]);
+  const imageMeta = useMemo(() => images[activeImageIndex].meta, [activeImageIndex, images]);
   const handlePreviousImage = useCallback(() => {
     if (activeImageIndex > 0) {
       setActiveImageIndex(activeImageIndex - 1);
@@ -161,7 +166,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
           </ActionIcon>
         </Tooltip>
         <Tooltip label="例图生成信息" position="top">
-          <ActionIcon>
+          <ActionIcon onClick={open}>
             <IconInfoCircle stroke={1} />
           </ActionIcon>
         </Tooltip>
@@ -181,6 +186,72 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images }) => {
           <Text color={nsfwColor}>{nsfwDescription}</Text>
         </Group>
       </Group>
+      <>
+        <Drawer opened={opened} onClose={close} position="right">
+          <Stack spacing="md">
+            {has('Model', imageMeta) && (
+              <TwoLineInfoCell title="生成模型" level={4}>
+                {prop('Model', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('sampler', imageMeta) && (
+              <TwoLineInfoCell title="采样器" level={4}>
+                {prop('sampler', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('cfgScale', imageMeta) && (
+              <TwoLineInfoCell title="CFG Scale" level={4}>
+                {prop('cfgScale', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('steps', imageMeta) && (
+              <TwoLineInfoCell title="步数" level={4}>
+                {prop('steps', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('seed', imageMeta) && (
+              <TwoLineInfoCell title="种子" level={4}>
+                {prop('seed', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('Clip skip', imageMeta) && (
+              <TwoLineInfoCell title="Clip skip" level={4}>
+                {prop('Clip skip', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('Hires upscaler', imageMeta) && (
+              <TwoLineInfoCell title="Hires 放大器" level={4}>
+                {prop('Hires upscaler', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('Hires upscale', imageMeta) && (
+              <TwoLineInfoCell title="Hires 放大倍数" level={4}>
+                {prop('Hires upscale', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('Hires steps', imageMeta) && (
+              <TwoLineInfoCell title="Hires 步数" level={4}>
+                {prop('Hires steps', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('Denoising strength', imageMeta) && (
+              <TwoLineInfoCell title="去噪强度" level={5}>
+                {prop('Denoising strength', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('prompt', imageMeta) && (
+              <TwoLineInfoCell title="提示词" level={4}>
+                {prop('prompt', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+            {has('negativePrompt', imageMeta) && (
+              <TwoLineInfoCell title="负向提示词" level={4}>
+                {prop('negativePrompt', imageMeta)}
+              </TwoLineInfoCell>
+            )}
+          </Stack>
+        </Drawer>
+      </>
     </Flex>
   );
 };
