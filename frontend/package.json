@@ -27,8 +27,8 @@
     "ramda": "^0.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-promise-suspense": "^0.3.4",
-    "react-router-dom": "^6.14.2"
+    "react-router-dom": "^6.14.2",
+    "suspend-react": "^0.1.3"
   },
   "devDependencies": {
     "@types/events": "^3.0.0",
