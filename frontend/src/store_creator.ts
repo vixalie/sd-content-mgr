@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { create, State, StateCreator, StoreApi, UseBoundStore } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
 
 interface EnhancedStoreType<StoreType> {
   use: {
@@ -42,15 +41,15 @@ function createSelectors<StoreType extends State>(
 }
 
 /**
- * 自动嵌套使用Devtools和Immer中间件的Zustand创建Store Hook的函数。
+ * 自动嵌套使用Devtools的Zustand创建Store Hook的函数。
  * 同时将会自动应用创建快速访问状态和Action的选择器。
  */
-export const createStoreHook = <
+export const createStore = <
   T extends State,
   Mps extends [StoreMutatorIdentifier, unknown][] = [],
   Mcs extends [StoreMutatorIdentifier, unknown][] = []
 >(
-  initializer: StateCreator<T, [...Mps, ['zustand/immer', never]], Mcs>,
+  initializer: StateCreator<T, [...Mps], Mcs>,
   options?: CreateStoreHookOptions
 ): UseBoundStore<StoreApi<T>> & EnhancedStoreType<T> =>
-  createSelectors(create<T>()(immer(initializer)), options?.debug ?? false);
+  createSelectors(create<T>()(initializer), options?.debug ?? false);
