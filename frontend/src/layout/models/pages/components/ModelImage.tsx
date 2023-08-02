@@ -19,6 +19,7 @@ import {
   useMantineTheme
 } from '@mantine/core';
 import { useDisclosure, useElementSize } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import {
   IconAlertTriangleFilled,
   IconAward,
@@ -28,11 +29,14 @@ import {
   IconEyeExclamation,
   IconInfoCircle
 } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@wails/go/models';
+import { SetModelVersionThumbnail } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
 import { equals, has, prop } from 'ramda';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { useRevalidator } from 'react-router-dom';
 
 const ImageContainer = styled.div`
   flex-grow: 1;
@@ -122,6 +126,8 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [opened, { open, close }] = useDisclosure(false);
   const { ref, width, height } = useElementSize();
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
   const [nsfwColor, nsfwDescription] = useMemo(() => {
     switch (images[activeImageIndex].nsfw ?? 0) {
       case 0:
@@ -149,6 +155,23 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
       setActiveImageIndex(0);
     }
   }, [images, activeImageIndex]);
+  const setAsCover = useCallback(async () => {
+    const activeImage = images[activeImageIndex];
+    try {
+      await SetModelVersionThumbnail(activeImage.versionId, activeImage.id);
+      revalidator.revalidate();
+      queryClient.invalidateQueries(['model-cate-list']);
+    } catch (e) {
+      console.error('[error]设置模型封面图片：', e);
+      notifications.show({
+        title: '模型封面设置失败',
+        message: `未能成功设置模型封面图片，${e}`,
+        color: 'red',
+        autoClose: 5000,
+        withCloseButton: false
+      });
+    }
+  }, [images, activeImageIndex]);
   useEffect(() => {
     setActiveImageIndex(0);
   }, [images]);
@@ -164,7 +187,10 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
           </ActionIcon>
         </Tooltip>
         <Tooltip label="设为缩略图" position="top">
-          <ActionIcon color={equals(currentCover, images[activeImageIndex].id) && 'yellow'}>
+          <ActionIcon
+            color={equals(currentCover, images[activeImageIndex].id) && 'yellow'}
+            onClick={!equals(currentCover, images[activeImageIndex].id) && setAsCover}
+          >
             {equals(currentCover, images[activeImageIndex].id) ? (
               <IconAwardFilled stroke={1} />
             ) : (

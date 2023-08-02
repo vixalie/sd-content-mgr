@@ -33,3 +33,5 @@ export function RecordFilePrompts(arg1:string,arg2:string):Promise<void>;
 export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
+
+export function SetModelVersionThumbnail(arg1:number,arg2:string):Promise<void>;

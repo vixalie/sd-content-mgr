@@ -170,3 +170,37 @@ func copyFileThumbnail(ctx context.Context, fileId, originImageFilePath string) 
 	result = dbConn.Save(&file)
 	return result.Error
 }
+
+func copyModelImageAsModelThumbnail(ctx context.Context, modelId int, imageId string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var imageFile entities.Image
+	result := dbConn.First(&imageFile, "id = ?", imageId)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的模型图集文件，%w", result.Error)
+	}
+	if imageFile.LocalStorePath == nil {
+		return fmt.Errorf("指定的模型图集文件未缓存或未记录，%w", result.Error)
+	}
+	_, err := os.Stat(*imageFile.LocalStorePath)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("文件系统中不存在指定的模型图集文件，%w", err)
+	}
+	var model entities.ModelVersion
+	result = dbConn.Joins("PrimaryFile").Joins("PrimaryFile.LocalFile").First(&model, "model_versions.id = ?", modelId)
+	if result.Error != nil {
+		return fmt.Errorf("未找到指定的模型，%w", result.Error)
+	}
+	if model.PrimaryFile == nil {
+		return fmt.Errorf("指定的模型未记录主文件，%w", result.Error)
+	}
+	if model.PrimaryFile.LocalFile == nil {
+		return fmt.Errorf("指定的模型主文件未下载到本地或未记录，%w", result.Error)
+	}
+	err = copyFileThumbnail(ctx, model.PrimaryFile.LocalFile.Id, *imageFile.LocalStorePath)
+	if err != nil {
+		return err
+	}
+	model.CoverUsed = &imageFile.Id
+	result = dbConn.Save(&model)
+	return result.Error
+}

@@ -92,3 +92,7 @@ func (m ModelController) FetchModelImage(imageId string) (entities.Image, error)
 func (m ModelController) FetchModelLocalFiles(modelVersionId int) ([]*entities.FileCache, error) {
 	return fetchModelVersionFiles(m.ctx, modelVersionId)
 }
+
+func (m ModelController) SetModelVersionThumbnail(modelVersionId int, imageId string) error {
+	return copyModelImageAsModelThumbnail(m.ctx, modelVersionId, imageId)
+}

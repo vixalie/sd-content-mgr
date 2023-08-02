@@ -61,3 +61,7 @@ export function RenameModelFile(arg1, arg2) {
 export function SetContext(arg1) {
   return window['go']['models']['ModelController']['SetContext'](arg1);
 }
+
+export function SetModelVersionThumbnail(arg1, arg2) {
+  return window['go']['models']['ModelController']['SetModelVersionThumbnail'](arg1, arg2);
+}
