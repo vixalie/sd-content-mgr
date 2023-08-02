@@ -22,6 +22,10 @@ export function FetchModelImage(arg1) {
   return window['go']['models']['ModelController']['FetchModelImage'](arg1);
 }
 
+export function FetchModelLocalFiles(arg1) {
+  return window['go']['models']['ModelController']['FetchModelLocalFiles'](arg1);
+}
+
 export function FetchSameSerialVersions(arg1) {
   return window['go']['models']['ModelController']['FetchSameSerialVersions'](arg1);
 }

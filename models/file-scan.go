@@ -154,7 +154,7 @@ TERMINATE_PARSE:
 	hail := ctx.Value("hail").(*hail.HailAlgorithm)
 	fileCache := entities.FileCache{
 		Id:               hail.GeneratePrefixedString("F"),
-		FileIdentityHash: fileHash,
+		FileIdentityHash: strings.ToUpper(fileHash),
 		FileName:         fileBaseName,
 		FullPath:         filePath,
 		ThumbnailPath:    thumbnailPath,

@@ -16,7 +16,7 @@ export const CachedModel: FC = () => {
       <Group>
         <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
       </Group>
-      <Tabs defaultValue="summary" h="100%">
+      <Tabs variant="outline" defaultValue="summary" h="100%">
         <Tabs.List position="right">
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>
           <Tabs.Tab value="description">描述</Tabs.Tab>

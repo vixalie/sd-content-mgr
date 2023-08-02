@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
 
@@ -35,4 +36,18 @@ func fetchModelImage(ctx context.Context, imageId string) (entities.Image, error
 	var image entities.Image
 	result := dbConn.First(&image, "id = ?", imageId)
 	return image, result.Error
+}
+
+func fetchModelVersionFiles(ctx context.Context, modelVersionId int) ([]*entities.FileCache, error) {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Preload("Files").Preload("Files.LocalFile").First(&modelVersion, "id = ?", modelVersionId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	files := lo.Map(modelVersion.Files, func(file entities.ModelFile, _ int) *entities.FileCache {
+		return file.LocalFile
+	})
+	runtime.LogDebugf(ctx, "Scaned files: %+v", files)
+	return files, nil
 }

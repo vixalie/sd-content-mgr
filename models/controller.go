@@ -88,3 +88,7 @@ func (m ModelController) ChooseAndSetFileThumbnail(fileId string) (bool, error) 
 func (m ModelController) FetchModelImage(imageId string) (entities.Image, error) {
 	return fetchModelImage(m.ctx, imageId)
 }
+
+func (m ModelController) FetchModelLocalFiles(modelVersionId int) ([]*entities.FileCache, error) {
+	return fetchModelVersionFiles(m.ctx, modelVersionId)
+}

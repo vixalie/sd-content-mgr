@@ -2,8 +2,9 @@ import { ActivatePrompts } from '@/components/ActivatePrompts';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
 import { Grid, ScrollArea, Stack } from '@mantine/core';
 import { entities } from '@wails/go/models';
-import { FC } from 'react';
+import { FC, Suspense } from 'react';
 import { ImageSlide } from './ModelImage';
+import { ModelVersionLocalFiles } from './ModelVersionLocalFiles';
 
 type ModelSummaryProps = {
   modelVersion: entities.ModelVersion;
@@ -22,6 +23,11 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
               {modelVersion.baseModel ?? '未知'}
             </TwoLineInfoCell>
             <ActivatePrompts editable={false} prompts={modelVersion.activatePrompt} />
+            <TwoLineInfoCell title="模型文件名" level={5}>
+              <Suspense fallback="加载中...">
+                <ModelVersionLocalFiles versionId={modelVersion.id} />
+              </Suspense>
+            </TwoLineInfoCell>
           </Stack>
         </ScrollArea>
       </Grid.Col>

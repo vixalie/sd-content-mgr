@@ -153,11 +153,13 @@ func copyFileThumbnail(ctx context.Context, fileId, originImageFilePath string) 
 	if result.Error != nil {
 		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
 	}
-	_, err := os.Stat(*file.ThumbnailPath)
-	if os.IsExist(err) {
-		err = os.Remove(*file.ThumbnailPath)
-		if err != nil {
-			return fmt.Errorf("删除原缩略图失败，%w", err)
+	if file.ThumbnailPath != nil {
+		_, err := os.Stat(*file.ThumbnailPath)
+		if !os.IsNotExist(err) {
+			err = os.Remove(*file.ThumbnailPath)
+			if err != nil {
+				return fmt.Errorf("删除原缩略图失败，%w", err)
+			}
 		}
 	}
 	thumbnailPath, err := copyModelThumbnail(file.FullPath, originImageFilePath)

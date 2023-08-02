@@ -1,4 +1,12 @@
-import { ActionIcon, Badge, Group, Text, TextInput, TextProps } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Group,
+  Text,
+  TextInput,
+  TextInputProps,
+  TextProps
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconEdit, IconX } from '@tabler/icons-react';
 import { BreakModelFileParts, RenameModelFile } from '@wails/go/models/ModelController';
@@ -10,6 +18,7 @@ type RenameableFileProps = {
   bold?: boolean;
   fileId: string;
   fileName: string;
+  w?: TextInputProps['w'];
   onCompleted?: (newName: string) => void;
 };
 
@@ -18,6 +27,7 @@ export const RenameableFile: FC<RenameableFileProps> = ({
   bold,
   fileId,
   fileName,
+  w,
   onCompleted
 }) => {
   const [editing, setEditing] = useState<boolean>(false);
@@ -87,6 +97,7 @@ export const RenameableFile: FC<RenameableFileProps> = ({
             rightSection={<Badge color="gray">{extPart}</Badge>}
             rightSectionWidth={120}
             ref={ref}
+            w={w}
             sx={{ ...((bold ?? false) && { fontWeight: 500 }) }}
           />
           <ActionIcon color="green" onClick={renameFile}>
