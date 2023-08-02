@@ -1,18 +1,69 @@
 import { MoldelSelections } from '@/constants/models';
-import { ActionIcon, Box, Select, Stack, TextInput } from '@mantine/core';
+import { ActionIcon, Box, Group, Loader, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { useDebouncedValue, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useAsync } from '@react-hookz/web';
+import { IconAlertTriangle, IconX } from '@tabler/icons-react';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
-import { isEmpty, isNil, prop, props, sortBy } from 'ramda';
-import { useEffect, useState } from 'react';
+import { equals, isEmpty, isNil, prop, props, sortBy } from 'ramda';
+import { FC, useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
 const sortByName = sortBy(prop('name'));
+
+const ModelListLoader: FC<{ui: string; cate?: string; subPath?: string; keyword?: string}> = ({ui, cate, subPath, keyword}) => {
+  const theme = useMantineTheme();
+  const [listState, listActions] = useAsync(async ({ui, cate, subPath, keyword}) => {
+    console.log('[debug]cate list: ', ui, cate, subPath, keyword);
+    if (!isNil(cate) && !isNil(subPath)) {
+        const modelList = await ListModelFiles(
+          ui,
+          cate,
+          subPath,
+          keyword
+        );
+        return sortByName(modelList);
+    }
+  }, []);
+  useEffect(() => {
+    listActions.execute({ui, cate, subPath, keyword});
+  }, [ui, cate, subPath, keyword]);
+  useEffect(() => {
+    EventsOn('updateModelList', () => {
+      listActions.execute({ui, cate, subPath, keyword});
+    });
+    return () => {
+      EventsOff('updateModelList');
+    }
+  }, []);
+
+  return (
+    <>
+      {equals('loading', prop('status', listState)) && (<Group spacing="sm">
+          <Loader />
+          <Text>正在加载模型列表...</Text>
+        </Group>)}
+        {equals('error', prop('status', listState)) && (<Group spacing="sm">
+          <IconAlertTriangle stroke={1} size={32} color={theme.colors.red[6]} />
+          <Text>未能成功加载模型列表。</Text>
+        </Group>)}
+        {equals('success', prop('status', listState)) && (listState.result ?? []).map(model => (
+          <ModelListItem
+            item={model}
+            to={
+              model.related
+                ? `/model/version/${model.relatedVersion}`
+                : `/model/uncached/${model.id}`
+            }
+            key={model.id}
+          />
+        ))}
+    </>
+  );
+}
 
 export function ModelSelection() {
   const [modelCatePath, setModelCatePath] = useState<string[]>([hostPathSelection]);
@@ -28,52 +79,30 @@ export function ModelSelection() {
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword] = useDebouncedValue(keyword, 500);
   const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
-  useQuery({
-    queryKey: ['model-sub-cate', uiTools, modelCategory],
-    enabled: !isNil(modelCategory),
-    queryFn: async () => {
-      try {
-        const dirs = await GetModelSubCategoryDirs(uiTools, modelCategory);
-        setModelCatePath([hostPathSelection, ...(dirs ?? [])]);
-        setModelSubPath(hostPathSelection);
-        return dirs;
-      } catch (e) {
-        console.error(e);
-        notifications.show({
-          message: '未能扫描指定模型目录！',
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-      }
-      return [];
+  const [catePathState, catePathActions] = useAsync(async (ui: string, category?: string) => {
+    if (!isNil(category)) {
+      return await GetModelSubCategoryDirs(ui, category);
     }
   });
-  useQuery({
-    queryKey: ['model-cate-list', uiTools, modelCategory, modelSubPath, debouncedKeyword],
-    enabled: !isNil(modelCategory) && !isNil(modelSubPath),
-    queryFn: async () => {
-      try {
-        setModelList([]);
-        const modelList = await ListModelFiles(
-          uiTools,
-          modelCategory,
-          modelSubPath,
-          debouncedKeyword
-        );
-        setModelList(sortByName(modelList));
-      } catch (e) {
-        console.error('列举模型列表出错：', e);
-        notifications.show({
-          message: `列举模型列表出错！${e}`,
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-      }
-      return [];
+  useEffect(() => {
+    catePathActions.execute(uiTools, modelCategory);
+  }, [uiTools, modelCategory]);
+  useEffect(() => {
+    switch (prop('status', catePathState)) {
+    case 'success':
+      setModelCatePath([hostPathSelection, ...(catePathState.result ?? [])]);
+      setModelSubPath(hostPathSelection);
+      break;
+    case 'error':
+      console.error('获取模型分类目录出错：', catePathState.error);
+      notifications.show({
+        message: '未能扫描指定模型目录！',
+        color: 'red',
+        autoClose: 3000,
+        withCloseButton: false
+      });
     }
-  });
+  }, [catePathState]);
 
   useEffect(() => {
     EventsOn('scanUncachedFiles', msg => {
@@ -153,17 +182,7 @@ export function ModelSelection() {
       />
       <Box w="100%" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <Stack spacing="md">
-          {modelList.map(model => (
-            <ModelListItem
-              item={model}
-              to={
-                model.related
-                  ? `/model/version/${model.relatedVersion}`
-                  : `/model/uncached/${model.id}`
-              }
-              key={model.id}
-            />
-          ))}
+          <ModelListLoader ui={uiTools} cate={modelCategory} subPath={modelSubPath} keyword={debouncedKeyword} />
         </Stack>
       </Box>
     </Stack>
