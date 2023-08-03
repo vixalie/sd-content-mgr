@@ -11,6 +11,7 @@ type ModelSummaryProps = {
 };
 
 export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
+  console.log('[debug]model version: ', modelVersion);
   return (
     <Grid gutter="md" h="100%">
       <Grid.Col span={7} h="100%" p="md">
@@ -19,6 +20,9 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
       <Grid.Col span={5} h="100%">
         <ScrollArea>
           <Stack spacing="md">
+            <TwoLineInfoCell title="类型" level={5}>
+              {modelVersion.model?.type ?? '未知'}
+            </TwoLineInfoCell>
             <TwoLineInfoCell title="基础模型" level={5}>
               {modelVersion.baseModel ?? '未知'}
             </TwoLineInfoCell>

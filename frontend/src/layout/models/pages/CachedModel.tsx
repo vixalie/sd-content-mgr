@@ -25,7 +25,7 @@ export const CachedModel: FC = () => {
         </Tabs.List>
 
         <Tabs.Panel value="summary" pt="xs" h="100%">
-          <ModelSummay modelVersion={modelVersion} />
+          <ModelSummay modelVersion={modelVersion} key={modelVersion.id} />
         </Tabs.Panel>
       </Tabs>
     </Stack>

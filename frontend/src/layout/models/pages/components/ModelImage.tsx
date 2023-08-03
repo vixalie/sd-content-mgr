@@ -122,7 +122,7 @@ type ImageSlideProps = {
 
 export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
   const theme = useMantineTheme();
-  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(() => 0);
   const [opened, { open, close }] = useDisclosure(false);
   const { ref, width, height } = useElementSize();
   const revalidator = useRevalidator();
@@ -187,7 +187,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
         <Tooltip label="设为缩略图" position="top">
           <ActionIcon
             color={equals(currentCover, images[activeImageIndex].id) && 'yellow'}
-            onClick={!equals(currentCover, images[activeImageIndex].id) && setAsCover}
+            onClick={!equals(currentCover, images[activeImageIndex].id) ? setAsCover : () => {}}
           >
             {equals(currentCover, images[activeImageIndex].id) ? (
               <IconAwardFilled stroke={1} />
