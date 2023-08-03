@@ -112,15 +112,6 @@ export function useAppTheme(scheme: ColorScheme = 'light'): Partial<MantineTheme
             paddingRight: theme.spacing.sm
           }
         })
-      },
-      Drawer: {
-        defaultProps: theme => ({
-          overlayColor: equals(theme.colorScheme, 'dark')
-            ? theme.colors.cbg[0]
-            : theme.colors.gray[2],
-          overlayOpacity: 0.35,
-          overlayBlur: 5
-        })
       }
     }
   };
