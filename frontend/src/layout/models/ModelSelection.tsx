@@ -1,69 +1,70 @@
 import { MoldelSelections } from '@/constants/models';
-import { ActionIcon, Box, Group, Loader, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
+import {
+  ActionIcon,
+  Box,
+  Group,
+  Loader,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  useMantineTheme
+} from '@mantine/core';
 import { useDebouncedValue, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useAsync } from '@react-hookz/web';
-import { IconAlertTriangle, IconX } from '@tabler/icons-react';
+import { useAsync, useRerender } from '@react-hookz/web';
+import { IconX } from '@tabler/icons-react';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
-import { equals, isEmpty, isNil, prop, props, sortBy } from 'ramda';
-import { FC, useEffect, useState } from 'react';
+import { isEmpty, isNil, prop, props, sortBy } from 'ramda';
+import { FC, Suspense, useEffect, useState } from 'react';
+import { suspend } from 'suspend-react';
 import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
 const sortByName = sortBy(prop('name'));
 
-const ModelListLoader: FC<{ui: string; cate?: string; subPath?: string; keyword?: string}> = ({ui, cate, subPath, keyword}) => {
+const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword?: string }> = ({
+  ui,
+  cate,
+  subPath,
+  keyword
+}) => {
   const theme = useMantineTheme();
-  const [listState, listActions] = useAsync(async ({ui, cate, subPath, keyword}) => {
-    console.log('[debug]cate list: ', ui, cate, subPath, keyword);
-    if (!isNil(cate) && !isNil(subPath)) {
-        const modelList = await ListModelFiles(
-          ui,
-          cate,
-          subPath,
-          keyword
-        );
+  const rerender = useRerender();
+  const modelList = suspend(
+    async (ui, cate, subPath, keyword) => {
+      if (!isNil(cate) && !isNil(subPath)) {
+        const modelList = await ListModelFiles(ui, cate, subPath, keyword);
         return sortByName(modelList);
-    }
-  }, []);
-  useEffect(() => {
-    listActions.execute({ui, cate, subPath, keyword});
-  }, [ui, cate, subPath, keyword]);
+      }
+    },
+    [ui, cate, subPath, keyword]
+  );
   useEffect(() => {
     EventsOn('updateModelList', () => {
-      listActions.execute({ui, cate, subPath, keyword});
+      rerender();
     });
     return () => {
       EventsOff('updateModelList');
-    }
+    };
   }, []);
 
   return (
     <>
-      {equals('loading', prop('status', listState)) && (<Group spacing="sm">
-          <Loader />
-          <Text>正在加载模型列表...</Text>
-        </Group>)}
-        {equals('error', prop('status', listState)) && (<Group spacing="sm">
-          <IconAlertTriangle stroke={1} size={32} color={theme.colors.red[6]} />
-          <Text>未能成功加载模型列表。</Text>
-        </Group>)}
-        {equals('success', prop('status', listState)) && (listState.result ?? []).map(model => (
-          <ModelListItem
-            item={model}
-            to={
-              model.related
-                ? `/model/version/${model.relatedVersion}`
-                : `/model/uncached/${model.id}`
-            }
-            key={model.id}
-          />
-        ))}
+      {(modelList ?? []).map(model => (
+        <ModelListItem
+          item={model}
+          to={
+            model.related ? `/model/version/${model.relatedVersion}` : `/model/uncached/${model.id}`
+          }
+          key={model.id}
+        />
+      ))}
     </>
   );
-}
+};
 
 export function ModelSelection() {
   const [modelCatePath, setModelCatePath] = useState<string[]>([hostPathSelection]);
@@ -89,18 +90,18 @@ export function ModelSelection() {
   }, [uiTools, modelCategory]);
   useEffect(() => {
     switch (prop('status', catePathState)) {
-    case 'success':
-      setModelCatePath([hostPathSelection, ...(catePathState.result ?? [])]);
-      setModelSubPath(hostPathSelection);
-      break;
-    case 'error':
-      console.error('获取模型分类目录出错：', catePathState.error);
-      notifications.show({
-        message: '未能扫描指定模型目录！',
-        color: 'red',
-        autoClose: 3000,
-        withCloseButton: false
-      });
+      case 'success':
+        setModelCatePath([hostPathSelection, ...(catePathState.result ?? [])]);
+        setModelSubPath(hostPathSelection);
+        break;
+      case 'error':
+        console.error('获取模型分类目录出错：', catePathState.error);
+        notifications.show({
+          message: '未能扫描指定模型目录！',
+          color: 'red',
+          autoClose: 3000,
+          withCloseButton: false
+        });
     }
   }, [catePathState]);
 
@@ -182,7 +183,21 @@ export function ModelSelection() {
       />
       <Box w="100%" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <Stack spacing="md">
-          <ModelListLoader ui={uiTools} cate={modelCategory} subPath={modelSubPath} keyword={debouncedKeyword} />
+          <Suspense
+            fallback={
+              <Group spacing="sm">
+                <Loader />
+                <Text>正在加载……</Text>
+              </Group>
+            }
+          >
+            <ModelListLoader
+              ui={uiTools}
+              cate={modelCategory}
+              subPath={modelSubPath}
+              keyword={debouncedKeyword}
+            />
+          </Suspense>
         </Stack>
       </Box>
     </Stack>
