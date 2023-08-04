@@ -3,7 +3,7 @@ import { PrimaryFileCell } from '@/components/PrimaryFileCell';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
 import { Grid, ScrollArea, Stack } from '@mantine/core';
 import { entities } from '@wails/go/models';
-import { FC, Suspense } from 'react';
+import { FC } from 'react';
 import { ImageSlide } from './ModelImage';
 import { ModelVersionLocalFiles } from './ModelVersionLocalFiles';
 
@@ -29,9 +29,7 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
             <ActivatePrompts editable={false} prompts={modelVersion.activatePrompt} />
             <PrimaryFileCell modelVersionId={modelVersion.id} />
             <TwoLineInfoCell title="模型包含文件" level={5}>
-              <Suspense fallback="加载中...">
-                <ModelVersionLocalFiles versionId={modelVersion.id} />
-              </Suspense>
+              <ModelVersionLocalFiles versionId={modelVersion.id} />
             </TwoLineInfoCell>
           </Stack>
         </ScrollArea>
