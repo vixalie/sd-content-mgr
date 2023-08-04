@@ -29,9 +29,10 @@ import {
   IconEyeExclamation,
   IconInfoCircle
 } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { entities } from '@wails/go/models';
 import { SetModelVersionThumbnail } from '@wails/go/models/ModelController';
-import { EventsEmit, EventsOff, EventsOn } from '@wails/runtime';
+import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
 import { equals, has, prop } from 'ramda';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
@@ -126,6 +127,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { ref, width, height } = useElementSize();
   const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
   const [nsfwColor, nsfwDescription] = useMemo(() => {
     switch (images[activeImageIndex].nsfw ?? 0) {
       case 0:
@@ -158,7 +160,7 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
     try {
       await SetModelVersionThumbnail(activeImage.versionId, activeImage.id);
       revalidator.revalidate();
-      EventsEmit('updateModelList');
+      queryClient.invalidateQueries(['model-list']);
     } catch (e) {
       console.error('[error]设置模型封面图片：', e);
       notifications.show({

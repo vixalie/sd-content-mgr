@@ -42,14 +42,6 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
     },
     select: data => sortByName(data ?? [])
   });
-  useEffect(() => {
-    EventsOn('updateModelList', () => {
-      rerender();
-    });
-    return () => {
-      EventsOff('updateModelList');
-    };
-  }, []);
 
   return (
     <>

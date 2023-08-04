@@ -16,10 +16,10 @@ import {
   Tooltip
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { useQueryClient } from '@tanstack/react-query';
 import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
 import { ChooseAndSetFileThumbnail } from '@wails/go/models/ModelController';
-import { EventsEmit } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { useCallback } from 'react';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
@@ -28,13 +28,14 @@ import { BaseModelDescription } from './components/BaseModelDescription';
 export const UncachedModel: FC = () => {
   const fileInfo: entities.FileCache = useLoaderData();
   const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
 
   const selectCover = useCallback(async () => {
     try {
       const result = await ChooseAndSetFileThumbnail(fileInfo.id);
       if (result) {
         revalidator.revalidate();
-        EventsEmit('updateModelList');
+        queryClient.invalidateQueries(['model-list']);
       }
     } catch (e) {
       console.error('[error]选择并设置封面', e);
@@ -53,7 +54,7 @@ export const UncachedModel: FC = () => {
       <RenameableFile
         fileId={fileInfo.id}
         fileName={fileInfo.fileName}
-        onCompleted={() => EventsEmit('updateModelList')}
+        onCompleted={() => queryClient.invalidateQueries(['model-list'])}
       />
       <Divider size="sm" />
       <Grid gutter="md">
