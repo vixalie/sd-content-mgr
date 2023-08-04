@@ -21,7 +21,7 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
   modelVersionId,
   onCompleted
 }) => {
-  const { data: modelPrimaryFile, isLoading } = useQuery({
+  const { data: modelPrimaryFile, isFetching } = useQuery({
     queryKey: ['model-primary-file', modelVersionId],
     queryFn: async () => {
       const primaryFile = await FetchModelVersionPrimaryFile(modelVersionId);
@@ -91,7 +91,7 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
         </>
       }
     >
-      {isLoading && (
+      {isFetching && (
         <Group>
           <Loader />
           <Text>加载中……</Text>

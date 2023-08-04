@@ -10,7 +10,7 @@ type ModelVersionLocalFilesProps = {
 };
 
 export const ModelVersionLocalFiles: FC<ModelVersionLocalFilesProps> = ({ versionId }) => {
-  const { data: files, isLoading } = useQuery({
+  const { data: files, isFetching } = useQuery({
     queryKey: ['model-local-files', versionId],
     queryFn: async ({ queryKey }) => {
       const [_, versionId] = queryKey;
@@ -19,7 +19,7 @@ export const ModelVersionLocalFiles: FC<ModelVersionLocalFilesProps> = ({ versio
   });
   return (
     <Stack spacing="sm">
-      {isLoading && (
+      {isFetching && (
         <Group>
           <Loader />
           <Text>加载中……</Text>
