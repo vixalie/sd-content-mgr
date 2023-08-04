@@ -49,6 +49,10 @@ func (m ModelController) RenameModelFile(fileId, newName string) error {
 	return renameModelFile(m.ctx, fileId, newName)
 }
 
+func (m ModelController) FetchModelVersionPrimaryFile(modelVersionId int) (*entities.FileCache, error) {
+	return fetchModelVersionPrimaryFile(m.ctx, modelVersionId)
+}
+
 func (m ModelController) RecordFileBaseModel(fileId, baseModel string) error {
 	return recordCustomBaseModel(m.ctx, fileId, baseModel)
 }

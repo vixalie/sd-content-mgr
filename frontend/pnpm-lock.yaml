@@ -38,6 +38,9 @@ dependencies:
   '@tabler/icons-react':
     specifier: ^2.27.0
     version: 2.27.0(react@18.2.0)
+  '@tanstack/react-query':
+    specifier: ^4.32.5
+    version: 4.32.5(react-dom@18.2.0)(react@18.2.0)
   '@tsmx/human-readable':
     specifier: ^2.0.1
     version: 2.0.1
@@ -978,6 +981,28 @@ packages:
     resolution: {integrity: sha512-450CVgPJ4PtO51Wa4JvpaZuDtVbjefICt1o8NkRXFPU4nRXHhSbMJmgCYolaNbeqfSR1/vKjhW30KTdM4Rnr/Q==}
     dev: false
 
+  /@tanstack/query-core@4.32.5:
+    resolution: {integrity: sha512-UOxiDYmzYWD21ASIUnW3w+Nq3LcW1BPFFfIyZOor6UsRl76KGLlvUhJ402/dof1JxcQFPK7nZ5iUGPVqLiT8zg==}
+    dev: false
+
+  /@tanstack/react-query@4.32.5(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-4tR0GxyyKhLpYvbglOGpWVqHS+t3bs7yy89DuTgJvnKLnaS5UW2sbfAzlV9JtwL7s5Z8eW2q2EDMcAtutb0lAw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.32.5
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
   /@tsmx/human-readable@2.0.1:
     resolution: {integrity: sha512-unPFIsELIwst7gBRXa2pvH68MpkRylkcMzltACL3zex7jHRLNaWvF7HGV1yG9xS3sA9ppaR08fKhlcl4CVdccg==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
@@ -1740,7 +1765,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
-    dev: true
 
   /vite@4.4.4:
     resolution: {integrity: sha512-4mvsTxjkveWrKDJI70QmelfVqTm+ihFAb6+xf4sjEU2TmUCTlVX87tmg/QooPEMQb/lM9qGHT99ebqPziEd3wg==}

@@ -2,6 +2,7 @@ import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core
 import { useColorScheme } from '@mantine/hooks';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { equals } from 'ramda';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -9,6 +10,14 @@ import { RouterProvider } from 'react-router-dom';
 import { EventBusContext, eventBus } from './EventBus';
 import { AppRoute } from './app-routes';
 import { useAppTheme } from './theme';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 function AppMain() {
   const preferredColorScheme = useColorScheme();
@@ -19,14 +28,16 @@ function AppMain() {
 
   return (
     <EventBusContext.Provider value={eventBus}>
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={updateColorScheme}>
-        <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-          <Notifications position="bottom-right" limit={5} zIndex={999} />
-          <ModalsProvider>
-            <RouterProvider router={AppRoute} />
-          </ModalsProvider>
-        </MantineProvider>
-      </ColorSchemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={updateColorScheme}>
+          <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+            <Notifications position="bottom-right" limit={5} zIndex={999} />
+            <ModalsProvider>
+              <RouterProvider router={AppRoute} />
+            </ModalsProvider>
+          </MantineProvider>
+        </ColorSchemeProvider>
+      </QueryClientProvider>
     </EventBusContext.Provider>
   );
 }

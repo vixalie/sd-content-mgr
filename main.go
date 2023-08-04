@@ -9,6 +9,7 @@ import (
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/models"
 	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -41,7 +42,9 @@ func main() {
 			Assets:  assets,
 			Handler: fileLoader,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		LogLevel:           logger.INFO,
+		LogLevelProduction: logger.WARNING,
+		BackgroundColour:   &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			hail.Initialize(1)
 			hailEngine, err := hail.Get()

@@ -20,6 +20,7 @@
     "@mantine/spotlight": "^6.0.17",
     "@react-hookz/web": "^23.1.0",
     "@tabler/icons-react": "^2.27.0",
+    "@tanstack/react-query": "^4.32.5",
     "@tsmx/human-readable": "^2.0.1",
     "embla-carousel-react": "^7.0.0",
     "events": "^3.3.0",
