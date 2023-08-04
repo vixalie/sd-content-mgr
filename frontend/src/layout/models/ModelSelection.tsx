@@ -14,12 +14,12 @@ import { useDebouncedValue, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useAsync, useRerender } from '@react-hookz/web';
 import { IconX } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { isEmpty, isNil, prop, props, sortBy } from 'ramda';
-import { FC, Suspense, useEffect, useState } from 'react';
-import { suspend } from 'suspend-react';
+import { FC, useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
 
 const hostPathSelection: string = '/';
@@ -33,15 +33,15 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
 }) => {
   const theme = useMantineTheme();
   const rerender = useRerender();
-  const modelList = suspend(
-    async (ui, cate, subPath, keyword) => {
-      if (!isNil(cate) && !isNil(subPath)) {
-        const modelList = await ListModelFiles(ui, cate, subPath, keyword);
-        return sortByName(modelList);
-      }
+  const { data: modelList, isFetching } = useQuery({
+    queryKey: ['model-list', ui, cate, subPath, keyword],
+    enabled: !isNil(cate) && !isNil(subPath),
+    queryFn: async ({ queryKey }) => {
+      const [_, ui, cate, subPath, keyword] = queryKey;
+      return await ListModelFiles(ui, cate, subPath, keyword);
     },
-    [ui, cate, subPath, keyword]
-  );
+    select: data => sortByName(data ?? [])
+  });
   useEffect(() => {
     EventsOn('updateModelList', () => {
       rerender();
@@ -53,6 +53,12 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
 
   return (
     <>
+      {isFetching && (
+        <Group align="center">
+          <Loader />
+          <Text>加载中……</Text>
+        </Group>
+      )}
       {(modelList ?? []).map(model => (
         <ModelListItem
           item={model}
@@ -183,21 +189,12 @@ export function ModelSelection() {
       />
       <Box w="100%" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <Stack spacing="md">
-          <Suspense
-            fallback={
-              <Group spacing="sm">
-                <Loader />
-                <Text>正在加载……</Text>
-              </Group>
-            }
-          >
-            <ModelListLoader
-              ui={uiTools}
-              cate={modelCategory}
-              subPath={modelSubPath}
-              keyword={debouncedKeyword}
-            />
-          </Suspense>
+          <ModelListLoader
+            ui={uiTools}
+            cate={modelCategory}
+            subPath={modelSubPath}
+            keyword={debouncedKeyword}
+          />
         </Stack>
       </Box>
     </Stack>
