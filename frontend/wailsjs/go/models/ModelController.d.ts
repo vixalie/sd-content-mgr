@@ -8,6 +8,8 @@ export function BreakModelFileParts(arg1:string):Promise<Array<string>>;
 
 export function ChooseAndSetFileThumbnail(arg1:string):Promise<boolean>;
 
+export function CopyModelFileLoader(arg1:number):Promise<void>;
+
 export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
 export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;

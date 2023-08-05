@@ -1,12 +1,13 @@
-import { ActionIcon, Badge, Group, Loader, Text, TextInput } from '@mantine/core';
+import { ActionIcon, Badge, Group, Loader, Text, TextInput, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconEdit, IconX } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconEdit, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   BreakModelFileParts,
+  CopyModelFileLoader,
   FetchModelVersionPrimaryFile
 } from '@wails/go/models/ModelController';
-import { isNil } from 'ramda';
+import { isNil, not } from 'ramda';
 import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 import { TwoLineInfoCell } from './TwoLineInfoCell';
@@ -21,7 +22,11 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
   modelVersionId,
   onCompleted
 }) => {
-  const { data: modelPrimaryFile, isFetching } = useQuery({
+  const {
+    data: modelPrimaryFile,
+    isFetching,
+    isFetched
+  } = useQuery({
     queryKey: ['model-primary-file', modelVersionId],
     queryFn: async () => {
       const primaryFile = await FetchModelVersionPrimaryFile(modelVersionId);
@@ -61,6 +66,31 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
     },
     [modelPrimaryFile?.id]
   );
+  const copyLoaderPrompt = useCallback(async () => {
+    if (isNil(modelPrimaryFile)) {
+      return;
+    }
+    try {
+      await CopyModelFileLoader(modelVersionId);
+      notifications.show({
+        title: '加载提示词已复制',
+        message:
+          '加载提示词已复制到剪贴板，请到Stable Diffusion WebUI或者Stable Diffusion ComfyUI中粘贴使用。',
+        autoClose: 5000,
+        color: 'green',
+        withCloseButton: false
+      });
+    } catch (e) {
+      console.error('[error]复制加载提示词：', e);
+      notifications.show({
+        title: '复制加载提示词失败',
+        message: `未能成功复制加载提示词，${e.message}`,
+        autoClose: 5000,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  }, [modelVersionId, modelPrimaryFile, isFetching, isFetched]);
   useLayoutEffect(() => {
     if (editing) {
       ref.current?.focus();
@@ -87,6 +117,13 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
             <ActionIcon onClick={() => switchEditState(true)}>
               <IconEdit stroke={1} />
             </ActionIcon>
+          )}
+          {not(editing) && not(isFetching) && isFetched && (
+            <Tooltip label="复制加载提示词">
+              <ActionIcon onClick={copyLoaderPrompt}>
+                <IconCopy stroke={1} />
+              </ActionIcon>
+            </Tooltip>
           )}
         </>
       }

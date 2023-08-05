@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/vixalie/sd-content-manager/entities"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -110,4 +111,35 @@ func (m ModelController) FetchModelVersionDescription(modelVersionId int) (strin
 		return "", nil
 	}
 	return *description, nil
+}
+
+func (m ModelController) CopyModelFileLoader(modelVersionId int) error {
+	modelVersion, err := fetchCachedModelInfo(m.ctx, modelVersionId)
+	if err != nil {
+		return err
+	}
+	versionPrimaryFile, err := fetchModelVersionPrimaryFile(m.ctx, modelVersionId)
+	if err != nil {
+		return err
+	}
+	if versionPrimaryFile == nil {
+		return fmt.Errorf("未找到模型文件")
+	}
+	fileName, _, err := breakModelFileParts(m.ctx, versionPrimaryFile.Id)
+	if err != nil {
+		return err
+	}
+	switch strings.ToLower(modelVersion.Model.Type) {
+	case "lora":
+		runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lora:%s:1>", fileName))
+	case "locon":
+		runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lyco:%s:1>", fileName))
+	case "textualinversion":
+		fallthrough
+	case "hypernet":
+		runtime.ClipboardSetText(m.ctx, fileName)
+	default:
+		return fmt.Errorf("模型不支持提示词加载语法")
+	}
+	return nil
 }
