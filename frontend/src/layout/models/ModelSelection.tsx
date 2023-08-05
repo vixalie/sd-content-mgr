@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue, useUncontrolled } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useAsync, useRerender } from '@react-hookz/web';
+import { useRerender } from '@react-hookz/web';
 import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
@@ -65,7 +65,6 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
 };
 
 export function ModelSelection() {
-  const [modelCatePath, setModelCatePath] = useState<string[]>([hostPathSelection]);
   const [uiTools, setUITools] = useUncontrolled({
     defaultValue: 'webui'
   });
@@ -78,30 +77,19 @@ export function ModelSelection() {
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword] = useDebouncedValue(keyword, 500);
   const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
-  const [catePathState, catePathActions] = useAsync(async (ui: string, category?: string) => {
-    if (!isNil(category)) {
+  const { data: modelCatePath } = useQuery({
+    queryKey: ['cate-path-list', uiTools, modelCategory],
+    initialData: [hostPathSelection],
+    enabled: !isNil(modelCategory),
+    queryFn: async ({ queryKey }) => {
+      const [_, ui, category] = queryKey;
       return await GetModelSubCategoryDirs(ui, category);
-    }
+    },
+    select: data => [hostPathSelection, ...(data ?? [])]
   });
   useEffect(() => {
-    catePathActions.execute(uiTools, modelCategory);
-  }, [uiTools, modelCategory]);
-  useEffect(() => {
-    switch (prop('status', catePathState)) {
-      case 'success':
-        setModelCatePath([hostPathSelection, ...(catePathState.result ?? [])]);
-        setModelSubPath(hostPathSelection);
-        break;
-      case 'error':
-        console.error('获取模型分类目录出错：', catePathState.error);
-        notifications.show({
-          message: '未能扫描指定模型目录！',
-          color: 'red',
-          autoClose: 3000,
-          withCloseButton: false
-        });
-    }
-  }, [catePathState]);
+    setModelSubPath(hostPathSelection);
+  }, [modelCatePath]);
 
   useEffect(() => {
     EventsOn('scanUncachedFiles', msg => {
