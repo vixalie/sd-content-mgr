@@ -40,7 +40,7 @@ export const ModelListItem: FC<ModelListItemProps> = ({
             </Center>
           </Grid.Col>
           <Grid.Col span={9}>
-            <Stack justify="flex-start" align="flex-start" h="8rem" gap={4}>
+            <Stack justify="flex-start" align="flex-start" h="8rem" spacing="xs">
               <Text size="xs" sx={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>
                 {item.name}
               </Text>
