@@ -100,3 +100,14 @@ func (m ModelController) FetchModelLocalFiles(modelVersionId int) ([]*entities.M
 func (m ModelController) SetModelVersionThumbnail(modelVersionId int, imageId string) error {
 	return copyModelImageAsModelThumbnail(m.ctx, modelVersionId, imageId)
 }
+
+func (m ModelController) FetchModelVersionDescription(modelVersionId int) (string, error) {
+	description, err := fetchModelVersionDescription(m.ctx, modelVersionId)
+	if err != nil {
+		return "", err
+	}
+	if description == nil {
+		return "", nil
+	}
+	return *description, nil
+}

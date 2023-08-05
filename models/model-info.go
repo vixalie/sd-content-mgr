@@ -59,3 +59,16 @@ func fetchModelVersionPrimaryFile(ctx context.Context, modelVersionId int) (*ent
 	runtime.LogDebugf(ctx, "Scaned primary file: %+v", modelVersion.PrimaryFile.LocalFile)
 	return modelVersion.PrimaryFile.LocalFile, nil
 }
+
+func fetchModelVersionDescription(ctx context.Context, modelVersionId int) (*string, error) {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("Model").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if modelVersion.Model == nil {
+		return nil, nil
+	}
+	return modelVersion.Model.Description, nil
+}

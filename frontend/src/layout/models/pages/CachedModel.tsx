@@ -2,6 +2,7 @@ import { Badge, Group, Stack, Tabs, Text } from '@mantine/core';
 import { entities, models } from '@wails/go/models';
 import { FC } from 'react';
 import { useLoaderData } from 'react-router-dom';
+import { ModelDescription } from './components/ModelDeacription';
 import { ModelSummay } from './components/ModelSummary';
 
 export const CachedModel: FC = () => {
@@ -26,6 +27,10 @@ export const CachedModel: FC = () => {
 
         <Tabs.Panel value="summary" pt="xs" h="100%">
           <ModelSummay modelVersion={modelVersion} key={modelVersion.id} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="description" pt="xs" h="100%">
+          <ModelDescription modelVersionId={modelVersion.id} />
         </Tabs.Panel>
       </Tabs>
     </Stack>

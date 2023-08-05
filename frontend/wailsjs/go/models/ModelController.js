@@ -26,6 +26,10 @@ export function FetchModelLocalFiles(arg1) {
   return window['go']['models']['ModelController']['FetchModelLocalFiles'](arg1);
 }
 
+export function FetchModelVersionDescription(arg1) {
+  return window['go']['models']['ModelController']['FetchModelVersionDescription'](arg1);
+}
+
 export function FetchModelVersionPrimaryFile(arg1) {
   return window['go']['models']['ModelController']['FetchModelVersionPrimaryFile'](arg1);
 }
