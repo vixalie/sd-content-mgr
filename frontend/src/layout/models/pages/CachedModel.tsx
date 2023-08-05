@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelSummay } from './components/ModelSummary';
+import { SAmeModelVersions } from './components/SameModelVersions';
 
 export const CachedModel: FC = () => {
   const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion] =
@@ -31,6 +32,10 @@ export const CachedModel: FC = () => {
 
         <Tabs.Panel value="description" pt="xs" h="100%">
           <ModelDescription modelVersionId={modelVersion.id} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="versions" pt="xs" h="100%">
+          <SAmeModelVersions modelVersionId={modelVersion.id} />
         </Tabs.Panel>
       </Tabs>
     </Stack>

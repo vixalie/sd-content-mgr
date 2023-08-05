@@ -18,7 +18,7 @@ type SimplifiedModelVersion struct {
 func fetchSimplifiedModelVersions(ctx context.Context, modelVersionId int) ([]SimplifiedModelVersion, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelVersion entities.ModelVersion
-	result := dbConn.Joins("Model").First(&modelVersion, modelVersionId)
+	result := dbConn.Joins("Model").Preload("Model.Versions").First(&modelVersion, modelVersionId)
 	if result.Error != nil {
 		return nil, result.Error
 	}
