@@ -162,7 +162,7 @@ TERMINATE_PARSE:
 		Size:             uint64(fileInfo.Size()),
 		CRC32:            strings.ToUpper(hex.ToHex(lo.Reverse(fileCrc32))), // 这里需要转换成小端序，还需要转换成大写形式。
 	}
-	if modelDescription != nil {
+	if modelDescription != nil && modelDescription.Id != 0 {
 		// 当模型描述不等于空的时候，需要向文件中登记其对应的模型信息。
 		fileCache.RelatedModelVersionId = &modelDescription.Id
 	}
@@ -248,7 +248,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				modelType       *string
 				activatePrompts = make([]string, 0)
 			)
-			if cache.RelatedModelVersionId != nil {
+			if cache.RelatedModelVersionId != nil && cache.RelatedModel.Id != 0 {
 				modelName = cache.RelatedModel.Model.Name
 				versionName = cache.RelatedModel.VersionName
 				relatedModel = &cache.RelatedModel.Model.Id
@@ -269,7 +269,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				ActivatePrompt: append(activatePrompts, cache.AdditionalPrompts...),
 				Memo:           cache.Memo,
 				BaseModel:      cache.BaseModel,
-				Related:        cache.RelatedModelVersionId != nil,
+				Related:        cache.RelatedModelVersionId != nil && *cache.RelatedModelVersionId != 0,
 				RelatedModel:   relatedModel,
 				RelatedVersion: cache.RelatedModelVersionId,
 			}
