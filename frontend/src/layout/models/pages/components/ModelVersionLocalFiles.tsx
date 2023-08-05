@@ -16,7 +16,6 @@ export const ModelVersionLocalFiles: FC<ModelVersionLocalFilesProps> = ({ versio
       return await FetchModelLocalFiles(versionId);
     }
   });
-  console.log('[debug]local files: ', files);
   return (
     <Stack spacing="sm">
       {isFetching && (
