@@ -14,7 +14,7 @@ export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;
 
 export function FetchModelImage(arg1:string):Promise<entities.Image>;
 
-export function FetchModelLocalFiles(arg1:number):Promise<Array<entities.FileCache>>;
+export function FetchModelLocalFiles(arg1:number):Promise<Array<entities.ModelFile>>;
 
 export function FetchModelVersionPrimaryFile(arg1:number):Promise<entities.FileCache>;
 

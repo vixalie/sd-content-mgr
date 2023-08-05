@@ -93,7 +93,7 @@ func (m ModelController) FetchModelImage(imageId string) (entities.Image, error)
 	return fetchModelImage(m.ctx, imageId)
 }
 
-func (m ModelController) FetchModelLocalFiles(modelVersionId int) ([]*entities.FileCache, error) {
+func (m ModelController) FetchModelLocalFiles(modelVersionId int) ([]*entities.ModelFile, error) {
 	return fetchModelVersionFiles(m.ctx, modelVersionId)
 }
 

@@ -1,5 +1,4 @@
-import { RenameableFile } from '@/components/RenameableFile';
-import { Group, Loader, Stack, Text } from '@mantine/core';
+import { Group, Loader, Stack, Text, Tooltip } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { FetchModelLocalFiles } from '@wails/go/models/ModelController';
 import { nanoid } from 'nanoid';
@@ -17,6 +16,7 @@ export const ModelVersionLocalFiles: FC<ModelVersionLocalFilesProps> = ({ versio
       return await FetchModelLocalFiles(versionId);
     }
   });
+  console.log('[debug]local files: ', files);
   return (
     <Stack spacing="sm">
       {isFetching && (
@@ -26,7 +26,11 @@ export const ModelVersionLocalFiles: FC<ModelVersionLocalFilesProps> = ({ versio
         </Group>
       )}
       {(files ?? []).map(file => (
-        <RenameableFile key={nanoid()} fileId={file.id} fileName={file.fileName} fz="sm" w="70%" />
+        <Tooltip label={file.name} key={nanoid()}>
+          <Text fz="sm" w="100%" maw={250} truncate align="right">
+            {file.name}
+          </Text>
+        </Tooltip>
       ))}
     </Stack>
   );
