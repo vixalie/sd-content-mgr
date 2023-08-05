@@ -1,8 +1,9 @@
 import { ActivatePrompts } from '@/components/ActivatePrompts';
 import { PrimaryFileCell } from '@/components/PrimaryFileCell';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
-import { Grid, ScrollArea, Stack } from '@mantine/core';
+import { Badge, Grid, ScrollArea, Stack } from '@mantine/core';
 import { entities } from '@wails/go/models';
+import { isNil } from 'ramda';
 import { FC } from 'react';
 import { ImageSlide } from './ModelImage';
 import { ModelVersionLocalFiles } from './ModelVersionLocalFiles';
@@ -12,6 +13,7 @@ type ModelSummaryProps = {
 };
 
 export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
+  console.log('[debug]model version: ', modelVersion);
   return (
     <Grid gutter="md" h="100%">
       <Grid.Col span={7} h="100%" p="md">
@@ -25,6 +27,15 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
             </TwoLineInfoCell>
             <TwoLineInfoCell title="基础模型" level={5}>
               {modelVersion.baseModel ?? '未知'}
+            </TwoLineInfoCell>
+            <TwoLineInfoCell title="分级" level={5}>
+              {isNil(modelVersion.model) ? (
+                <Badge color="yellow">未知</Badge>
+              ) : modelVersion.model.nsfw ? (
+                <Badge color="red">NSFW</Badge>
+              ) : (
+                <Badge color="green">SFW</Badge>
+              )}
             </TwoLineInfoCell>
             <ActivatePrompts editable={false} prompts={modelVersion.activatePrompt} />
             <PrimaryFileCell modelVersionId={modelVersion.id} />
