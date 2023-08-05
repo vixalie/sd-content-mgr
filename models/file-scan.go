@@ -25,6 +25,7 @@ type SimpleModelDescript struct {
 	Id             string   `json:"id"`
 	Name           string   `json:"name"`
 	VersionName    string   `json:"versionName"`
+	NSFW           bool     `json:"nsfw"`
 	FilePath       string   `json:"filePath"`
 	Type           *string  `json:"type"`
 	ThumbnailPath  *string  `json:"thumbnailPath"`
@@ -246,6 +247,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				modelName       string
 				versionName     string
 				modelType       *string
+				nsfw            bool
 				activatePrompts = make([]string, 0)
 			)
 			if cache.RelatedModelVersionId != nil && cache.RelatedModel.Id != 0 {
@@ -254,6 +256,8 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				relatedModel = &cache.RelatedModel.Model.Id
 				modelType = &cache.RelatedModel.Model.Type
 				activatePrompts = cache.RelatedModel.ActivatePrompt
+				nsfw = *cache.RelatedModel.Model.NSFW
+
 			} else {
 				modelName = filepath.Base(cache.FullPath)
 				versionName = ""
@@ -262,6 +266,7 @@ func searchModelInfo(ctx context.Context, files []string) ([]SimpleModelDescript
 				Id:             cache.Id,
 				Name:           modelName,
 				VersionName:    versionName,
+				NSFW:           nsfw,
 				FilePath:       cache.FullPath,
 				Type:           modelType,
 				ThumbnailPath:  cache.ThumbnailPath,

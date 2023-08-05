@@ -450,6 +450,7 @@ export namespace models {
 	    id: string;
 	    name: string;
 	    versionName: string;
+	    nsfw: boolean;
 	    filePath: string;
 	    type?: string;
 	    thumbnailPath?: string;
@@ -470,6 +471,7 @@ export namespace models {
 	        this.id = source["id"];
 	        this.name = source["name"];
 	        this.versionName = source["versionName"];
+	        this.nsfw = source["nsfw"];
 	        this.filePath = source["filePath"];
 	        this.type = source["type"];
 	        this.thumbnailPath = source["thumbnailPath"];

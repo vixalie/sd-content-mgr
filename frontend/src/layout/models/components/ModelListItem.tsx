@@ -47,6 +47,7 @@ export const ModelListItem: FC<ModelListItemProps> = ({
               {!isEmpty(item.versionName) && (
                 <Badge color={isActive || hovered ? 'lime' : 'blue'}>{item.versionName}</Badge>
               )}
+              {item.nsfw && <Badge color="red">NSFW</Badge>}
             </Stack>
           </Grid.Col>
         </Grid>
