@@ -1,6 +1,6 @@
 import { Badge, Group, Stack, Tabs, Text } from '@mantine/core';
 import { entities, models } from '@wails/go/models';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelOperates } from './components/ModelOperates';
@@ -8,8 +8,13 @@ import { ModelSummay } from './components/ModelSummary';
 import { SAmeModelVersions } from './components/SameModelVersions';
 
 export const CachedModel: FC = () => {
+  const [activeTab, setActiveTab] = useState<string | null>('summary');
   const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion] =
     useLoaderData<[entities.FileCache, models.SimplifiedModelVersion]>();
+
+  useEffect(() => {
+    setActiveTab('summary');
+  }, [modelVersion]);
 
   return (
     <Stack px="md" py="lg" spacing="sm" h="100%">
@@ -19,7 +24,7 @@ export const CachedModel: FC = () => {
       <Group>
         <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
       </Group>
-      <Tabs variant="outline" defaultValue="summary" h="100%">
+      <Tabs variant="outline" h="100%" value={activeTab} onTabChange={setActiveTab}>
         <Tabs.List position="right">
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>
           <Tabs.Tab value="description">描述</Tabs.Tab>
