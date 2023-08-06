@@ -1,5 +1,3 @@
-import { ActivatePrompts } from '@/components/ActivatePrompts';
-import { PrimaryFileCell } from '@/components/PrimaryFileCell';
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
 import { Badge, Grid, ScrollArea, Stack } from '@mantine/core';
 import { entities } from '@wails/go/models';
@@ -36,8 +34,6 @@ export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
                 <Badge color="green">SFW</Badge>
               )}
             </TwoLineInfoCell>
-            <ActivatePrompts editable={false} prompts={modelVersion.activatePrompt} />
-            <PrimaryFileCell modelVersionId={modelVersion.id} />
             <TwoLineInfoCell title="模型包含文件" level={5}>
               <ModelVersionLocalFiles versionId={modelVersion.id} />
             </TwoLineInfoCell>

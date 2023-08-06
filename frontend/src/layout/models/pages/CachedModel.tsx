@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import { isEmpty } from 'ramda';
 import { FC, useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
+import { ModelActivates } from './components/ModelActivates';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelOperates } from './components/ModelOperates';
 import { ModelSummay } from './components/ModelSummary';
@@ -55,6 +56,7 @@ export const CachedModel: FC = () => {
       <Tabs variant="outline" h="100%" value={activeTab} onTabChange={setActiveTab}>
         <Tabs.List position="right">
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>
+          <Tabs.Tab value="activate">模型激活</Tabs.Tab>
           <Tabs.Tab value="description">描述</Tabs.Tab>
           <Tabs.Tab value="versions">同系列</Tabs.Tab>
           <Tabs.Tab value="operates">操作</Tabs.Tab>
@@ -62,6 +64,13 @@ export const CachedModel: FC = () => {
 
         <Tabs.Panel value="summary" pt="xs" h="100%">
           <ModelSummay modelVersion={modelVersion} key={modelVersion.id} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="activate" pt="xs" h="100%">
+          <ModelActivates
+            modelVersionId={modelVersion.id}
+            activatePrompts={modelVersion.activatePrompt}
+          />
         </Tabs.Panel>
 
         <Tabs.Panel value="description" pt="xs" h="100%">
