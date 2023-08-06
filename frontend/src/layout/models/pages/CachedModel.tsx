@@ -3,6 +3,7 @@ import { entities, models } from '@wails/go/models';
 import { FC } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelDescription } from './components/ModelDeacription';
+import { ModelOperates } from './components/ModelOperates';
 import { ModelSummay } from './components/ModelSummary';
 import { SAmeModelVersions } from './components/SameModelVersions';
 
@@ -36,6 +37,10 @@ export const CachedModel: FC = () => {
 
         <Tabs.Panel value="versions" pt="xs" h="100%">
           <SAmeModelVersions modelVersionId={modelVersion.id} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="operates" pt="xs" h="100%">
+          <ModelOperates modelVersionId={modelVersion.id} modelId={modelVersion.modelId} />
         </Tabs.Panel>
       </Tabs>
     </Stack>

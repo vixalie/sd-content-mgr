@@ -1,0 +1,19 @@
+package remote
+
+import "context"
+
+type RemoteController struct {
+	ctx context.Context
+}
+
+func NewRemoteController() *RemoteController {
+	return &RemoteController{}
+}
+
+func (r *RemoteController) SetContext(ctx context.Context) {
+	r.ctx = ctx
+}
+
+func (r RemoteController) RefreshModelInfo(modelId int) error {
+	return RefreshModelInfo(r.ctx, modelId)
+}

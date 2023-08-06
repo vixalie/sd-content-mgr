@@ -8,6 +8,7 @@ import (
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/models"
+	"github.com/vixalie/sd-content-manager/remote"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -30,6 +31,8 @@ func main() {
 	settings := config.NewApplicationSettings()
 	// 创建应用中模型控制功能。
 	modelController := models.NewModelController()
+	// 创建应用中远程控制功能
+	remoteController := remote.NewRemoteController()
 	// 创建本地文件加载功能
 	fileLoader := NewFileLoader()
 
@@ -74,11 +77,13 @@ func main() {
 			settings.SetContext(ctx)
 			fileLoader.SetContext(ctx)
 			modelController.SetContext(ctx)
+			remoteController.SetContext(ctx)
 		},
 		Bind: []interface{}{
 			app,
 			settings,
 			modelController,
+			remoteController,
 		},
 		Debug: options.Debug{
 			OpenInspectorOnStartup: true,

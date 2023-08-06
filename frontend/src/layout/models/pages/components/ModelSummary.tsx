@@ -13,7 +13,6 @@ type ModelSummaryProps = {
 };
 
 export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
-  console.log('[debug]model version: ', modelVersion);
   return (
     <Grid gutter="md" h="100%">
       <Grid.Col span={7} h="100%" p="md">

@@ -1,4 +1,4 @@
-import { Box, Center, Group, Loader, ScrollArea, Text } from '@mantine/core';
+import { Box, Center, Group, Loader, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { FetchModelVersionDescription } from '@wails/go/models/ModelController';
 import { isEmpty } from 'ramda';
@@ -17,7 +17,7 @@ export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) 
     }
   });
   return (
-    <Box py="1rem" px="5rem">
+    <Box py="1rem" px="5rem" h="90%">
       {isFetching && (
         <Center>
           <Group>
@@ -26,7 +26,15 @@ export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) 
           </Group>
         </Center>
       )}
-      <ScrollArea>{!isEmpty(description) ? description : <Text>暂无描述</Text>}</ScrollArea>
+      {!isEmpty(description) ? (
+        <Box
+          h="100%"
+          dangerouslySetInnerHTML={{ __html: description }}
+          sx={{ overflowY: 'auto' }}
+        />
+      ) : (
+        <Text>暂无描述</Text>
+      )}
     </Box>
   );
 };

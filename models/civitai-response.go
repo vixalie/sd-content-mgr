@@ -71,6 +71,7 @@ type Model struct {
 	Description   *string        `json:"description"`
 	Type          string         `json:"type"`
 	NSFW          bool           `json:"nsfw"`
+	POI           bool           `json:"poi"`
 	Tags          []string       `json:"tags"`
 	Mode          *string        `json:"mode"`
 	Creator       CivitaiCreator `json:"creator"`

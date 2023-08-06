@@ -108,6 +108,7 @@ func persistModelVersion(ctx context.Context, versionInfo *ModelVersion, origina
 	return nil
 }
 
+// 提取并解析每个模型版本中所包含的文件信息。每个模型版本可能会包含模型文件本身与模型训练集文件，其中训练集文件只需要保持文件信息即可，大部分情况下并不需要下载到本地。
 func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entities.ModelFile, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelFiles = make([]entities.ModelFile, 0)
@@ -131,7 +132,10 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 		}
 		modelFiles = append(modelFiles, fileRecord)
 	}
-	dbConn.CreateInBatches(modelFiles, 20)
+	dbConn.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "identity_hash"}},
+		DoUpdates: clause.AssignmentColumns([]string{"name", "size", "type", "metadata", "hashes", "primary", "download_url"}),
+	}).CreateInBatches(modelFiles, 20)
 	return modelFiles, nil
 }
 
@@ -160,6 +164,155 @@ func persistVersionImages(ctx context.Context, versionInfo *ModelVersion) ([]ent
 		}
 		images = append(images, im)
 	}
-	dbConn.CreateInBatches(images, 20)
+	dbConn.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "version_id"}, {Name: "blur_hash"}},
+		DoUpdates: clause.AssignmentColumns([]string{"download_url", "width", "height", "nsfw", "meta", "raw_meta"}),
+	}).CreateInBatches(images, 20)
 	return images, nil
+}
+
+// 解析从Civitai获取到的模型信息。
+func parseCivitaiModelResponse(ctx context.Context, modelResponse []byte) (*Model, error) {
+	var modelInfo Model
+	err := json.Unmarshal(modelResponse, &modelInfo)
+	if err != nil {
+		return nil, fmt.Errorf("civitai info文件解析失败，%w", err)
+	}
+	err = persistModel(ctx, &modelInfo, modelResponse)
+	if err != nil {
+		return nil, fmt.Errorf("无法保存模型信息，%w", err)
+	}
+	err = persistModelTags(ctx, modelInfo.Id, modelInfo.Tags)
+	if err != nil {
+		return nil, fmt.Errorf("无法保存模型标签信息，%w", err)
+	}
+	for _, version := range modelInfo.ModelVersions {
+		err = refreshModelVersion(ctx, &version)
+		if err != nil {
+			return nil, fmt.Errorf("无法保存模型版本信息，%w", err)
+		}
+	}
+	return &modelInfo, err
+}
+
+// 保存从Civitai解析到的模型信息，如果模型已经存在，那么将会更新模型信息。
+func persistModel(ctx context.Context, modelInfo *Model, original []byte) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	model := entities.Model{
+		Id:               modelInfo.Id,
+		Name:             modelInfo.Name,
+		Description:      modelInfo.Description,
+		NSFW:             lo.ToPtr(modelInfo.NSFW),
+		PersonOfInterest: lo.ToPtr(modelInfo.POI),
+		Author: &entities.CivitaiCreator{
+			Username: modelInfo.Creator.Username,
+			Image:    modelInfo.Creator.Image,
+		},
+		Type:                    modelInfo.Type,
+		Mode:                    modelInfo.Mode,
+		CivitaiOriginalResponse: original,
+	}
+	result := dbConn.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "nsfw", "person_of_interest", "author", "type", "mode", "civitai_original_response"}),
+	}).Create(&model)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+// 保存模型在Civitai上的分类标签信息。保存标签信息是将会首先删除模型对应的全部标签，然后再予以保存。
+func persistModelTags(ctx context.Context, modelId int, tags []string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	result := dbConn.Delete(&entities.ModelTags{}, "model_id = ?", modelId)
+	if result.Error != nil {
+		return fmt.Errorf("未能清理模型已有的标签，%w", result.Error)
+	}
+	for _, tag := range tags {
+		result = dbConn.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "model_id"}, {Name: "tag"}},
+			DoNothing: true,
+		}).Create(&entities.ModelTags{
+			ModelId: modelId,
+			Tag:     tag,
+		})
+		if result.Error != nil {
+			return fmt.Errorf("无法保存模型标签，%w", result.Error)
+		}
+	}
+	return nil
+}
+
+func refreshModelVersion(ctx context.Context, modelVersion *ModelVersion) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	// 分解组装模型版本中所需要的信息
+	var prompts = make([]string, 0)
+	for _, word := range modelVersion.TrainedWords {
+		for _, prompt := range strings.Split(word, ",") {
+			prompts = append(prompts, strings.TrimSpace(prompt))
+		}
+	}
+	// 保存模型版本中携带的文件信息，注意这里的保存可能将会大部分采用更新的方式。
+	// 直接从前面的函数中反悔的文件集合可能并不可靠，因为此时数据库中模型版本对应的文件可能是新版本与旧版本文件混杂的情况。
+	_, err := persistModelFiles(ctx, modelVersion)
+	if err != nil {
+		return fmt.Errorf("无法提取模型文件信息，%w", err)
+	}
+	var files []entities.ModelFile
+	result := dbConn.Where(&entities.ModelFile{VersionId: modelVersion.Id, Primary: lo.ToPtr(true)}).Find(&files)
+	if result.Error != nil {
+		return fmt.Errorf("无法获取更新后的首要模型文件信息，%w", result.Error)
+	}
+	var versionPrimaryFile *int64
+	if len(files) > 0 {
+		versionPrimaryFile = lo.ToPtr(files[0].Id)
+	}
+	// 保存模型版本中携带的图片信息，注意这里的保存将可能大部分会采用更新的方式。
+	// 此处从前面的函数中返回的图片集合可能并不可靠，因为此时数据库中模型版本对应的图片可能是新版本与旧版本图片混杂的情况。
+	_, err = persistVersionImages(ctx, modelVersion)
+	if err != nil {
+		return fmt.Errorf("无法提取模型图片信息，%w", err)
+	}
+	var images []entities.Image
+	result = dbConn.Where(&entities.Image{VersionId: lo.ToPtr(modelVersion.Id)}).Find(&images)
+	if result.Error != nil {
+		return fmt.Errorf("无法获取更新后的模型图片信息，%w", result.Error)
+	}
+	var versionCover *string
+	if len(images) > 0 {
+		versionCover = lo.ToPtr(images[0].Id)
+	}
+	// 将给定的模型版本信息重新转换为JSON格式。应用过程中的研究发现证明，该部分虽然是包含在Model信息中，但是其内容与直接获取模型版本的信息是相同的。
+	original, err := json.Marshal(modelVersion)
+	if err != nil {
+		return fmt.Errorf("无法序列化模型版本信息，%w", err)
+	}
+	var newModelVersion = &entities.ModelVersion{
+		Id:                      modelVersion.Id,
+		ModelId:                 lo.ToPtr(modelVersion.ModelId),
+		VersionName:             modelVersion.Name,
+		ActivatePrompt:          prompts,
+		BaseModel:               modelVersion.BaseModel,
+		PageUrl:                 lo.ToPtr(AssembleModelVersionUrl(modelVersion.Id)),
+		DownloadUrl:             &modelVersion.DownloadUrl,
+		PrimaryFileId:           versionPrimaryFile,
+		CoverUsed:               versionCover,
+		CivitaiOriginalResponse: original,
+		CivitaiCreatedAt:        modelVersion.CreatedAt,
+		CivitaiUpdatedAt:        modelVersion.UpdatedAt,
+	}
+	result = dbConn.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"model_id", "version_name", "activate_prompt", "base_model", "page_url", "download_url", "primary_file_id", "cover_used", "civitai_original_response", "civitai_created_at", "civitai_updated_at"}),
+	}).Create(newModelVersion)
+	if result.Error != nil {
+		return fmt.Errorf("无法保存模型版本信息，%w", result.Error)
+	}
+	return nil
+}
+
+// 提供`Remote`包使用的接口。
+func ParseRemoteModelResponse(ctx context.Context, modelResponse []byte) (*Model, error) {
+	return parseCivitaiModelResponse(ctx, modelResponse)
 }
