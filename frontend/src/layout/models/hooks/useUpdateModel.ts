@@ -12,6 +12,7 @@ export function useUpdateModel(modelId: number): () => void {
       await RefreshModelInfo(modelId);
       revalidator.revalidate();
       queryClient.invalidateQueries({ queryKey: ['model-description'] });
+      queryClient.invalidateQueries({ queryKey: ['model-tags'] });
       notifications.show({
         title: '模型信息更新成功',
         message: '模型信息已经完成更新。',

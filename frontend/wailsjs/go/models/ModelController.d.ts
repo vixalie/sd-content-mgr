@@ -18,6 +18,8 @@ export function FetchModelImage(arg1:string):Promise<entities.Image>;
 
 export function FetchModelLocalFiles(arg1:number):Promise<Array<entities.ModelFile>>;
 
+export function FetchModelTags(arg1:number):Promise<Array<string>>;
+
 export function FetchModelVersionDescription(arg1:number):Promise<string>;
 
 export function FetchModelVersionPrimaryFile(arg1:number):Promise<entities.FileCache>;

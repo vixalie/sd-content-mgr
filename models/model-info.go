@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/db"
@@ -71,4 +72,17 @@ func fetchModelVersionDescription(ctx context.Context, modelVersionId int) (*str
 		return nil, nil
 	}
 	return modelVersion.Model.Description, nil
+}
+
+func fetchModelTags(ctx context.Context, modelId int) ([]string, error) {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var model entities.Model
+	result := dbConn.Preload("Tags").First(&model, "id = ?", modelId)
+	if result.Error != nil {
+		return nil, fmt.Errorf("未能获取模型标签，%w", result.Error)
+	}
+	tags := lo.Map(model.Tags, func(tag entities.ModelTags, _ int) string {
+		return tag.Tag
+	})
+	return tags, nil
 }

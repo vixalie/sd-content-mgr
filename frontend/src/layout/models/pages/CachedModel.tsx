@@ -1,5 +1,9 @@
-import { Badge, Group, Stack, Tabs, Text } from '@mantine/core';
+import { Badge, Flex, Group, Stack, Tabs, Text } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import { entities, models } from '@wails/go/models';
+import { FetchModelTags } from '@wails/go/models/ModelController';
+import { nanoid } from 'nanoid';
+import { isEmpty } from 'ramda';
 import { FC, useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelDescription } from './components/ModelDeacription';
@@ -11,6 +15,13 @@ export const CachedModel: FC = () => {
   const [activeTab, setActiveTab] = useState<string | null>('summary');
   const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion] =
     useLoaderData<[entities.FileCache, models.SimplifiedModelVersion]>();
+  const { data: tags } = useQuery({
+    queryKey: ['model-tags', modelVersion.modelId],
+    queryFn: async ({ queryKey }) => {
+      const [_, modelId] = queryKey;
+      return await FetchModelTags(modelId);
+    }
+  });
 
   useEffect(() => {
     setActiveTab('summary');
@@ -22,8 +33,25 @@ export const CachedModel: FC = () => {
         {modelVersion.model?.name ?? ''}
       </Text>
       <Group>
+        <Text fz="sm" color="gray">
+          版本
+        </Text>
         <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
       </Group>
+      {!isEmpty(tags) && (
+        <Group>
+          <Text fz="sm" color="gray">
+            Civitai 标签
+          </Text>
+          <Flex direction="row" justify="flex-start" align="flex-start" gap="sm" wrap="wrap">
+            {(tags ?? []).map(tag => (
+              <Badge color="indigo" key={nanoid()}>
+                {tag}
+              </Badge>
+            ))}
+          </Flex>
+        </Group>
+      )}
       <Tabs variant="outline" h="100%" value={activeTab} onTabChange={setActiveTab}>
         <Tabs.List position="right">
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>

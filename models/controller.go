@@ -143,3 +143,7 @@ func (m ModelController) CopyModelFileLoader(modelVersionId int) error {
 	}
 	return nil
 }
+
+func (m ModelController) FetchModelTags(modelId int) ([]string, error) {
+	return fetchModelTags(m.ctx, modelId)
+}

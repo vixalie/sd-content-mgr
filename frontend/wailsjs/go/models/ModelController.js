@@ -30,6 +30,10 @@ export function FetchModelLocalFiles(arg1) {
   return window['go']['models']['ModelController']['FetchModelLocalFiles'](arg1);
 }
 
+export function FetchModelTags(arg1) {
+  return window['go']['models']['ModelController']['FetchModelTags'](arg1);
+}
+
 export function FetchModelVersionDescription(arg1) {
   return window['go']['models']['ModelController']['FetchModelVersionDescription'](arg1);
 }
