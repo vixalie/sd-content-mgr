@@ -9,11 +9,19 @@ export function useUpdateModel(modelId: number): () => void {
   const queryClient = useQueryClient();
   const updateModelAction = useCallback(async () => {
     try {
+      notifications.show({
+        id: 'update-model-info',
+        title: '更新模型信息',
+        message: '正在更新模型信息，请稍候...',
+        color: 'blue',
+        withCloseButton: false
+      });
       await RefreshModelInfo(modelId);
       revalidator.revalidate();
       queryClient.invalidateQueries({ queryKey: ['model-description'] });
       queryClient.invalidateQueries({ queryKey: ['model-tags'] });
-      notifications.show({
+      notifications.update({
+        id: 'update-model-info',
         title: '模型信息更新成功',
         message: '模型信息已经完成更新。',
         color: 'green',
@@ -22,7 +30,8 @@ export function useUpdateModel(modelId: number): () => void {
       });
     } catch (e) {
       console.error('[error]更新模型信息：', e);
-      notifications.show({
+      notifications.update({
+        id: 'update-model-info',
         title: '模型信息更新失败',
         message: `模型信息更新失败，${e}`,
         color: 'red',
