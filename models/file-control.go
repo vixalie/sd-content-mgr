@@ -11,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/vixalie/sd-content-manager/utils"
 	"gorm.io/gorm"
 )
 
@@ -166,7 +167,12 @@ func copyFileThumbnail(ctx context.Context, fileId, originImageFilePath string) 
 	if err != nil {
 		return nil
 	}
+	thumbnailHash, err := utils.PHashImage(imagePath)
+	if err != nil {
+		return fmt.Errorf("计算缩略图哈希值失败，%w", err)
+	}
 	file.ThumbnailPath = &thumbnailPath
+	file.ThumbnailPHash = &thumbnailHash
 	result = dbConn.Save(&file)
 	return result.Error
 }
