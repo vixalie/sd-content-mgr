@@ -5,9 +5,8 @@ export function MaintainNavigation() {
   return (
     <Stack spacing="sm">
       <ActivatableNavLink to="/maintain/download" label="下载模型" />
-      <ActivatableNavLink to="/maintain/fillup" label="补录模型信息" />
-      <ActivatableNavLink to="/maintain/cleanup" label="清理模型" />
-      <ActivatableNavLink to="/maintain/refresh" label="更新模型信息" />
+      <ActivatableNavLink to="/maintain/cleanup" label="清理模型" disabled />
+      <ActivatableNavLink to="/maintain/refresh" label="更新模型信息" disabled />
       <ActivatableNavLink to="/maintain/update/webui" label="SD WebUI 更新" disabled />
       <ActivatableNavLink
         to="/maintain/update/webui-extension"
