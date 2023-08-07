@@ -13,8 +13,9 @@ import {
 import { useUncontrolled } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { GetModelSubCategoryDirs } from '@wails/go/models/ModelController';
+import { EventsEmit } from '@wails/runtime/runtime';
 import { isEmpty, isNil } from 'ramda';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { CachedIcon } from './CachedIcon';
 import { ModelDownloadedIcon } from './ModelDownloadedIcon';
 import { NotFoundIcon } from './NotFoundIcon';
@@ -45,6 +46,15 @@ export const DownloadTarget: FC = () => {
     },
     select: data => [hostPathSelection, ...(data ?? [])]
   });
+  const resetDownload = useCallback(() => {
+    setUrl('');
+    setModelCategory('');
+    setTargetSubPath(hostPathSelection);
+    EventsEmit('cache-status', 'unknown');
+    EventsEmit('model-downloaded', 'unknown');
+    EventsEmit('version-downloaded', 'unknown');
+    EventsEmit('model-found', 'unknown');
+  }, []);
   return (
     <Stack spacing="md">
       <TextInput
@@ -59,12 +69,7 @@ export const DownloadTarget: FC = () => {
         <Text sx={{ flexGrow: 1 }}></Text>
       </Group>
       <Group spacing="sm">
-        <Select
-          label="模型类别"
-          data={MoldelSelections}
-          value={modelCategory}
-          onChange={setModelCategory}
-        />
+        <Select label="模型类别" readOnly data={MoldelSelections} value={modelCategory} />
         <Select
           label="目标分类目录"
           data={modelCatePath}
@@ -81,7 +86,9 @@ export const DownloadTarget: FC = () => {
       </Group>
       <Group spacing="sm" grow>
         <Button>下载模型</Button>
-        <Button color="red">重置当前任务</Button>
+        <Button color="red" onClick={resetDownload}>
+          重置下载
+        </Button>
       </Group>
       <Progress radius="xs" color="blue" />
       <Group spacing="md">
