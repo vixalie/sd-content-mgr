@@ -20,6 +20,7 @@ export function useUpdateModel(modelId: number): () => void {
       revalidator.revalidate();
       queryClient.invalidateQueries({ queryKey: ['model-description'] });
       queryClient.invalidateQueries({ queryKey: ['model-tags'] });
+      queryClient.invalidateQueries({ queryKey: ['model-silbing-versions'] });
       notifications.update({
         id: 'update-model-info',
         title: '模型信息更新成功',
