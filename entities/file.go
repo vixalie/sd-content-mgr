@@ -3,8 +3,8 @@ package entities
 type FileCache struct {
 	CommonFields
 	Id                    string        `gorm:"primaryKey;type:text" json:"id"`
-	FullPath              string        `gorm:"type:text;index" json:"fullPath"`
-	FileIdentityHash      string        `gorm:"type:text;uniqueIndex:file_indentity" json:"fileHash"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
+	FullPath              string        `gorm:"type:text;index:path_index" json:"fullPath"`
+	FileIdentityHash      string        `gorm:"type:text;index:hash_index" json:"fileHash"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
 	FileName              string        `gorm:"type:text" json:"fileName"`
 	ThumbnailPath         *string       `gorm:"type:text" json:"thumbnailPath"`
 	CivitaiInfoPath       *string       `gorm:"type:text" json:"infoPath"`    // 如果本项目不为空，那么模型一定存在详细信息。
@@ -14,7 +14,7 @@ type FileCache struct {
 	AdditionalPrompts     []string      `gorm:"type:text;serializer:json" json:"additionalPrompts"`
 	BaseModel             *string       `gorm:"type:text" json:"baseModel"` // 这一项仅在文件不对应任何模型的时候才器作用，仅作为记录功能使用。
 	RelatedModelFile      *ModelFile    `gorm:"foreignKey:FileIdentityHash;references:IdentityHash" json:"-"`
-	RelatedModelVersionId *int          `gorm:"type:integer;index" json:"relatedModelVersionId"`
+	RelatedModelVersionId *int          `gorm:"type:integer;index:model_version_index" json:"relatedModelVersionId"`
 	RelatedModel          *ModelVersion `gorm:"foreignKey:RelatedModelVersionId;references:Id" json:"relatedModel"`
 }
 
@@ -35,12 +35,12 @@ type ModelFileHashes struct {
 type ModelFile struct {
 	CommonFields
 	Id           int64            `gorm:"primaryKey;type:integer" json:"id"`
-	VersionId    int              `gorm:"type:integer;index" json:"versionId"`
+	VersionId    int              `gorm:"type:integer;index:model_version_index" json:"versionId"`
 	Version      *ModelVersion    `gorm:"foreignKey:VersionId;references:Id" json:"modelVersion"`
 	Name         string           `gorm:"type:text" json:"name"`
 	Size         uint64           `gorm:"type:integer" json:"size"`
 	Type         *string          `gorm:"type:text" json:"type"`
-	IdentityHash string           `gorm:"type:text;index" json:"identityHash"`
+	IdentityHash string           `gorm:"type:text;uniqueIndex:file_indentity" json:"identityHash"`
 	Metadata     *ModelFileMeta   `gorm:"type:text;serializer:json" json:"metadata"`
 	Hashes       *ModelFileHashes `gorm:"type:text;serializer:json" json:"hashes"`
 	Primary      *bool            `gorm:"type:boolean" json:"primary"`
