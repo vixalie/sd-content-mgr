@@ -79,7 +79,7 @@ export function ModelSelection() {
   const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
   const { data: modelCatePath } = useQuery({
     queryKey: ['cate-path-list', uiTools, modelCategory],
-    initialData: [hostPathSelection],
+    initialData: [],
     enabled: !isNil(modelCategory),
     queryFn: async ({ queryKey }) => {
       const [_, ui, category] = queryKey;
