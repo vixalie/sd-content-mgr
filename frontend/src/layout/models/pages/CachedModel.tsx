@@ -1,9 +1,10 @@
-import { Badge, Flex, Group, Stack, Tabs, Text } from '@mantine/core';
+import { Badge, Flex, Stack, Tabs, Text, Tooltip, useMantineTheme } from '@mantine/core';
+import { IconDeviceFloppy, IconEyeExclamation } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { entities, models } from '@wails/go/models';
 import { FetchModelTags } from '@wails/go/models/ModelController';
 import { nanoid } from 'nanoid';
-import { isEmpty } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 import { FC, useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelActivates } from './components/ModelActivates';
@@ -13,9 +14,13 @@ import { ModelSummay } from './components/ModelSummary';
 import { SameModelVersions } from './components/SameModelVersions';
 
 export const CachedModel: FC = () => {
+  const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState<string | null>('summary');
-  const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion[]] =
-    useLoaderData<[entities.FileCache, models.SimplifiedModelVersion[]]>();
+  const [modelVersion, versions, versionDownloaded]: [
+    entities.ModelVersion,
+    models.SimplifiedModelVersion[],
+    boolean
+  ] = useLoaderData<[entities.FileCache, models.SimplifiedModelVersion[], boolean]>();
   const { data: tags } = useQuery({
     queryKey: ['model-tags', modelVersion.modelId],
     queryFn: async ({ queryKey }) => {
@@ -33,12 +38,36 @@ export const CachedModel: FC = () => {
       <Text fz="lg" weight={500}>
         {modelVersion.model?.name ?? ''}
       </Text>
-      <Group>
+      <Flex direction="row" justify="flex-start" align="center" gap="md">
         <Text fz="sm" color="gray">
           版本
         </Text>
-        <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
-      </Group>
+        <Flex direction="row" justify="flex-start" align="center" gap="sm" sx={{ flexGrow: 1 }}>
+          <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
+        </Flex>
+        {isNil(modelVersion.model) ? (
+          <Tooltip label="未知分级状态">
+            <IconEyeExclamation stroke={1} color={theme.colors.yellow[6]} size={24} />
+          </Tooltip>
+        ) : modelVersion.model.nsfw ? (
+          <Tooltip label="NSFW">
+            <IconEyeExclamation stroke={1} color={theme.colors.red[6]} size={24} />
+          </Tooltip>
+        ) : (
+          <Tooltip label="SFW">
+            <IconEyeExclamation stroke={1} color={theme.colors.green[6]} size={24} />
+          </Tooltip>
+        )}
+        {versionDownloaded ? (
+          <Tooltip label="模型已下载">
+            <IconDeviceFloppy stroke={1} color={theme.colors.green[6]} size={24} />
+          </Tooltip>
+        ) : (
+          <Tooltip label="模型尚未下载">
+            <IconDeviceFloppy stroke={1} color={theme.colors.red[6]} size={24} />
+          </Tooltip>
+        )}
+      </Flex>
       {!isEmpty(tags) && (
         <Flex direction="row" justify="flex-start" align="flex-start" wrap="nowrap" gap="md">
           <Text fz="sm" color="gray" sx={{ minWidth: 'max-content' }}>

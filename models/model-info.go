@@ -86,3 +86,23 @@ func fetchModelTags(ctx context.Context, modelId int) ([]string, error) {
 	})
 	return tags, nil
 }
+
+// 本项检查仅仅是检查数据库中指定模型版本是否存在对应的本地文件记录，而不是真正的在本地文件系统中寻找文件。
+// 对于本地已经存在但是本函数报文件不存在的情况，访问一次对应的文件夹扫描一次即可解决。
+func checkModelVersionDownloaded(ctx context.Context, modelVersionId int) (bool, error) {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("PrimaryFile").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return false, fmt.Errorf("未能获取模型版本，%w", result.Error)
+	}
+	if modelVersion.PrimaryFile == nil {
+		return false, nil
+	}
+	var localFileCount int64
+	result = dbConn.Model(&entities.FileCache{}).Where("file_identity_hash = ?", modelVersion.PrimaryFile.IdentityHash).Count(&localFileCount)
+	if result.Error != nil {
+		return false, fmt.Errorf("未能获取本地文件记录，%w", result.Error)
+	}
+	return localFileCount > 0, nil
+}

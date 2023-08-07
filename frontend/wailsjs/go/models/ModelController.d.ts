@@ -30,6 +30,8 @@ export function FetchUncachedFileInfo(arg1:string):Promise<entities.FileCache>;
 
 export function GetModelSubCategoryDirs(arg1:string,arg2:string):Promise<Array<string>>;
 
+export function IsModelVersionPrimaryFileDownloaded(arg1:number):Promise<boolean>;
+
 export function ListModelFiles(arg1:string,arg2:string,arg3:string,arg4:string):Promise<Array<models.SimpleModelDescript>>;
 
 export function RecordFileBaseModel(arg1:string,arg2:string):Promise<void>;
