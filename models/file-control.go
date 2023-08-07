@@ -167,7 +167,7 @@ func copyFileThumbnail(ctx context.Context, fileId, originImageFilePath string) 
 	if err != nil {
 		return nil
 	}
-	thumbnailHash, err := utils.PHashImage(imagePath)
+	thumbnailHash, err := utils.PHashImage(thumbnailPath)
 	if err != nil {
 		return fmt.Errorf("计算缩略图哈希值失败，%w", err)
 	}
