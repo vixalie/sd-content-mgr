@@ -1,5 +1,5 @@
 import { Badge, Flex, Stack, Tabs, Text, Tooltip, useMantineTheme } from '@mantine/core';
-import { IconDeviceFloppy, IconEyeExclamation } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconError404, IconEyeExclamation } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { entities, models } from '@wails/go/models';
 import { FetchModelTags } from '@wails/go/models/ModelController';
@@ -66,6 +66,13 @@ export const CachedModel: FC = () => {
           <Tooltip label="模型尚未下载">
             <IconDeviceFloppy stroke={1} color={theme.colors.red[6]} size={24} />
           </Tooltip>
+        )}
+        {modelVersion.model?.civitaiDeleted ?? false ? (
+          <Tooltip label="模型已经在Civitai上被删除">
+            <IconError404 stroke={1} color={theme.colors.red[6]} />
+          </Tooltip>
+        ) : (
+          <IconError404 stroke={1} color={theme.colors.gray[6]} />
         )}
       </Flex>
       {!isEmpty(tags) && (

@@ -198,6 +198,7 @@ export namespace entities {
 	    lastSyncedAt?: any;
 	    tags: ModelTags[];
 	    versions: ModelVersion[];
+	    civitaiDeleted: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Model(source);
@@ -216,6 +217,7 @@ export namespace entities {
 	        this.lastSyncedAt = this.convertValues(source["lastSyncedAt"], null);
 	        this.tags = this.convertValues(source["tags"], ModelTags);
 	        this.versions = this.convertValues(source["versions"], ModelVersion);
+	        this.civitaiDeleted = source["civitaiDeleted"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

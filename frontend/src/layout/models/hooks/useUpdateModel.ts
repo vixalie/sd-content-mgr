@@ -14,6 +14,7 @@ export function useUpdateModel(modelId: number): () => void {
         title: '更新模型信息',
         message: '正在更新模型信息，请稍候...',
         color: 'blue',
+        autoClose: false,
         withCloseButton: false
       });
       await RefreshModelInfo(modelId);
@@ -30,6 +31,7 @@ export function useUpdateModel(modelId: number): () => void {
       });
     } catch (e) {
       console.error('[error]更新模型信息：', e);
+      revalidator.revalidate();
       notifications.update({
         id: 'update-model-info',
         title: '模型信息更新失败',

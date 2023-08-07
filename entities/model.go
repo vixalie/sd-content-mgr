@@ -21,6 +21,7 @@ type Model struct {
 	LastSyncedAt            *time.Time      `gorm:"type:datetime" json:"lastSyncedAt"`
 	Tags                    []ModelTags     `gorm:"foreignKey:ModelId;references:Id" json:"tags"`
 	Versions                []ModelVersion  `gorm:"foreignKey:ModelId;references:Id" json:"versions"`
+	CivitailDeleted         bool            `gorm:"type:boolean;default:false" json:"civitaiDeleted"`
 }
 
 type ModelVersion struct {
