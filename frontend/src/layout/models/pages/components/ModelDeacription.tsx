@@ -17,7 +17,7 @@ export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) 
     }
   });
   return (
-    <Box py="1rem" px="5rem" h="90%">
+    <Box py="1rem" px="5rem" h="90%" sx={{ overflowY: 'auto' }}>
       {isFetching && (
         <Center>
           <Group>
@@ -27,11 +27,7 @@ export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) 
         </Center>
       )}
       {!isEmpty(description) ? (
-        <Box
-          h="100%"
-          dangerouslySetInnerHTML={{ __html: description }}
-          sx={{ overflowY: 'auto' }}
-        />
+        <Box h="100%" dangerouslySetInnerHTML={{ __html: description }} />
       ) : (
         <Text>暂无描述</Text>
       )}
