@@ -23,6 +23,7 @@ export const CachedModel: FC = () => {
       return await FetchModelTags(modelId);
     }
   });
+  console.log('[debug]modelVersion: ', modelVersion);
 
   useEffect(() => {
     setActiveTab('summary');
@@ -40,8 +41,8 @@ export const CachedModel: FC = () => {
         <Badge color="teal">{modelVersion.versionName ?? ''}</Badge>
       </Group>
       {!isEmpty(tags) && (
-        <Group>
-          <Text fz="sm" color="gray">
+        <Flex direction="row" justify="flex-start" align="flex-start" wrap="nowrap" gap="md">
+          <Text fz="sm" color="gray" sx={{ minWidth: 'max-content' }}>
             Civitai 标签
           </Text>
           <Flex direction="row" justify="flex-start" align="flex-start" gap="sm" wrap="wrap">
@@ -51,7 +52,7 @@ export const CachedModel: FC = () => {
               </Badge>
             ))}
           </Flex>
-        </Group>
+        </Flex>
       )}
       <Tabs variant="outline" h="100%" value={activeTab} onTabChange={setActiveTab}>
         <Tabs.List position="right">
