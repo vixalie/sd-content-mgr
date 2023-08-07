@@ -10,12 +10,12 @@ import { ModelActivates } from './components/ModelActivates';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelOperates } from './components/ModelOperates';
 import { ModelSummay } from './components/ModelSummary';
-import { SAmeModelVersions } from './components/SameModelVersions';
+import { SameModelVersions } from './components/SameModelVersions';
 
 export const CachedModel: FC = () => {
   const [activeTab, setActiveTab] = useState<string | null>('summary');
-  const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion] =
-    useLoaderData<[entities.FileCache, models.SimplifiedModelVersion]>();
+  const [modelVersion, versions]: [entities.ModelVersion, models.SimplifiedModelVersion[]] =
+    useLoaderData<[entities.FileCache, models.SimplifiedModelVersion[]]>();
   const { data: tags } = useQuery({
     queryKey: ['model-tags', modelVersion.modelId],
     queryFn: async ({ queryKey }) => {
@@ -23,7 +23,6 @@ export const CachedModel: FC = () => {
       return await FetchModelTags(modelId);
     }
   });
-  console.log('[debug]modelVersion: ', modelVersion);
 
   useEffect(() => {
     setActiveTab('summary');
@@ -79,7 +78,7 @@ export const CachedModel: FC = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="versions" pt="xs" h="100%">
-          <SAmeModelVersions modelVersionId={modelVersion.id} />
+          <SameModelVersions modelVersions={versions} currentVersionId={modelVersion.id} />
         </Tabs.Panel>
 
         <Tabs.Panel value="operates" pt="xs" h="100%">

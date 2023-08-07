@@ -7,7 +7,7 @@ export async function loadCachedVersionInfo(params): Promise<entities.ModelVersi
   return modelInfo;
 }
 
-export async function loadSameSerialVersions(params): Promise<models.SimplifiedModelVersion> {
+export async function loadSameSerialVersions(params): Promise<models.SimplifiedModelVersion[]> {
   const versions = await FetchSameSerialVersions(parseInt(prop('modelVersionId', params)));
   return versions;
 }
