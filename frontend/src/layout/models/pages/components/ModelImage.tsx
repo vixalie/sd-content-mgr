@@ -80,7 +80,6 @@ export const ModelImage: FC<ModelImageProps> = ({ image, maxWidth, maxHeight }) 
       EventsOff(image.id);
     };
   }, [image]);
-  console.log('[debug]Image: ', image);
 
   return (
     <Center>
