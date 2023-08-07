@@ -8,15 +8,17 @@ import {
   Stack,
   Text,
   TextInput,
-  Tooltip,
   useMantineTheme
 } from '@mantine/core';
 import { useUncontrolled } from '@mantine/hooks';
-import { IconDatabase, IconDownload, IconError404, IconVersions } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { GetModelSubCategoryDirs } from '@wails/go/models/ModelController';
 import { isEmpty, isNil } from 'ramda';
 import { FC } from 'react';
+import { CachedIcon } from './CachedIcon';
+import { ModelDownloadedIcon } from './ModelDownloadedIcon';
+import { NotFoundIcon } from './NotFoundIcon';
+import { SomeVersionDownloadedIcon } from './SomeVersionDownloadedIcon';
 
 const hostPathSelection: string = '/';
 
@@ -71,18 +73,10 @@ export const DownloadTarget: FC = () => {
         />
         <Select label="模型版本" data={[]} />
         <Group spacing="sm" sx={{ alignSelf: 'flex-end' }}>
-          <Tooltip label="模型信息已缓存">
-            <IconDatabase stroke={1} color={theme.colors.green[6]} />
-          </Tooltip>
-          <Tooltip label="模型已下载">
-            <IconDownload stroke={1} color={theme.colors.green[6]} />
-          </Tooltip>
-          <Tooltip label="模型其他版本已下载">
-            <IconVersions stroke={1} color={theme.colors.green[6]} />
-          </Tooltip>
-          <Tooltip label="模型信息未找到">
-            <IconError404 stroke={1} color={theme.colors.red[6]} />
-          </Tooltip>
+          <CachedIcon />
+          <ModelDownloadedIcon />
+          <SomeVersionDownloadedIcon />
+          <NotFoundIcon />
         </Group>
       </Group>
       <Group spacing="sm" grow>
