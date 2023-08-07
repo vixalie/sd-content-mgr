@@ -20,7 +20,7 @@ import (
 // 需要先检索数据库中是否已经存在相应的Model记录和Model Version记录。
 //
 // 这个方法不会返回任何内容，智慧在出现错误的时候返回错误信息。所有成功的解析结果都会直接保存到数据库中。
-func parseCivitaiModelVersionResponse(ctx context.Context, versionResponse []byte) (*ModelVersion, error) {
+func ParseCivitaiModelVersionResponse(ctx context.Context, versionResponse []byte) (*ModelVersion, error) {
 	var versionInfo ModelVersion
 	err := json.Unmarshal(versionResponse, &versionInfo)
 	if err != nil {

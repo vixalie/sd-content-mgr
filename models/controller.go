@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"gorm.io/gorm"
 )
 
 type ModelController struct {
@@ -150,4 +152,25 @@ func (m ModelController) FetchModelTags(modelId int) ([]string, error) {
 
 func (m ModelController) IsModelVersionPrimaryFileDownloaded(modelVersionId int) (bool, error) {
 	return checkModelVersionDownloaded(m.ctx, modelVersionId)
+}
+
+func (m ModelController) IsImageAsThumbnail(modelVersionId int, imageId string) (bool, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelFile entities.FileCache
+	result := dbConn.First(&modelFile, "related_model_version_id = ?", modelVersionId)
+	if result.Error != nil {
+		return false, fmt.Errorf("未找到指定模型版本对应的文件信息，%w", result.Error)
+	}
+	if modelFile.ThumbnailPath == nil || modelFile.ThumbnailPHash == nil {
+		return false, nil
+	}
+	var modelImage entities.Image
+	result = dbConn.First(&modelImage, "id = ?", imageId)
+	if result.Error != nil {
+		return false, fmt.Errorf("未找到指定图片信息，%w", result.Error)
+	}
+	if modelImage.Fingerprint == nil {
+		return false, nil
+	}
+	return *modelImage.Fingerprint == *modelFile.ThumbnailPHash, nil
 }

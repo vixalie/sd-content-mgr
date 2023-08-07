@@ -18,3 +18,10 @@ func AssembleModelUrl(modelId int) string {
 	builder.WriteString(fmt.Sprintf("%d", modelId))
 	return builder.String()
 }
+
+func AssembleModelVersionByHashUrl(hash string) string {
+	builder := strings.Builder{}
+	builder.WriteString("https://civitai.com/api/v1/model-versions/by-hash/")
+	builder.WriteString(hash)
+	return builder.String()
+}

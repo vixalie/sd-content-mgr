@@ -4,4 +4,6 @@ import {context} from '../models';
 
 export function RefreshModelInfo(arg1:number):Promise<void>;
 
+export function RefreshModelVersionInfoByHash(arg1:string):Promise<any>;
+
 export function SetContext(arg1:context.Context):Promise<void>;

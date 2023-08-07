@@ -29,12 +29,12 @@ import {
   IconEyeExclamation,
   IconInfoCircle
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { entities } from '@wails/go/models';
-import { SetModelVersionThumbnail } from '@wails/go/models/ModelController';
+import { IsImageAsThumbnail, SetModelVersionThumbnail } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
-import { equals, has, prop } from 'ramda';
+import { has, not, prop } from 'ramda';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 
@@ -54,6 +54,7 @@ export const ModelImage: FC<ModelImageProps> = ({ image, maxWidth, maxHeight }) 
   const theme = useMantineTheme();
   const [downloading, setDownloading] = useState<boolean>(false);
   const [downloadFailure, setDownloadFailure] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   useEffect(() => {
     setDownloadFailure(false);
     EventsOn(image.id, payload => {
@@ -65,6 +66,9 @@ export const ModelImage: FC<ModelImageProps> = ({ image, maxWidth, maxHeight }) 
           break;
         case 'finish':
           setDownloading(false);
+          queryClient.invalidateQueries({
+            queryKey: ['model-image-thumbnail-check', image.versionId, image.id]
+          });
           break;
         case 'failed':
           setDownloading(false);
@@ -76,6 +80,7 @@ export const ModelImage: FC<ModelImageProps> = ({ image, maxWidth, maxHeight }) 
       EventsOff(image.id);
     };
   }, [image]);
+  console.log('[debug]Image: ', image);
 
   return (
     <Center>
@@ -141,6 +146,17 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
     }
   }, [activeImageIndex, images]);
   const imageMeta = useMemo(() => images[activeImageIndex].meta, [activeImageIndex, images]);
+  const { data: isThumbnail } = useQuery({
+    queryKey: [
+      'model-image-thumbnail-check',
+      images[activeImageIndex].versionId,
+      images[activeImageIndex].id
+    ],
+    queryFn: async ({ queryKey }) => {
+      const [_, versionId, imageId] = queryKey;
+      return await IsImageAsThumbnail(versionId, imageId);
+    }
+  });
   const handlePreviousImage = useCallback(() => {
     if (activeImageIndex > 0) {
       setActiveImageIndex(activeImageIndex - 1);
@@ -188,14 +204,10 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
         </Tooltip>
         <Tooltip label="设为缩略图" position="top">
           <ActionIcon
-            color={equals(currentCover, images[activeImageIndex].id) && 'yellow'}
-            onClick={!equals(currentCover, images[activeImageIndex].id) ? setAsCover : () => {}}
+            color={isThumbnail && 'yellow'}
+            onClick={not(isThumbnail) ? setAsCover : () => {}}
           >
-            {equals(currentCover, images[activeImageIndex].id) ? (
-              <IconAwardFilled stroke={1} />
-            ) : (
-              <IconAward stroke={1} />
-            )}
+            {isThumbnail ? <IconAwardFilled stroke={1} /> : <IconAward stroke={1} />}
           </ActionIcon>
         </Tooltip>
         <Tooltip label="例图生成信息" position="top">

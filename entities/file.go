@@ -7,6 +7,7 @@ type FileCache struct {
 	FileIdentityHash      string        `gorm:"type:text;index:hash_index" json:"fileHash"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
 	FileName              string        `gorm:"type:text" json:"fileName"`
 	ThumbnailPath         *string       `gorm:"type:text" json:"thumbnailPath"`
+	ThumbnailPHash        *string       `gorm:"type:text" json:"thumbnailPHash"`
 	CivitaiInfoPath       *string       `gorm:"type:text" json:"infoPath"`    // 如果本项目不为空，那么模型一定存在详细信息。
 	Size                  uint64        `gorm:"type:integer" json:"fileSize"` // 字节数量
 	CRC32                 string        `gorm:"type:text" json:"crc"`         // 注意位序，这里似乎应该是使用小端序

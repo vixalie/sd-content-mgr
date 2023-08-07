@@ -12,6 +12,7 @@ import (
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/vixalie/sd-content-manager/utils"
 	"gorm.io/gorm"
 )
 
@@ -84,7 +85,14 @@ func SureImageFile(ctx context.Context, image *entities.Image) error {
 		downloadEvent.Failed(fmt.Errorf("保存图片文件失败，%w", err))
 		return fmt.Errorf("保存图片文件失败，%w", err)
 	}
+	hash, err := utils.PHashImage(imageFileName)
+	if err != nil {
+		fmt.Printf("计算图片指纹失败，%s", err.Error())
+		downloadEvent.Failed(fmt.Errorf("计算图片指纹失败，%w", err))
+		return fmt.Errorf("计算图片指纹失败，%w", err)
+	}
 	image.LocalStorePath = &imageFileName
+	image.Fingerprint = &hash
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	dbConn.Save(image)
 	downloadEvent.Finish()

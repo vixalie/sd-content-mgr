@@ -6,6 +6,10 @@ export function RefreshModelInfo(arg1) {
   return window['go']['remote']['RemoteController']['RefreshModelInfo'](arg1);
 }
 
+export function RefreshModelVersionInfoByHash(arg1) {
+  return window['go']['remote']['RemoteController']['RefreshModelVersionInfoByHash'](arg1);
+}
+
 export function SetContext(arg1) {
   return window['go']['remote']['RemoteController']['SetContext'](arg1);
 }

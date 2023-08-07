@@ -54,6 +54,10 @@ export function GetModelSubCategoryDirs(arg1, arg2) {
   return window['go']['models']['ModelController']['GetModelSubCategoryDirs'](arg1, arg2);
 }
 
+export function IsImageAsThumbnail(arg1, arg2) {
+  return window['go']['models']['ModelController']['IsImageAsThumbnail'](arg1, arg2);
+}
+
 export function IsModelVersionPrimaryFileDownloaded(arg1) {
   return window['go']['models']['ModelController']['IsModelVersionPrimaryFileDownloaded'](arg1);
 }

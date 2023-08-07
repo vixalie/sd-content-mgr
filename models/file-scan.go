@@ -16,6 +16,7 @@ import (
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/vixalie/sd-content-manager/utils"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sync/semaphore"
 	"gorm.io/gorm"
@@ -122,6 +123,15 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未找到模型对应的Civitai Info文件和缩略图文件。", "error": err.Error()})
 		return
 	}
+	var thumbnailHash *string
+	if thumbnailPath != nil {
+		hash, err := utils.PHashImage(*thumbnailPath)
+		if err != nil {
+			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件缩略图Hash校验值。", "error": err.Error()})
+			return
+		}
+		thumbnailHash = &hash
+	}
 	fileBaseName := filepath.Base(filePath)
 	fileHash, err := sha256.SumFile256Hex(filePath)
 	if err != nil {
@@ -142,7 +152,7 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能打开模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
 		}
-		modelDescription, err = parseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
+		modelDescription, err = ParseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
 		if err != nil {
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能解析模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
@@ -159,6 +169,7 @@ TERMINATE_PARSE:
 		FileName:         fileBaseName,
 		FullPath:         filePath,
 		ThumbnailPath:    thumbnailPath,
+		ThumbnailPHash:   thumbnailHash,
 		CivitaiInfoPath:  descriptionPath,
 		Size:             uint64(fileInfo.Size()),
 		CRC32:            strings.ToUpper(hex.ToHex(lo.Reverse(fileCrc32))), // 这里需要转换成小端序，还需要转换成大写形式。

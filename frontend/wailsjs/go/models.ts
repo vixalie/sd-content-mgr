@@ -302,6 +302,7 @@ export namespace entities {
 	    fileHash: string;
 	    fileName: string;
 	    thumbnailPath?: string;
+	    thumbnailPHash?: string;
 	    infoPath?: string;
 	    fileSize: number;
 	    crc: string;
@@ -322,6 +323,7 @@ export namespace entities {
 	        this.fileHash = source["fileHash"];
 	        this.fileName = source["fileName"];
 	        this.thumbnailPath = source["thumbnailPath"];
+	        this.thumbnailPHash = source["thumbnailPHash"];
 	        this.infoPath = source["infoPath"];
 	        this.fileSize = source["fileSize"];
 	        this.crc = source["crc"];

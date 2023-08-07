@@ -17,3 +17,7 @@ func (r *RemoteController) SetContext(ctx context.Context) {
 func (r RemoteController) RefreshModelInfo(modelId int) error {
 	return RefreshModelInfo(r.ctx, modelId)
 }
+
+func (r RemoteController) RefreshModelVersionInfoByHash(fileHash string) (*int, error) {
+	return refreshModelVersionInfoByHash(r.ctx, fileHash)
+}

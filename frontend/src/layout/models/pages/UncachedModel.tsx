@@ -20,15 +20,17 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
 import { ChooseAndSetFileThumbnail } from '@wails/go/models/ModelController';
+import { RefreshModelVersionInfoByHash } from '@wails/go/remote/RemoteController';
 import { nanoid } from 'nanoid';
 import { useCallback } from 'react';
-import { useLoaderData, useRevalidator } from 'react-router-dom';
+import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { BaseModelDescription } from './components/BaseModelDescription';
 
 export const UncachedModel: FC = () => {
   const fileInfo: entities.FileCache = useLoaderData();
   const revalidator = useRevalidator();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const selectCover = useCallback(async () => {
     try {
@@ -44,6 +46,29 @@ export const UncachedModel: FC = () => {
         message: `未能成功复制并记录缩略图文件，${e.message}`,
         color: 'red',
         autoClose: 5000,
+        withCloseButton: false
+      });
+    }
+  }, [fileInfo]);
+  const cacheModel = useCallback(async () => {
+    try {
+      const modelVersionId = await RefreshModelVersionInfoByHash(fileInfo.fileHash);
+      queryClient.invalidateQueries(['model-list']);
+      navigate(`/model/version/${modelVersionId}`);
+      notifications.show({
+        title: '缓存模型成功',
+        message: `已成功缓存模型，现在模型将转入已缓存模型展示页面。`,
+        color: 'green',
+        autoClose: 3000,
+        withCloseButton: false
+      });
+    } catch (e) {
+      console.error('[error]使用文件Hash缓存模型信息：', e);
+      notifications.show({
+        title: '缓存模型失败',
+        message: `未能成功缓存模型，${e.message}`,
+        color: 'red',
+        autoClose: 3000,
         withCloseButton: false
       });
     }
@@ -72,7 +97,9 @@ export const UncachedModel: FC = () => {
             <Stack spacing="md">
               <TwoLineInfoCell title="信息编辑" level={5}>
                 <Group>
-                  <Button variant="light">尝试获取模型描述</Button>
+                  <Button variant="light" onClick={cacheModel}>
+                    尝试获取模型描述
+                  </Button>
                   <Button variant="light" onClick={selectCover}>
                     设置模型封面
                   </Button>
