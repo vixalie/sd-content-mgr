@@ -4,7 +4,7 @@ type FileCache struct {
 	CommonFields
 	Id                    string        `gorm:"primaryKey;type:text" json:"id"`
 	FullPath              string        `gorm:"type:text;index" json:"fullPath"`
-	FileIdentityHash      string        `gorm:"type:text;index" json:"fileHash"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
+	FileIdentityHash      string        `gorm:"type:text;uniqueIndex:file_indentity" json:"fileHash"` // 使用对文件计算的Sha256值的大写Hex形式作为文件的唯一标识符。
 	FileName              string        `gorm:"type:text" json:"fileName"`
 	ThumbnailPath         *string       `gorm:"type:text" json:"thumbnailPath"`
 	CivitaiInfoPath       *string       `gorm:"type:text" json:"infoPath"`    // 如果本项目不为空，那么模型一定存在详细信息。

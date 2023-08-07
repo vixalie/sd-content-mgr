@@ -5,10 +5,10 @@ import "time"
 type Image struct {
 	CommonFields
 	Id             string          `gorm:"primaryKey;type:text" json:"id"`
-	VersionId      *int            `gorm:"type:integer;index" json:"versionId"`
+	VersionId      *int            `gorm:"type:integer;uniqueIndex:versionUnique" json:"versionId"`
 	Version        *ModelVersion   `gorm:"foreignKey:VersionId;references:Id" json:"modelVersion"`
 	FileName       string          `gorm:"type:text" json:"fileName"`
-	BlurHash       string          `gorm:"type:text" json:"blurHash"`
+	BlurHash       string          `gorm:"type:text;uniqueIndex:versionUnique" json:"blurHash"`
 	Fingerprint    *string         `gorm:"type:text;unique" json:"fingerprint"`
 	LocalStorePath *string         `gorm:"type:text" json:"localPath"`
 	DownloadUrl    string          `gorm:"type:text" json:"-"`
