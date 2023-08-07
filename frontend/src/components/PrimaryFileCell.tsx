@@ -7,8 +7,8 @@ import {
   CopyModelFileLoader,
   FetchModelVersionPrimaryFile
 } from '@wails/go/models/ModelController';
-import { isNil, not } from 'ramda';
-import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { isEmpty, isNil, not } from 'ramda';
+import { FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 import { TwoLineInfoCell } from './TwoLineInfoCell';
 
@@ -36,6 +36,7 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       console.error('[error]获取模型版本的首要文件：', e);
     }
   });
+  const funcNotAvaliable = useMemo(() => isEmpty(modelPrimaryFile?.fileName), [modelPrimaryFile]);
   const [editing, setEditing] = useState<boolean>(false);
   const [namePart, setNamePart] = useState<string>('');
   const [extPart, setExtPart] = useState<string>('');
@@ -103,29 +104,31 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       level={5}
       contentW="100%"
       tailAction={
-        <>
-          {editing ? (
-            <>
-              <ActionIcon color="green">
-                <IconCheck stroke={1} />
+        not(funcNotAvaliable) && (
+          <>
+            {editing ? (
+              <>
+                <ActionIcon color="green">
+                  <IconCheck stroke={1} />
+                </ActionIcon>
+                <ActionIcon color="red" onClick={() => switchEditState(false)}>
+                  <IconX stroke={1} />
+                </ActionIcon>
+              </>
+            ) : (
+              <ActionIcon onClick={() => switchEditState(true)}>
+                <IconEdit stroke={1} />
               </ActionIcon>
-              <ActionIcon color="red" onClick={() => switchEditState(false)}>
-                <IconX stroke={1} />
-              </ActionIcon>
-            </>
-          ) : (
-            <ActionIcon onClick={() => switchEditState(true)}>
-              <IconEdit stroke={1} />
-            </ActionIcon>
-          )}
-          {not(editing) && not(isFetching) && isFetched && (
-            <Tooltip label="复制加载提示词">
-              <ActionIcon onClick={copyLoaderPrompt}>
-                <IconCopy stroke={1} />
-              </ActionIcon>
-            </Tooltip>
-          )}
-        </>
+            )}
+            {not(editing) && not(isFetching) && isFetched && (
+              <Tooltip label="复制加载提示词">
+                <ActionIcon onClick={copyLoaderPrompt}>
+                  <IconCopy stroke={1} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </>
+        )
       }
     >
       {isFetching && (
@@ -146,8 +149,8 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
           w="100%"
         />
       ) : (
-        <Text fz="md" align="right">
-          {modelPrimaryFile?.fileName}
+        <Text fz="md" align="right" color={funcNotAvaliable && 'red'}>
+          {funcNotAvaliable ? '本地文件不存在' : modelPrimaryFile?.fileName}
         </Text>
       )}
     </TwoLineInfoCell>
