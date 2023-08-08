@@ -14,7 +14,11 @@ export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
 export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;
 
+export function FetchDownloadModelVersion(arg1:number):Promise<Array<number>>;
+
 export function FetchModelImage(arg1:string):Promise<entities.Image>;
+
+export function FetchModelInfo(arg1:number):Promise<entities.Model>;
 
 export function FetchModelLocalFiles(arg1:number):Promise<Array<entities.ModelFile>>;
 

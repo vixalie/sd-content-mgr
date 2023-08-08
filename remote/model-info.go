@@ -28,6 +28,7 @@ func RefreshModelInfo(ctx context.Context, modelId int) error {
 	}
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
+			runtime.EventsEmit(ctx, "model-found", "not-found")
 			dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 			result := dbConn.Model(&entities.Model{}).Where("id = ?", modelId).Update("civitail_deleted", true)
 			if result.Error != nil {
@@ -35,6 +36,8 @@ func RefreshModelInfo(ctx context.Context, modelId int) error {
 			}
 		}
 		return fmt.Errorf("Civitai返回错误状态码：%d", resp.StatusCode)
+	} else {
+		runtime.EventsEmit(ctx, "model-found", "found")
 	}
 	originalModelContent, err := io.ReadAll(resp.Body)
 	if err != nil {

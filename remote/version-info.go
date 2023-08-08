@@ -41,7 +41,7 @@ func refreshModelVersionInfoByHash(ctx context.Context, hash string) (*int, erro
 	if err != nil {
 		return nil, fmt.Errorf("解析Civitai返回内容失败，%w", err)
 	}
-	err = writeCivitaiInfoFile(ctx, hash, originalModelVersionContent)
+	err = writeCivitaiInfoFileByHash(ctx, hash, originalModelVersionContent)
 	if err != nil {
 		return nil, fmt.Errorf("写入Civitai信息文件失败，%w", err)
 	}
@@ -53,13 +53,7 @@ func refreshModelVersionInfoByHash(ctx context.Context, hash string) (*int, erro
 	return &version.Id, nil
 }
 
-func writeCivitaiInfoFile(ctx context.Context, hash string, content []byte) error {
-	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
-	var fileInfo entities.FileCache
-	result := dbConn.First(&fileInfo, "file_identity_hash = ?", hash)
-	if result.Error != nil {
-		return fmt.Errorf("未能找到指定Hash对应的模型版本，%w", result.Error)
-	}
+func writeCivitaiInfoFile(ctx context.Context, fileInfo *entities.FileCache, content []byte) error {
 	fileBaseName := filepath.Base(fileInfo.FullPath)
 	filePath := filepath.Dir(fileInfo.FullPath)
 	fileExt := filepath.Ext(fileBaseName)
@@ -70,9 +64,30 @@ func writeCivitaiInfoFile(ctx context.Context, hash string, content []byte) erro
 		return fmt.Errorf("写入Civitai信息文件失败，%w", err)
 	}
 	fileInfo.CivitaiInfoPath = lo.ToPtr(civitaiInfoPath)
-	result = dbConn.Save(&fileInfo)
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	result := dbConn.Save(&fileInfo)
 	if result.Error != nil {
 		return fmt.Errorf("更新文件关联模型版本信息文件失败，%w", result.Error)
 	}
 	return nil
+}
+
+func writeCivitaiInfoFileByHash(ctx context.Context, hash string, content []byte) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var fileInfo entities.FileCache
+	result := dbConn.First(&fileInfo, "file_identity_hash = ?", hash)
+	if result.Error != nil {
+		return fmt.Errorf("未能找到指定Hash对应的模型版本，%w", result.Error)
+	}
+	return writeCivitaiInfoFile(ctx, &fileInfo, content)
+}
+
+func writeCivitaiInfoFileByVersionId(ctx context.Context, versionId int, content []byte) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var fileInfo entities.FileCache
+	result := dbConn.First(&fileInfo, "related_model_version_id = ?", versionId)
+	if result.Error != nil {
+		return fmt.Errorf("未能找到指定模型版本，%w", result.Error)
+	}
+	return writeCivitaiInfoFile(ctx, &fileInfo, content)
 }

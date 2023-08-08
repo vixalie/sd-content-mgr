@@ -11,6 +11,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -41,6 +42,7 @@ func persistModelFromVersion(ctx context.Context, versionInfo *ModelVersion) err
 	var model *entities.Model
 	dbConn.Where("id = ?", versionInfo.ModelId).First(&entities.Model{}).First(model)
 	if model == nil {
+		runtime.EventsEmit(ctx, "cache-status", "uncached")
 		model = &entities.Model{
 			Id:               versionInfo.ModelId,
 			Name:             versionInfo.Model.Name,
@@ -54,6 +56,8 @@ func persistModelFromVersion(ctx context.Context, versionInfo *ModelVersion) err
 			Columns:   []clause.Column{{Name: "id"}},
 			DoNothing: true,
 		}).Create(model)
+	} else {
+		runtime.EventsEmit(ctx, "cache-status", "cached")
 	}
 	return nil
 }
@@ -198,6 +202,17 @@ func parseCivitaiModelResponse(ctx context.Context, modelResponse []byte) (*Mode
 // 保存从Civitai解析到的模型信息，如果模型已经存在，那么将会更新模型信息。
 func persistModel(ctx context.Context, modelInfo *Model, original []byte) error {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	// 检查数据库中是否存在指定模型的记录，但是这个判断结果并不参与后续的模型信息更新。
+	var exists int64
+	result := dbConn.Model(&entities.Model{}).Where("id = ?", modelInfo.Id).Count(&exists)
+	if result.Error != nil {
+		return fmt.Errorf("无法检查模型是否存在，%w", result.Error)
+	}
+	if exists == 0 {
+		runtime.EventsEmit(ctx, "cache-status", "uncached")
+	} else {
+		runtime.EventsEmit(ctx, "cache-status", "cached")
+	}
 	model := entities.Model{
 		Id:               modelInfo.Id,
 		Name:             modelInfo.Name,
@@ -212,7 +227,7 @@ func persistModel(ctx context.Context, modelInfo *Model, original []byte) error 
 		Mode:                    modelInfo.Mode,
 		CivitaiOriginalResponse: original,
 	}
-	result := dbConn.Clauses(clause.OnConflict{
+	result = dbConn.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "nsfw", "person_of_interest", "author", "type", "mode", "civitai_original_response"}),
 	}).Create(&model)

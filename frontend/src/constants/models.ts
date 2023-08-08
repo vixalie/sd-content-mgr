@@ -1,7 +1,7 @@
 import { SelectItem } from '@mantine/core';
 
 export const MoldelSelections: SelectItem[] = [
-  { value: 'ckpt', label: 'Checkpoint' },
+  { value: 'checkpoint', label: 'Checkpoint' },
   { value: 'hypernet', label: 'Hypernetwork' },
   { value: 'texture', label: 'Texture Inversion' },
   { value: 'lora', label: 'LoRA' },

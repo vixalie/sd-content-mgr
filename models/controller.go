@@ -174,3 +174,30 @@ func (m ModelController) IsImageAsThumbnail(modelVersionId int, imageId string) 
 	}
 	return *modelImage.Fingerprint == *modelFile.ThumbnailPHash, nil
 }
+
+func (m ModelController) FetchModelInfo(modelId int) (*entities.Model, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var model entities.Model
+	result := dbConn.Preload("Versions").First(&model, "id = ?", modelId)
+	if result.Error != nil {
+		return nil, fmt.Errorf("未找到指定模型信息，%w", result.Error)
+	}
+	return &model, nil
+}
+
+func (m ModelController) FetchDownloadModelVersion(modelId int) ([]int, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var versions []entities.ModelVersion
+	result := dbConn.Joins("PrimaryFile").Joins("PrimaryFile.LocalFile").Where("model_id = ?", modelId).Find(&versions)
+	if result.Error != nil {
+		return nil, fmt.Errorf("未找到指定模型版本信息，%w", result.Error)
+	}
+	var downloadedVersions []int = make([]int, 0)
+	for _, version := range versions {
+		runtime.LogDebugf(m.ctx, "Scaned primary file: %+v", version.PrimaryFile.LocalFile)
+		if version.PrimaryFile != nil && len(version.PrimaryFile.LocalFile.FileName) > 0 {
+			downloadedVersions = append(downloadedVersions, version.Id)
+		}
+	}
+	return downloadedVersions, nil
+}

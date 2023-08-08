@@ -22,8 +22,16 @@ export function FetchCachedFileInfo(arg1) {
   return window['go']['models']['ModelController']['FetchCachedFileInfo'](arg1);
 }
 
+export function FetchDownloadModelVersion(arg1) {
+  return window['go']['models']['ModelController']['FetchDownloadModelVersion'](arg1);
+}
+
 export function FetchModelImage(arg1) {
   return window['go']['models']['ModelController']['FetchModelImage'](arg1);
+}
+
+export function FetchModelInfo(arg1) {
+  return window['go']['models']['ModelController']['FetchModelInfo'](arg1);
 }
 
 export function FetchModelLocalFiles(arg1) {
