@@ -50,6 +50,33 @@ func (c *Configuration) Save() error {
 	return nil
 }
 
+func (c *Configuration) CommonPaths() map[UIName]map[string]string {
+	return map[UIName]map[string]string{
+		WebUI: {
+			"base":       c.WebUIConfig.BasePath,
+			"checkpoint": c.WebUIConfig.Checkpoint,
+			"hypernet":   c.WebUIConfig.Hypernet,
+			"embedding":  c.WebUIConfig.Embedding,
+			"lora":       c.WebUIConfig.Lora,
+			"locon":      c.WebUIConfig.LyCORIS,
+			"vae":        c.WebUIConfig.Vae,
+			"controlnet": c.WebUIConfig.Controlnet,
+			"upscaler":   c.WebUIConfig.ESRGAN,
+		},
+		ComfyUI: {
+			"base":       c.ComfyUIConfig.BasePath,
+			"checkpoint": c.ComfyUIConfig.Checkpoint,
+			"hypernet":   c.ComfyUIConfig.Hypernet,
+			"embedding":  c.ComfyUIConfig.Embedding,
+			"lora":       c.ComfyUIConfig.Lora,
+			"locon":      c.ComfyUIConfig.LyCORIS,
+			"vae":        c.ComfyUIConfig.Vae,
+			"controlnet": c.ComfyUIConfig.Controlnet,
+			"upscaler":   c.ComfyUIConfig.Upscaler,
+		},
+	}
+}
+
 func init() {
 	_, err := os.Stat("config.yaml")
 	if os.IsNotExist(err) {
@@ -79,6 +106,8 @@ func GetWebUIModelPath(model string) ([]string, error) {
 	}
 	switch strings.ToLower(model) {
 	case "ckpt":
+		fallthrough
+	case "checkpoint":
 		return []string{ApplicationSetup.WebUIConfig.Checkpoint}, nil
 	case "hypernet":
 		return []string{ApplicationSetup.WebUIConfig.Hypernet}, nil
@@ -109,6 +138,8 @@ func GetComfyModelPath(model string) ([]string, error) {
 	}
 	switch strings.ToLower(model) {
 	case "ckpt":
+		fallthrough
+	case "checkpoint":
 		return []string{ApplicationSetup.ComfyUIConfig.Checkpoint}, nil
 	case "hypernet":
 		return []string{ApplicationSetup.ComfyUIConfig.Hypernet}, nil

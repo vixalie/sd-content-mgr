@@ -21,3 +21,7 @@ func (r RemoteController) RefreshModelInfo(modelId int) error {
 func (r RemoteController) RefreshModelVersionInfoByHash(fileHash string) (*int, error) {
 	return refreshModelVersionInfoByHash(r.ctx, fileHash)
 }
+
+func (r RemoteController) DownloadModelVersion(uiTools, cateSubPath string, versionId int) error {
+	return downloadModelVersion(r.ctx, uiTools, cateSubPath, versionId)
+}

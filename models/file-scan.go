@@ -209,7 +209,7 @@ func collectAccompanyFile(modelFilePath string) (*string, *string, error) {
 		}
 		fileName := strings.ToLower(file.Name())
 		if strings.HasPrefix(fileName, modelFileBaseName) {
-			if strings.HasSuffix(fileName, ".png") || strings.HasSuffix(fileName, ".jpg") {
+			if strings.HasSuffix(fileName, ".png") || strings.HasSuffix(fileName, ".jpg") || strings.HasSuffix(fileName, ".webp") {
 				absPath := filepath.Join(modelDir, file.Name())
 				thumbnailPath = &absPath
 			} else if strings.HasSuffix(fileName, ".civitai.info") {
