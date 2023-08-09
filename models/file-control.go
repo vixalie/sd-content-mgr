@@ -22,9 +22,7 @@ func breakModelFileParts(ctx context.Context, fileId string) (string, string, er
 	if result.Error != nil {
 		return "", "", fmt.Errorf("未找到指定的文件记录，%w", result.Error)
 	}
-	fileBaseName := filepath.Base(fileCache.FullPath)
-	fileExt := filepath.Ext(fileBaseName)
-	fileName := strings.TrimSuffix(fileBaseName, fileExt)
+	fileName, fileExt := utils.BreakFilename(fileCache.FullPath)
 	return fileName, fileExt, nil
 }
 
@@ -128,7 +126,7 @@ func copyModelThumbnail(modelFileFullPath, originImageFilePath string) (string, 
 		return "", fmt.Errorf("文件系统中不存在指定的缩略图源文件，%w", err)
 	}
 	imageExt := filepath.Ext(originImageFilePath)
-	fileName := strings.TrimSuffix(filepath.Base(modelFileFullPath), filepath.Ext(modelFileFullPath))
+	fileName, _ := utils.BreakFilename(modelFileFullPath)
 	thumbnailPath := filepath.Join(filepath.Dir(modelFileFullPath), fileName+".preview"+imageExt)
 	targetThumbnailFile, err := os.Create(thumbnailPath)
 	if err != nil {
