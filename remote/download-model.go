@@ -24,7 +24,7 @@ import (
 func downloadModelVersion(ctx context.Context, uiTools, targetCatePath string, modelVerionsId int) error {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelVersion entities.ModelVersion
-	result := dbConn.Joins("Model").Joins("PrimaryFile").Preload("Covers").First(&modelVersion, "id = ?", modelVerionsId)
+	result := dbConn.Joins("Model").Joins("PrimaryFile").Preload("Covers").First(&modelVersion, "model_versions.id = ?", modelVerionsId)
 	if result.Error != nil {
 		return fmt.Errorf("未能找到已经缓存的模型版本记录，%w", result.Error)
 	}
@@ -65,6 +65,7 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 			return
 		}
 	}
+	runtime.LogDebug(ctx, "下载检查点1：文件齐备")
 	defer file.Close()
 	client := http.Client{
 		Transport: &http.Transport{
@@ -80,14 +81,21 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 		return
 	}
 	requst.URL = downloadUrl
+	header := http.Header{}
+	header.Add("User-Agent", "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148")
 	if startOffset > 0 {
-		header := http.Header{}
 		header.Add("Range", fmt.Sprintf("bytes=%d-", startOffset))
-		requst.Header = header
 	}
+	runtime.LogDebugf(ctx, "下载请求头：%+v", header)
+	requst.Header = header
+	runtime.LogDebug(ctx, "下载检查点2：请求准备完成")
 	resp, err := client.Do(&requst)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("无法访问Civitai，%w", err))
+	if err != nil {
+		runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Sprintf("无法访问Civitai，%s", err.Error()))
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Sprintf("无法访问Civitai， HTTP状态码：%d", resp.StatusCode))
 		return
 	}
 	defer resp.Body.Close()
@@ -102,11 +110,13 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 		runtime.EventsEmit(ctx, "model-primary-file-download-error", errors.New("模型应该已经下载完成，没有内容需要继续下载"))
 		return
 	}
+	runtime.LogDebug(ctx, "下载检查点3：开始下载")
 	if _, err := io.Copy(file, io.TeeReader(resp.Body, &downloadEvent)); err != nil {
 		downloadEvent.Failed(fmt.Errorf("保存模型文件失败，%w", err))
 		runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("保存模型文件失败，%w", err))
 		return
 	}
+	runtime.LogDebug(ctx, "下载检查点4：下载完成")
 	downloadEvent.Finish()
 }
 

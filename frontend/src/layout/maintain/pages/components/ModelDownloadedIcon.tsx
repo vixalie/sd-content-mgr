@@ -1,17 +1,17 @@
+import type { DownloadStatus } from '@/types';
 import { Tooltip, useMantineTheme } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { equals } from 'ramda';
-import { FC, useEffect, useState } from 'react';
-
-type DownloadedState = 'unknown' | 'downloaded' | 'undownloaded';
+import { FC, useEffect } from 'react';
+import { useDownloadState } from '../states/download-state';
 
 export const ModelDownloadedIcon: FC = () => {
   const theme = useMantineTheme();
-  const [state, setState] = useState<DownloadedState>('unknown');
+  const state = useDownloadState.use.modelDownloaded();
   useEffect(() => {
-    EventsOn('model-downloaded', (status: DownloadedState) => {
-      setState(status);
+    EventsOn('model-downloaded', (status: DownloadStatus) => {
+      useDownloadState.setState(st => ({ modelDownloaded: status }));
     });
 
     return () => {
@@ -27,7 +27,7 @@ export const ModelDownloadedIcon: FC = () => {
           <IconDownload stroke={1} color={theme.colors.green[6]} />
         </Tooltip>
       )}
-      {equals(state, 'undownloaded') && (
+      {equals(state, 'not-downloaded') && (
         <Tooltip label="模型尚未下载">
           <IconDownload stroke={1} color={theme.colors.red[6]} />
         </Tooltip>

@@ -6,6 +6,10 @@ import {context} from '../models';
 
 export function BreakModelFileParts(arg1:string):Promise<Array<string>>;
 
+export function BreakModelVersionFile(arg1:number):Promise<Array<string>>;
+
+export function CheckFileNameExists(arg1:string,arg2:string,arg3:number,arg4:string):Promise<boolean>;
+
 export function ChooseAndSetFileThumbnail(arg1:string):Promise<boolean>;
 
 export function CopyModelFileLoader(arg1:number):Promise<void>;

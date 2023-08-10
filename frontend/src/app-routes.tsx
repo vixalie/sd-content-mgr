@@ -3,7 +3,7 @@ import { About } from './layout/About.';
 import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
-import { DownloadModel } from './layout/maintain/pges/DownloadModel';
+import { DownloadModel } from './layout/maintain/pages/DownloadModel';
 import { ModelHost } from './layout/models/ModelHost';
 import { CachedModel } from './layout/models/pages/CachedModel';
 import { UncachedModel } from './layout/models/pages/UncachedModel';

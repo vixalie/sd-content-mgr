@@ -6,6 +6,14 @@ export function BreakModelFileParts(arg1) {
   return window['go']['models']['ModelController']['BreakModelFileParts'](arg1);
 }
 
+export function BreakModelVersionFile(arg1) {
+  return window['go']['models']['ModelController']['BreakModelVersionFile'](arg1);
+}
+
+export function CheckFileNameExists(arg1, arg2, arg3, arg4) {
+  return window['go']['models']['ModelController']['CheckFileNameExists'](arg1, arg2, arg3, arg4);
+}
+
 export function ChooseAndSetFileThumbnail(arg1) {
   return window['go']['models']['ModelController']['ChooseAndSetFileThumbnail'](arg1);
 }

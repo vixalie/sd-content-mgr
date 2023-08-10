@@ -1,17 +1,17 @@
+import type { CacheStatus } from '@/types';
 import { Tooltip, useMantineTheme } from '@mantine/core';
 import { IconDatabase } from '@tabler/icons-react';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { equals } from 'ramda';
-import { FC, useEffect, useState } from 'react';
-
-type CacheStatus = 'unknown' | 'cached' | 'uncached';
+import { FC, useEffect } from 'react';
+import { useDownloadState } from '../states/download-state';
 
 export const CachedIcon: FC = () => {
   const theme = useMantineTheme();
-  const [state, setState] = useState<CacheStatus>('unknown');
+  const state = useDownloadState.use.cacheStatus();
   useEffect(() => {
     EventsOn('cache-status', (status: CacheStatus) => {
-      setState(status);
+      useDownloadState.setState(st => ({ cacheStatus: status }));
     });
 
     return () => {
@@ -26,7 +26,7 @@ export const CachedIcon: FC = () => {
           <IconDatabase stroke={1} color={theme.colors.green[6]} />
         </Tooltip>
       )}
-      {equals(state, 'uncached') && (
+      {equals(state, 'not-cached') && (
         <Tooltip label="模型信息尚未缓存">
           <IconDatabase stroke={1} color={theme.colors.red[6]} />
         </Tooltip>

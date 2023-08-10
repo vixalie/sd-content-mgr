@@ -3,10 +3,14 @@ package models
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
 	"github.com/vixalie/sd-content-manager/entities"
+	"github.com/vixalie/sd-content-manager/utils"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
@@ -200,4 +204,36 @@ func (m ModelController) FetchDownloadModelVersion(modelId int) ([]int, error) {
 		}
 	}
 	return downloadedVersions, nil
+}
+
+func (m ModelController) BreakModelVersionFile(modelVersionId int) ([]string, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("PrimaryFile").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return nil, fmt.Errorf("未找到指定模型版本信息，%w", result.Error)
+	}
+	if modelVersion.PrimaryFile == nil {
+		return nil, fmt.Errorf("未找到指定模型版本对应的文件信息")
+	}
+	fileName, fileExt := utils.BreakFilename(modelVersion.PrimaryFile.Name)
+	return []string{fileName, fileExt}, nil
+}
+
+func (m ModelController) CheckFileNameExists(uiTools, subCatePath string, modelVersionId int, fileName string) (bool, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("PrimaryFile").Joins("Model").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return false, fmt.Errorf("未找到指定模型版本信息，%w", result.Error)
+	}
+	if modelVersion.PrimaryFile == nil {
+		return false, fmt.Errorf("未找到指定模型版本对应的文件信息")
+	}
+	ui := config.MatchSoftware(uiTools)
+	targetModelPath := filepath.Join(config.ApplicationSetup.CommonPaths()[ui][strings.ToLower(modelVersion.Model.Type)], subCatePath)
+	_, fileExt := utils.BreakFilename(modelVersion.PrimaryFile.Name)
+	testFilePath := filepath.Join(targetModelPath, fileName+fileExt)
+	_, err := os.Stat(testFilePath)
+	return !os.IsNotExist(err), nil
 }

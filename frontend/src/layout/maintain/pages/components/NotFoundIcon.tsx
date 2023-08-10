@@ -1,17 +1,17 @@
+import type { FoundStatus } from '@/types';
 import { Tooltip, useMantineTheme } from '@mantine/core';
 import { IconError404, IconError404Off } from '@tabler/icons-react';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { equals } from 'ramda';
-import { FC, useEffect, useState } from 'react';
-
-type FoundState = 'unknown' | 'found' | 'not-found';
+import { FC, useEffect } from 'react';
+import { useDownloadState } from '../states/download-state';
 
 export const NotFoundIcon: FC = () => {
   const theme = useMantineTheme();
-  const [state, setState] = useState<FoundState>('unknown');
+  const state = useDownloadState.use.modelFound();
   useEffect(() => {
-    EventsOn('model-found', (status: FoundState) => {
-      setState(status);
+    EventsOn('model-found', (status: FoundStatus) => {
+      useDownloadState.setState(st => ({ modelFound: status }));
     });
 
     return () => {
