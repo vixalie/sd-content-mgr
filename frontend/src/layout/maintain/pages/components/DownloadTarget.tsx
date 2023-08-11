@@ -57,7 +57,7 @@ export const DownloadTarget: FC = () => {
       console.error('[error]使用URL获取指定模型信息', e, url);
       notifications.show({
         title: '模型信息获取失败',
-        message: `指定模型信息未能成功获取，请检查模型链接以及网络是否正常并再次常事获取。${e}`,
+        message: `指定模型信息未能成功获取，请检查模型链接以及网络是否正常并再次尝试获取。${e}`,
         color: 'red',
         autoClose: 5000,
         withCloseButton: false
