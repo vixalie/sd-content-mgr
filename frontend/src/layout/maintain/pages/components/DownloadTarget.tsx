@@ -27,7 +27,8 @@ export const DownloadTarget: FC = () => {
     fileName,
     overwrite,
     lockdown,
-    lock
+    lock,
+    unlock
   ] = useDownloadState(st => [
     st.url,
     st.subPath,
@@ -38,7 +39,8 @@ export const DownloadTarget: FC = () => {
     st.modelVersionFileName,
     st.overwrite,
     st.lockdown,
-    st.lockSetup
+    st.lockSetup,
+    st.unlockSetup
   ]);
 
   const modelName = useMemo(() => model?.name ?? '', [model]);
@@ -75,6 +77,7 @@ export const DownloadTarget: FC = () => {
       console.log('[debug]download: ', selectedVersion, fileName, targetSubPath, overwrite);
       await DownloadModelVersion('webui', targetSubPath, fileName, selectedVersion, overwrite);
     } catch (e) {
+      unlock();
       console.error('[error]下载模型：', e);
       notifications.show({
         title: '模型下载失败',
@@ -105,7 +108,7 @@ export const DownloadTarget: FC = () => {
       EventsOff('model-primary-file-download-error');
       EventsOff('model-preview-download-error');
     };
-  });
+  }, []);
 
   return (
     <Stack spacing="md">
