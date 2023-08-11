@@ -18,6 +18,22 @@ SD Content Manager是基于Wails框架创建的，用于管理Stable Diffusion W
 - [SQLite](https://pkg.go.dev/github.com/glebarez/sqlite@v1.9.0): 1.9.0
 - [AG-Toolsbox](https://git.archgrid.xyz/xt/ag_toolsbox.git): 0.1.4
 
+## 运行、开发和编译
+
+应用基于Wails 2.5开发，所以应用的开发运行以及编译打包的全流程都由Wails自带工具提供。具体使用方法可参照[Wails安装](https://wails.io/zh-Hans/docs/gettingstarted/installation)完成。
+
+在应用项目根目录中执行一下命令可以以Dev模式启动实时开发界面。
+
+```base
+wails dev
+```
+
+如需编译打包应用，可以执行以下命令。
+
+```bash
+wails build
+```
+
 ## RoadMap
 
 - [x] A111 SD WebUI路径配置。
