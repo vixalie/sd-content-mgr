@@ -472,3 +472,5 @@ build/
 config.yml
 config.yaml
 model-images/
+build/
+build/**
