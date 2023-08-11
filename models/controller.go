@@ -237,3 +237,16 @@ func (m ModelController) CheckFileNameExists(uiTools, subCatePath string, modelV
 	_, err := os.Stat(testFilePath)
 	return !os.IsNotExist(err), nil
 }
+
+func (m ModelController) CheckModelVersionPrimaryFileSize(modelVersionId int) (uint64, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("PrimaryFile").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return 0, fmt.Errorf("未找到指定模型版本信息，%w", result.Error)
+	}
+	if modelVersion.PrimaryFile == nil {
+		return 0, fmt.Errorf("未找到指定模型版本对应的首要文件信息")
+	}
+	return modelVersion.PrimaryFile.Size, nil
+}

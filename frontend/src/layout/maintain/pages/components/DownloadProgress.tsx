@@ -17,7 +17,7 @@ type ProgressEventPayload = {
 
 export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
   const modelVersionId = useDownloadState.use.selectedVersion();
-  const [total, setTotal] = useState(0);
+  const total = useDownloadState.use.modelVersionTotalSize();
   const [downloaded, setDownloaded] = useState(0);
   const currentProgress = useMemo(() => {
     return Math.round((downloaded / max(1, total)) * 100);
@@ -27,7 +27,6 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
     EventsOn(`model-primary-file-${modelVersionId}`, (payload: ProgressEventPayload) => {
       switch (payload.state) {
         case 'start':
-          setTotal(0);
           setDownloaded(0);
           break;
         case 'finish':
@@ -40,7 +39,6 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
           });
           break;
         case 'progress':
-          setTotal(payload.total ?? 1);
           setDownloaded(payload.completed ?? 0);
           break;
         default:
@@ -53,7 +51,6 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
   }, [modelVersionId]);
   useEffect(() => {
     EventsOn('reset-download', () => {
-      setTotal(0);
       setDownloaded(0);
     });
 

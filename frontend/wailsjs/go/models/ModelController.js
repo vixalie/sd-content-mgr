@@ -14,6 +14,10 @@ export function CheckFileNameExists(arg1, arg2, arg3, arg4) {
   return window['go']['models']['ModelController']['CheckFileNameExists'](arg1, arg2, arg3, arg4);
 }
 
+export function CheckModelVersionPrimaryFileSize(arg1) {
+  return window['go']['models']['ModelController']['CheckModelVersionPrimaryFileSize'](arg1);
+}
+
 export function ChooseAndSetFileThumbnail(arg1) {
   return window['go']['models']['ModelController']['ChooseAndSetFileThumbnail'](arg1);
 }

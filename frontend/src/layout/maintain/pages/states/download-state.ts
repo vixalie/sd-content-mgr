@@ -5,11 +5,12 @@ import { entities } from '@wails/go/models';
 import {
   BreakModelVersionFile,
   CheckFileNameExists,
+  CheckModelVersionPrimaryFileSize,
   FetchDownloadModelVersion,
   FetchModelInfo
 } from '@wails/go/models/ModelController';
 import { RefreshModelInfo } from '@wails/go/remote/RemoteController';
-import { equals, includes, isEmpty, not, propEq, toLower } from 'ramda';
+import { equals, includes, isEmpty, not, toLower } from 'ramda';
 
 type DownloadState = {
   url: string;
@@ -71,6 +72,7 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       modelVersionFileName: '',
       modelVersionFileExt: '',
       modelVersionFileExists: false,
+      modelVersionTotalSize: 0,
       model: null,
       downloadedVersions: [],
       availableVersions: [],
@@ -120,12 +122,12 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       selectedVersion,
       fileName
     );
-    const selectedVersionDetail = get().model?.versions.find(propEq(selectedVersion, 'id'));
-    console.log('[debug]selected version detail: ', selectedVersionDetail);
+    const mdoelFileSize = await CheckModelVersionPrimaryFileSize(selectedVersion);
     set(() => ({
       modelVersionFileName: fileName,
       modelVersionFileExt: fileExt,
-      modelVersionFileExists: fileExists
+      modelVersionFileExists: fileExists,
+      modelVersionTotalSize: mdoelFileSize
     }));
   },
   setModelVersionFilename: async modelVersionFilename => {
