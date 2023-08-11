@@ -26,7 +26,8 @@ export const DownloadTarget: FC = () => {
     loadModelInfo,
     fileName,
     overwrite,
-    lockdown
+    lockdown,
+    lock
   ] = useDownloadState(st => [
     st.url,
     st.subPath,
@@ -36,7 +37,8 @@ export const DownloadTarget: FC = () => {
     st.loadModelInfo,
     st.modelVersionFileName,
     st.overwrite,
-    st.lockdown
+    st.lockdown,
+    st.lockSetup
   ]);
 
   const modelName = useMemo(() => model?.name ?? '', [model]);
@@ -69,6 +71,7 @@ export const DownloadTarget: FC = () => {
       if (isNil(selectedVersion)) {
         throw new Error('未选择要下载的模型版本');
       }
+      lock();
       console.log('[debug]download: ', selectedVersion, fileName, targetSubPath, overwrite);
       await DownloadModelVersion('webui', targetSubPath, fileName, selectedVersion, overwrite);
     } catch (e) {
@@ -81,7 +84,7 @@ export const DownloadTarget: FC = () => {
         withCloseButton: false
       });
     }
-  }, [selectedVersion, fileName, overwrite, targetSubPath]);
+  }, [selectedVersion, fileName, overwrite, targetSubPath, lock]);
 
   useEffect(() => {
     EventsOn('model-primary-file-download-error', err => {
