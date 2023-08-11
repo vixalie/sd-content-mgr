@@ -9,7 +9,7 @@ import {
   FetchModelInfo
 } from '@wails/go/models/ModelController';
 import { RefreshModelInfo } from '@wails/go/remote/RemoteController';
-import { equals, includes, isEmpty, not, toLower } from 'ramda';
+import { equals, includes, isEmpty, not, propEq, toLower } from 'ramda';
 
 type DownloadState = {
   url: string;
@@ -22,6 +22,7 @@ type DownloadState = {
   modelVersionFileExists: boolean;
   model: entities.Model | null;
   downloadedVersions: number[];
+  modelVersionTotalSize: number;
   availableVersions: SelectItem[];
   cacheStatus: CacheStatus;
   modelDownloaded: DownloadStatus;
@@ -49,6 +50,7 @@ const initialState: DownloadState = {
   modelVersionFileName: '',
   modelVersionFileExt: '',
   modelVersionFileExists: false,
+  modelVersionTotalSize: 0,
   model: null,
   downloadedVersions: [],
   availableVersions: [],
@@ -118,6 +120,8 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       selectedVersion,
       fileName
     );
+    const selectedVersionDetail = get().model?.versions.find(propEq(selectedVersion, 'id'));
+    console.log('[debug]selected version detail: ', selectedVersionDetail);
     set(() => ({
       modelVersionFileName: fileName,
       modelVersionFileExt: fileExt,

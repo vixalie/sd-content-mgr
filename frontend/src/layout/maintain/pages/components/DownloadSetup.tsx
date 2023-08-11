@@ -37,14 +37,6 @@ export const DownloadSetup: FC<DownloadSetupProps> = ({}) => {
     },
     select: data => [hostPathSelection, ...(data ?? [])]
   });
-  console.log(
-    '[debug]States: ',
-    modelCategory,
-    targetSubPath,
-    selectedVersion,
-    availableVersions,
-    modelCatePath
-  );
 
   return (
     <>

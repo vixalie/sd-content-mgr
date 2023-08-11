@@ -42,7 +42,7 @@ func persistModelFromVersion(ctx context.Context, versionInfo *ModelVersion) err
 	var model *entities.Model
 	dbConn.Where("id = ?", versionInfo.ModelId).First(&entities.Model{}).First(model)
 	if model == nil {
-		runtime.EventsEmit(ctx, "cache-status", "uncached")
+		runtime.EventsEmit(ctx, "cache-status", "not-cached")
 		model = &entities.Model{
 			Id:               versionInfo.ModelId,
 			Name:             versionInfo.Model.Name,
@@ -209,7 +209,7 @@ func persistModel(ctx context.Context, modelInfo *Model, original []byte) error 
 		return fmt.Errorf("无法检查模型是否存在，%w", result.Error)
 	}
 	if exists == 0 {
-		runtime.EventsEmit(ctx, "cache-status", "uncached")
+		runtime.EventsEmit(ctx, "cache-status", "not-cached")
 	} else {
 		runtime.EventsEmit(ctx, "cache-status", "cached")
 	}

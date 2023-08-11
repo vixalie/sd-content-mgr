@@ -21,7 +21,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func downloadModelVersion(ctx context.Context, uiTools, targetCatePath string, modelVerionsId int) error {
+func downloadModelVersion(ctx context.Context, uiTools, targetCatePath, fileName string, modelVerionsId int, overwrite bool) error {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelVersion entities.ModelVersion
 	result := dbConn.Joins("Model").Joins("PrimaryFile").Preload("Covers").First(&modelVersion, "model_versions.id = ?", modelVerionsId)
@@ -33,18 +33,20 @@ func downloadModelVersion(ctx context.Context, uiTools, targetCatePath string, m
 	}
 	ui := config.MatchSoftware(uiTools)
 	targetModelPath := filepath.Join(config.ApplicationSetup.CommonPaths()[ui][strings.ToLower(modelVersion.Model.Type)], targetCatePath)
+	runtime.LogDebugf(ctx, "下载检查点0：目标路径：%s, %s", targetModelPath, fileName)
 	var wg sync.WaitGroup
-	go downloadModelVersionPrimaryFile(ctx, &wg, &modelVersion, targetModelPath)
-	go downloadModelVersionThumbnail(ctx, &wg, &modelVersion, targetModelPath)
-	go downloadModelVersionInfo(ctx, &wg, &modelVersion, targetModelPath)
+	wg.Add(3)
+	go downloadModelVersionPrimaryFile(ctx, &wg, &modelVersion, targetModelPath, fileName, overwrite)
+	go downloadModelVersionThumbnail(ctx, &wg, &modelVersion, targetModelPath, fileName)
+	go downloadModelVersionInfo(ctx, &wg, &modelVersion, targetModelPath, fileName)
 	wg.Wait()
 	return nil
 }
 
-func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath string) {
-	wg.Add(1)
+func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string, overwrite bool) {
 	defer wg.Done()
-	targetModelFile := filepath.Join(targetModelPath, modelVersion.PrimaryFile.Name)
+	_, ext := utils.BreakFilename(modelVersion.PrimaryFile.Name)
+	targetModelFile := filepath.Join(targetModelPath, fileName+ext)
 	var (
 		startOffset int64
 		file        *os.File
@@ -58,8 +60,13 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 			return
 		}
 	} else {
-		startOffset = stat.Size()
-		file, err = os.OpenFile(targetModelFile, os.O_APPEND|os.O_WRONLY, 0644)
+		if overwrite {
+			startOffset = 0
+			file, err = os.OpenFile(targetModelFile, os.O_TRUNC|os.O_WRONLY, 0644)
+		} else {
+			startOffset = stat.Size()
+			file, err = os.OpenFile(targetModelFile, os.O_APPEND|os.O_WRONLY, 0644)
+		}
 		if err != nil {
 			runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("打开模型文件失败，%w", err))
 			return
@@ -120,10 +127,9 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 	downloadEvent.Finish()
 }
 
-func downloadModelVersionThumbnail(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath string) {
+func downloadModelVersionThumbnail(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string) {
 	wg.Add(1)
 	defer wg.Done()
-	fileName, _ := utils.BreakFilename(modelVersion.PrimaryFile.Name)
 	usedCover, ok := lo.Find(modelVersion.Covers, func(cover entities.Image) bool {
 		return cover.Id == *modelVersion.CoverUsed
 	})
@@ -176,10 +182,9 @@ func downloadModelVersionThumbnail(ctx context.Context, wg *sync.WaitGroup, mode
 	}
 }
 
-func downloadModelVersionInfo(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath string) {
+func downloadModelVersionInfo(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string) {
 	wg.Add(1)
 	defer wg.Done()
-	fileName, _ := utils.BreakFilename(modelVersion.PrimaryFile.Name)
 	infoPath := filepath.Join(targetModelPath, fileName+".civitai.info")
 	var file *os.File
 	_, err := os.Stat(infoPath)

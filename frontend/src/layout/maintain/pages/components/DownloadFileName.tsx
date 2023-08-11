@@ -27,7 +27,7 @@ export const DownloadFileName: FC = () => {
       <TextInput
         label="下载文件名"
         value={modelFileName}
-        onChange={event => setModelFileName(event.currentTarget.value)}
+        onChange={async event => await setModelFileName(event.currentTarget.value)}
         rightSection={<Badge color="gray">{modelFileExt}</Badge>}
         rightSectionWidth={120}
         sx={{ flexGrow: 1 }}
@@ -43,9 +43,10 @@ export const DownloadFileName: FC = () => {
       </Box>
       <SegmentedControl
         value={overwriteState}
-        onChange={value =>
-          useDownloadState.setState(st => ({ overwrite: equals(value, 'overwrite') }))
-        }
+        onChange={value => {
+          console.log('[debug]Overwrite: ', value);
+          useDownloadState.setState(st => ({ overwrite: equals(value, 'overwrite') }));
+        }}
         data={[
           { label: '断点续传', value: 'continuous' },
           { label: '覆盖', value: 'overwrite' }

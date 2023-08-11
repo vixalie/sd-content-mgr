@@ -1,6 +1,10 @@
 package remote
 
-import "context"
+import (
+	"context"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+)
 
 type RemoteController struct {
 	ctx context.Context
@@ -22,6 +26,7 @@ func (r RemoteController) RefreshModelVersionInfoByHash(fileHash string) (*int, 
 	return refreshModelVersionInfoByHash(r.ctx, fileHash)
 }
 
-func (r RemoteController) DownloadModelVersion(uiTools, cateSubPath string, versionId int) error {
-	return downloadModelVersion(r.ctx, uiTools, cateSubPath, versionId)
+func (r RemoteController) DownloadModelVersion(uiTools, cateSubPath, fileName string, versionId int, overwrite bool) error {
+	runtime.LogDebugf(r.ctx, "Download Model: %s, %s, %s, %d, %t", uiTools, cateSubPath, fileName, versionId, overwrite)
+	return downloadModelVersion(r.ctx, uiTools, cateSubPath, fileName, versionId, overwrite)
 }

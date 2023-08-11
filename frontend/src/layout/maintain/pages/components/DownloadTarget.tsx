@@ -1,7 +1,7 @@
 import { Button, Divider, Group, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { DownloadModelVersion } from '@wails/go/remote/RemoteController';
-import { EventsOff, EventsOn } from '@wails/runtime/runtime';
+import { EventsEmit, EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { equals, isEmpty, isNil } from 'ramda';
 import { FC, useCallback, useEffect, useMemo } from 'react';
 import { useDownloadState } from '../states/download-state';
@@ -17,20 +17,30 @@ const hostPathSelection: string = '/';
 
 export const DownloadTarget: FC = () => {
   const theme = useMantineTheme();
-  const [url, targetSubPath, selectedVersion, model, partialReset, loadModelInfo] =
-    useDownloadState(st => [
-      st.url,
-      st.subPath,
-      st.selectedVersion,
-      st.model,
-      st.partialReset,
-      st.loadModelInfo
-    ]);
+  const [
+    url,
+    targetSubPath,
+    selectedVersion,
+    model,
+    partialReset,
+    loadModelInfo,
+    fileName,
+    overwrite
+  ] = useDownloadState(st => [
+    st.url,
+    st.subPath,
+    st.selectedVersion,
+    st.model,
+    st.partialReset,
+    st.loadModelInfo,
+    st.modelVersionFileName,
+    st.overwrite
+  ]);
 
   const modelName = useMemo(() => model?.name ?? '', [model]);
   const resetDownload = useCallback(() => {
-    setUrl('');
-    partialReset();
+    useDownloadState.reset();
+    EventsEmit('reset-download');
   }, []);
   const fetchRequestModelInfo = useCallback(async () => {
     try {
@@ -57,8 +67,8 @@ export const DownloadTarget: FC = () => {
       if (isNil(selectedVersion)) {
         throw new Error('未选择要下载的模型版本');
       }
-      console.log('[debug]download: ', selectedVersion);
-      await DownloadModelVersion('webui', targetSubPath, selectedVersion);
+      console.log('[debug]download: ', selectedVersion, fileName, targetSubPath, overwrite);
+      await DownloadModelVersion('webui', targetSubPath, fileName, selectedVersion, overwrite);
     } catch (e) {
       console.error('[error]下载模型：', e);
       notifications.show({
@@ -69,7 +79,7 @@ export const DownloadTarget: FC = () => {
         withCloseButton: false
       });
     }
-  }, [selectedVersion, targetSubPath]);
+  }, [selectedVersion, fileName, overwrite, targetSubPath]);
 
   useEffect(() => {
     EventsOn('model-primary-file-download-error', err => {

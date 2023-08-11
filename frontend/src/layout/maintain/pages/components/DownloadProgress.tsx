@@ -1,4 +1,6 @@
-import { Progress } from '@mantine/core';
+import { Group, Progress, Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { fromBytes } from '@tsmx/human-readable';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { max } from 'ramda';
 import { FC, useEffect, useMemo, useState } from 'react';
@@ -15,22 +17,27 @@ type ProgressEventPayload = {
 
 export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
   const modelVersionId = useDownloadState.use.selectedVersion();
-  const [total, setTotal] = useState(1);
+  const [total, setTotal] = useState(0);
   const [downloaded, setDownloaded] = useState(0);
   const currentProgress = useMemo(() => {
-    return (downloaded / max(1, total)) * 100;
+    return Math.round((downloaded / max(1, total)) * 100);
   }, [total, downloaded]);
 
   useEffect(() => {
     EventsOn(`model-primary-file-${modelVersionId}`, (payload: ProgressEventPayload) => {
       switch (payload.state) {
         case 'start':
-          setTotal(1);
+          setTotal(0);
           setDownloaded(0);
           break;
         case 'finish':
-          setTotal(1);
-          setDownloaded(1);
+          notifications.show({
+            title: '模型下载完成',
+            message: '选择的模型已经下载完成',
+            color: 'green',
+            autoClose: 5000,
+            withCloseButton: false
+          });
           break;
         case 'progress':
           setTotal(payload.total ?? 1);
@@ -44,6 +51,40 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
       EventsOff(`model-primary-file-${modelVersionId}`, () => {});
     };
   }, [modelVersionId]);
+  useEffect(() => {
+    EventsOn('reset-download', () => {
+      setTotal(0);
+      setDownloaded(0);
+    });
 
-  return <Progress radius="xs" color="blue" value={currentProgress} />;
+    return () => {
+      EventsOff('reset-download');
+    };
+  }, []);
+
+  return (
+    <>
+      <Group spacing="sm" grow>
+        <Text sx={{ maxWidth: 'max-content' }}>文件大小：</Text>
+        <Text sx={{ flexGrow: 1, maxWidth: 'max-content' }}>
+          {fromBytes(total, { fixedPrecision: 2 })}
+        </Text>
+      </Group>
+      <Group spacing="sm" grow>
+        <Text sx={{ maxWidth: 'max-content' }}>已下载：</Text>
+        <Text sx={{ flexGrow: 1, maxWidth: 'max-content' }}>
+          {fromBytes(downloaded, { fixedPrecision: 2 })}
+        </Text>
+      </Group>
+      <Progress
+        radius="xs"
+        size="xl"
+        label={`${currentProgress}%`}
+        color="green"
+        value={currentProgress}
+        striped
+        animate
+      />
+    </>
+  );
 };
