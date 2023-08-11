@@ -91,6 +91,7 @@ export const DownloadTarget: FC = () => {
 
   useEffect(() => {
     EventsOn('model-primary-file-download-error', err => {
+      unlock();
       console.error('[error]模型主文件下载错误：', err);
       notifications.show({
         title: '模型主文件下载错误',
@@ -108,7 +109,7 @@ export const DownloadTarget: FC = () => {
       EventsOff('model-primary-file-download-error');
       EventsOff('model-preview-download-error');
     };
-  }, []);
+  }, [unlock]);
 
   return (
     <Stack spacing="md">
