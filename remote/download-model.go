@@ -24,12 +24,12 @@ import (
 func downloadModelVersion(ctx context.Context, uiTools, targetCatePath, fileName string, modelVerionsId int, overwrite bool) error {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelVersion entities.ModelVersion
-	result := dbConn.Joins("Model").Joins("PrimaryFile").Preload("Covers").First(&modelVersion, "model_versions.id = ?", modelVerionsId)
+	result := dbConn.Joins("Model").Joins("PrimaryFile").Preload("Files").Preload("Covers").First(&modelVersion, "model_versions.id = ?", modelVerionsId)
 	if result.Error != nil {
 		return fmt.Errorf("未能找到已经缓存的模型版本记录，%w", result.Error)
 	}
-	if len(modelVersion.PrimaryFile.IdentityHash) == 0 {
-		return fmt.Errorf("模型版本未指定首要文件")
+	if len(modelVersion.PrimaryFile.IdentityHash) == 0 && len(modelVersion.Files[0].IdentityHash) == 0 {
+		return fmt.Errorf("模型版本未指定首要文件且文件列表首位文件同样不存在。")
 	}
 	ui := config.MatchSoftware(uiTools)
 	targetModelPath := filepath.Join(config.ApplicationSetup.CommonPaths()[ui][strings.ToLower(modelVersion.Model.Type)], targetCatePath)
@@ -45,7 +45,12 @@ func downloadModelVersion(ctx context.Context, uiTools, targetCatePath, fileName
 
 func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string, overwrite bool) {
 	defer wg.Done()
-	_, ext := utils.BreakFilename(modelVersion.PrimaryFile.Name)
+	var ext string
+	if modelVersion.PrimaryFile != nil {
+		_, ext = utils.BreakFilename(modelVersion.PrimaryFile.Name)
+	} else {
+		_, ext = utils.BreakFilename(modelVersion.Files[0].Name)
+	}
 	targetModelFile := filepath.Join(targetModelPath, fileName+ext)
 	var (
 		startOffset int64

@@ -275,13 +275,22 @@ func refreshModelVersion(ctx context.Context, modelVersion *ModelVersion) error 
 		return fmt.Errorf("无法提取模型文件信息，%w", err)
 	}
 	var files []entities.ModelFile
-	result := dbConn.Where(&entities.ModelFile{VersionId: modelVersion.Id, Primary: lo.ToPtr(true)}).Find(&files)
+	result := dbConn.Where(&entities.ModelFile{VersionId: modelVersion.Id}).Find(&files)
 	if result.Error != nil {
-		return fmt.Errorf("无法获取更新后的首要模型文件信息，%w", result.Error)
+		return fmt.Errorf("无法获取更新后的模型文件信息，%w", result.Error)
 	}
 	var versionPrimaryFile *int64
 	if len(files) > 0 {
-		versionPrimaryFile = lo.ToPtr(files[0].Id)
+		primaryFile, ok := lo.Find(files, func(f entities.ModelFile) bool {
+			return f.Primary != nil && *f.Primary
+		})
+		if ok {
+			versionPrimaryFile = lo.ToPtr(primaryFile.Id)
+		} else {
+			versionPrimaryFile = lo.ToPtr(files[0].Id)
+		}
+	} else {
+		return fmt.Errorf("模型版本中没有任何文件信息")
 	}
 	// 保存模型版本中携带的图片信息，注意这里的保存将可能大部分会采用更新的方式。
 	// 此处从前面的函数中返回的图片集合可能并不可靠，因为此时数据库中模型版本对应的图片可能是新版本与旧版本图片混杂的情况。
