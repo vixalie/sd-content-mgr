@@ -467,7 +467,6 @@ dist
 **/node_modules/
 *.db
 **/build/
-build/
 **/dist/
 config.yml
 config.yaml
