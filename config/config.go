@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v3"
 )
 
@@ -23,10 +25,14 @@ type Configuration struct {
 	WebUIConfig   *A111StableDiffusionWebUIConfig `yaml:"a111_web_ui"`
 }
 
-var ApplicationSetup *Configuration = nil
+var (
+	ApplicationSetup *Configuration = nil
+	SettingPath      string
+)
 
 func LoadConfiguration() *Configuration {
-	configContent, err := os.ReadFile("config.yaml")
+	configFilePath := filepath.Join(SettingPath, "config.yaml")
+	configContent, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil
 	}
@@ -39,11 +45,12 @@ func LoadConfiguration() *Configuration {
 }
 
 func (c *Configuration) Save() error {
+	configFilePath := filepath.Join(SettingPath, "config.yaml")
 	configContent, err := yaml.Marshal(c)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile("config.yaml", configContent, 0644)
+	err = os.WriteFile(configFilePath, configContent, 0644)
 	if err != nil {
 		return err
 	}
@@ -78,7 +85,18 @@ func (c *Configuration) CommonPaths() map[UIName]map[string]string {
 }
 
 func init() {
-	_, err := os.Stat("config.yaml")
+	userHomeDir, err := homedir.Dir()
+	if err != nil {
+		SettingPath = "./.sdmgr"
+	} else {
+		SettingPath = filepath.Join(userHomeDir, ".sdmgr")
+	}
+	if err = os.MkdirAll(SettingPath, os.ModePerm); err != nil {
+		fmt.Printf("创建配置文件夹失败，使用应用所在文件夹代替， %s\n", err.Error())
+		SettingPath = "./"
+	}
+	configFilePath := filepath.Join(SettingPath, "config.yaml")
+	_, err = os.Stat(configFilePath)
 	if os.IsNotExist(err) {
 		ApplicationSetup = &Configuration{}
 		ApplicationSetup.Save()

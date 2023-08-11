@@ -50,12 +50,7 @@ func SureImageFile(ctx context.Context, image *entities.Image) error {
 		downloadEvent.Failed(fmt.Errorf("无法访问Civitai，%w", err))
 		return fmt.Errorf("无法访问Civitai，%w", err)
 	}
-	imageFilePath, err := filepath.Abs("./model-images/")
-	if err != nil {
-		fmt.Printf("获取图片文件保存路径失败，%s", err.Error())
-		downloadEvent.Failed(fmt.Errorf("获取图片文件保存路径失败，%w", err))
-		return fmt.Errorf("获取图片文件保存路径失败，%w", err)
-	}
+	imageFilePath := filepath.Join(config.SettingPath, "model-images")
 	if err := os.MkdirAll(imageFilePath, os.ModePerm); err != nil {
 		fmt.Printf("创建图片文件保存目录失败，%s", err.Error())
 		downloadEvent.Failed(fmt.Errorf("创建图片文件保存目录失败，%w", err))
