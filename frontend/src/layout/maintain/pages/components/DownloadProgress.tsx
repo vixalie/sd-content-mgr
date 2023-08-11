@@ -18,6 +18,7 @@ type ProgressEventPayload = {
 export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
   const modelVersionId = useDownloadState.use.selectedVersion();
   const total = useDownloadState.use.modelVersionTotalSize();
+  const [lock, unlock] = useDownloadState(st => [st.lockSetup, st.unlockSetup]);
   const [downloaded, setDownloaded] = useState(0);
   const currentProgress = useMemo(() => {
     return Math.round((downloaded / max(1, total)) * 100);
@@ -27,6 +28,7 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
     EventsOn(`model-primary-file-${modelVersionId}`, (payload: ProgressEventPayload) => {
       switch (payload.state) {
         case 'start':
+          lock();
           setDownloaded(0);
           break;
         case 'finish':
@@ -37,18 +39,20 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
             autoClose: 5000,
             withCloseButton: false
           });
+          unlock();
           break;
         case 'progress':
           setDownloaded(payload.completed ?? 0);
           break;
         default:
+          unlock();
           break;
       }
     });
     return () => {
       EventsOff(`model-primary-file-${modelVersionId}`, () => {});
     };
-  }, [modelVersionId]);
+  }, [modelVersionId, lock, unlock]);
   useEffect(() => {
     EventsOn('reset-download', () => {
       setDownloaded(0);

@@ -12,6 +12,7 @@ type DownloadSetupProps = {};
 
 export const DownloadSetup: FC<DownloadSetupProps> = ({}) => {
   const [
+    lockdown,
     modelCategory,
     targetSubPath,
     setTargetSubPath,
@@ -19,6 +20,7 @@ export const DownloadSetup: FC<DownloadSetupProps> = ({}) => {
     setSelectedVersion,
     availableVersions
   ] = useDownloadState(st => [
+    st.lockdown,
     st.category,
     st.subPath,
     st.setSubPath,
@@ -40,14 +42,22 @@ export const DownloadSetup: FC<DownloadSetupProps> = ({}) => {
 
   return (
     <>
-      <Select label="模型类别" readOnly data={MoldelSelections} value={modelCategory} />
       <Select
+        label="模型类别"
+        readOnly
+        disabled={lockdown}
+        data={MoldelSelections}
+        value={modelCategory}
+      />
+      <Select
+        disabled={lockdown}
         label="目标分类目录"
         data={modelCatePath}
         value={targetSubPath}
         onChange={setTargetSubPath}
       />
       <Select
+        disabled={lockdown}
         label="模型版本"
         value={selectedVersion}
         onChange={setSelectedVersion}

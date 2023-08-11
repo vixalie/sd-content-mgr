@@ -21,6 +21,7 @@ export const DownloadFileName: FC = () => {
     st.setModelVersionFilename
   ]);
   const overwriteState = useDownloadState(overwriteStateSelector());
+  const lockdown = useDownloadState.use.lockdown();
 
   return (
     <Group spacing="sm" w="100%">
@@ -30,6 +31,7 @@ export const DownloadFileName: FC = () => {
         onChange={async event => await setModelFileName(event.currentTarget.value)}
         rightSection={<Badge color="gray">{modelFileExt}</Badge>}
         rightSectionWidth={120}
+        disabled={lockdown}
         sx={{ flexGrow: 1 }}
       />
       <Box sx={{ alignSelf: 'flex-end' }}>
@@ -42,6 +44,7 @@ export const DownloadFileName: FC = () => {
         )}
       </Box>
       <SegmentedControl
+        disabled={lockdown}
         value={overwriteState}
         onChange={value => {
           console.log('[debug]Overwrite: ', value);

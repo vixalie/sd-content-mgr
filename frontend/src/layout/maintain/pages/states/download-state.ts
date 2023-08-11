@@ -10,6 +10,7 @@ import {
   FetchModelInfo
 } from '@wails/go/models/ModelController';
 import { RefreshModelInfo } from '@wails/go/remote/RemoteController';
+import { EventsEmit } from '@wails/runtime/runtime';
 import { equals, includes, isEmpty, not, toLower } from 'ramda';
 
 type DownloadState = {
@@ -30,6 +31,7 @@ type DownloadState = {
   versionDownloaded: DownloadStatus;
   modelFound: FoundStatus;
   overwrite: boolean;
+  lockdown: boolean;
 };
 
 type DownloadStateActions = {
@@ -40,6 +42,8 @@ type DownloadStateActions = {
   setSelectedVersion: (version: number) => Promise<void>;
   setModelVersionFilename: (filename: string) => Promise<void>;
   setDownloadedVersions: (versions: number[]) => void;
+  lockSetup: () => void;
+  unlockSetup: () => void;
 };
 
 const initialState: DownloadState = {
@@ -59,12 +63,13 @@ const initialState: DownloadState = {
   modelDownloaded: 'unknown',
   versionDownloaded: 'unknown',
   modelFound: 'unknown',
-  overwrite: false
+  overwrite: false,
+  lockdown: false
 };
 
 export const useDownloadState = createStore<DownloadState & DownloadStateActions>((set, get) => ({
   ...initialState,
-  partialReset: () => {
+  partialReset() {
     set(() => ({
       category: '',
       subPath: '',
@@ -82,13 +87,13 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       modelFound: 'unknown'
     }));
   },
-  setCategory: category => {
+  setCategory(category) {
     set(() => ({ category }));
   },
-  setSubPath: subPath => {
+  setSubPath(subPath) {
     set(() => ({ subPath }));
   },
-  loadModelInfo: async modelId => {
+  async loadModelInfo(modelId) {
     await RefreshModelInfo(modelId);
     const modelInfo = await FetchModelInfo(modelId);
     const localVersions = await FetchDownloadModelVersion(modelId);
@@ -100,7 +105,7 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       versionDownloaded: isEmpty(localVersions) ? 'not-downloaded' : 'downloaded'
     }));
   },
-  setModel: model => {
+  setModel(model) {
     set(() => ({
       model,
       category: toLower(model?.type ?? ''),
@@ -108,7 +113,7 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
     }));
   },
   // 这里可以与后面的检索和拆分文件名整合
-  setSelectedVersion: async selectedVersion => {
+  async setSelectedVersion(selectedVersion) {
     const selectedIncluded =
       not(equals(selectedVersion, 0)) && includes(selectedVersion, get().downloadedVersions);
     set(() => ({
@@ -129,8 +134,9 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       modelVersionFileExists: fileExists,
       modelVersionTotalSize: mdoelFileSize
     }));
+    EventsEmit('reset-download');
   },
-  setModelVersionFilename: async modelVersionFilename => {
+  async setModelVersionFilename(modelVersionFilename) {
     const fileExists = await CheckFileNameExists(
       get().uiTools,
       get().subPath,
@@ -139,8 +145,14 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
     );
     set(() => ({ modelVersionFileName: modelVersionFilename, modelVersionFileExists: fileExists }));
   },
-  setDownloadedVersions: downloadedVersions => {
+  setDownloadedVersions(downloadedVersions) {
     set(() => ({ downloadedVersions }));
+  },
+  lockSetup() {
+    set(() => ({ lockdown: true }));
+  },
+  unlockSetup() {
+    set(() => ({ lockdown: false }));
   }
 }));
 

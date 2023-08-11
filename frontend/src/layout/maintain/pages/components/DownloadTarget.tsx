@@ -25,7 +25,8 @@ export const DownloadTarget: FC = () => {
     partialReset,
     loadModelInfo,
     fileName,
-    overwrite
+    overwrite,
+    lockdown
   ] = useDownloadState(st => [
     st.url,
     st.subPath,
@@ -34,7 +35,8 @@ export const DownloadTarget: FC = () => {
     st.partialReset,
     st.loadModelInfo,
     st.modelVersionFileName,
-    st.overwrite
+    st.overwrite,
+    st.lockdown
   ]);
 
   const modelName = useMemo(() => model?.name ?? '', [model]);
@@ -125,10 +127,10 @@ export const DownloadTarget: FC = () => {
         </Group>
       </Group>
       <Group spacing="sm" grow>
-        <Button disabled={equals(selectedVersion, 0)} onClick={handleDownload}>
+        <Button disabled={equals(selectedVersion, 0) || lockdown} onClick={handleDownload}>
           下载模型
         </Button>
-        <Button color="red" onClick={resetDownload}>
+        <Button color="red" onClick={resetDownload} disabled={lockdown}>
           重置下载
         </Button>
       </Group>
