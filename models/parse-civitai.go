@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"archgrid.xyz/ag/toolsbox/serial_code/hail"
 	"github.com/samber/lo"
@@ -226,10 +227,11 @@ func persistModel(ctx context.Context, modelInfo *Model, original []byte) error 
 		Type:                    modelInfo.Type,
 		Mode:                    modelInfo.Mode,
 		CivitaiOriginalResponse: original,
+		LastSyncedAt:            lo.ToPtr(time.Now()),
 	}
 	result = dbConn.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "nsfw", "person_of_interest", "author", "type", "mode", "civitai_original_response"}),
+		DoUpdates: clause.AssignmentColumns([]string{"name", "description", "nsfw", "person_of_interest", "author", "type", "mode", "civitai_original_response", "last_synced_at"}),
 	}).Create(&model)
 	if result.Error != nil {
 		return result.Error
@@ -325,10 +327,11 @@ func refreshModelVersion(ctx context.Context, modelVersion *ModelVersion) error 
 		CivitaiOriginalResponse: original,
 		CivitaiCreatedAt:        modelVersion.CreatedAt,
 		CivitaiUpdatedAt:        modelVersion.UpdatedAt,
+		LastSyncedAt:            lo.ToPtr(time.Now()),
 	}
 	result = dbConn.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"model_id", "version_name", "activate_prompt", "base_model", "page_url", "download_url", "primary_file_id", "cover_used", "civitai_original_response", "civitai_created_at", "civitai_updated_at"}),
+		DoUpdates: clause.AssignmentColumns([]string{"model_id", "version_name", "activate_prompt", "base_model", "page_url", "download_url", "primary_file_id", "cover_used", "civitai_original_response", "civitai_created_at", "civitai_updated_at", "last_synced_at"}),
 	}).Create(newModelVersion)
 	if result.Error != nil {
 		return fmt.Errorf("无法保存模型版本信息，%w", result.Error)
