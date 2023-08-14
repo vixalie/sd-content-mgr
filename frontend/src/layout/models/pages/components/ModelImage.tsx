@@ -182,7 +182,6 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
         title: '模型封面设置失败',
         message: `未能成功设置模型封面图片，${e}`,
         color: 'red',
-        autoClose: 5000,
         withCloseButton: false
       });
     }

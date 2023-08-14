@@ -35,7 +35,6 @@ export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProp
           isNil(model) || isEmpty(model)
             ? `模型的基础模型信息已经清除`
             : `成功更新模型的基础模型为${model}`,
-        autoClose: 5000,
         color: 'green',
         withCloseButton: false
       });
@@ -44,7 +43,6 @@ export const BaseModelDescription: FC<PropsWithChildren<BaseModelDescriptionProp
       notifications.show({
         title: '记录基础模型失败',
         message: `未能成功记录模型的基础模型，${e.message}`,
-        autoClose: 5000,
         color: 'red',
         withCloseButton: false
       });

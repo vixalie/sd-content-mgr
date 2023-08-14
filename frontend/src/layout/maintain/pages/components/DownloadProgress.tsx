@@ -36,7 +36,6 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
             title: '模型下载完成',
             message: '选择的模型已经下载完成',
             color: 'green',
-            autoClose: 5000,
             withCloseButton: false
           });
           unlock();

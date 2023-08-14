@@ -63,7 +63,6 @@ export const DownloadTarget: FC = () => {
         title: '模型信息获取失败',
         message: `指定模型信息未能成功获取，请检查模型链接以及网络是否正常并再次尝试获取。${e}`,
         color: 'red',
-        autoClose: 5000,
         withCloseButton: false
       });
     }
@@ -83,7 +82,6 @@ export const DownloadTarget: FC = () => {
         title: '模型下载失败',
         message: `模型下载失败，请检查网络是否正常并再次尝试。${e}`,
         color: 'red',
-        autoClose: 5000,
         withCloseButton: false
       });
     }
@@ -97,7 +95,6 @@ export const DownloadTarget: FC = () => {
         title: '模型主文件下载错误',
         message: `模型主文件下载错误，请检查网络是否正常并再次尝试。${err}`,
         color: 'red',
-        autoClose: 5000,
         withCloseButton: false
       });
     });

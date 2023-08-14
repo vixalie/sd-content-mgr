@@ -48,7 +48,6 @@ export const RenameableFile: FC<RenameableFileProps> = ({
           notifications.show({
             title: '重命名文件失败',
             message: `未能成功获取文件名的分解，${e.message}`,
-            autoClose: 5000,
             color: 'red',
             withCloseButton: false
           });
@@ -66,7 +65,6 @@ export const RenameableFile: FC<RenameableFileProps> = ({
       notifications.show({
         title: '重命名文件成功',
         message: `成功重命名文件为${namePart}${extPart}`,
-        autoClose: 5000,
         color: 'green',
         withCloseButton: false
       });
@@ -75,7 +73,6 @@ export const RenameableFile: FC<RenameableFileProps> = ({
       notifications.show({
         title: '重命名文件失败',
         message: `未能成功重命名文件，${e.message}`,
-        autoClose: 5000,
         color: 'red',
         withCloseButton: false
       });

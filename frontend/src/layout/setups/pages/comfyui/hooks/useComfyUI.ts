@@ -56,7 +56,6 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
         title: '保存成功',
         message: 'SD ComfyUI设置已保存',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
       revalidator.revalidate();
@@ -65,7 +64,6 @@ export function usePersistComfyUIConfig(): (config: ComfyUISettting) => Promise<
         title: '保存失败',
         message: 'SD ComfyUI设置保存失败',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }
@@ -82,7 +80,6 @@ export function useClearComfyUIConfig(): () => Promise<void> {
         title: '清除成功',
         message: 'SD ComfyUI设置已清除',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
       revalidator.revalidate();
@@ -91,7 +88,6 @@ export function useClearComfyUIConfig(): () => Promise<void> {
         title: '清除失败',
         message: 'SD ComfyUI设置清除失败',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }

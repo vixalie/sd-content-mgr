@@ -42,7 +42,6 @@ export function usePersistProxySetting(): (formValue: ProxySetting) => Promise<b
         title: '保存成功',
         message: '代理设置已保存',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
       revalidator.revalidate();
@@ -51,7 +50,6 @@ export function usePersistProxySetting(): (formValue: ProxySetting) => Promise<b
         title: '保存失败',
         message: '代理设置保存失败',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }

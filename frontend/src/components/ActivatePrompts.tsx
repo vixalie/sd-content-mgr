@@ -34,14 +34,12 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
       notifications.show({
         message: '选择的激活提示词已经复制到剪贴板了。',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
     } else {
       notifications.show({
         message: '未能成功将选择的激活提示词复制到剪贴板。',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }
@@ -57,7 +55,6 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         title: '保存提示词成功',
         message: '新的提示词已经保存成功。',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
     } catch (e) {
@@ -66,7 +63,6 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         title: '保存提示词失败',
         message: `未能保存新的提示词，${e.message}`,
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }
@@ -82,7 +78,6 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         title: '删除提示词成功',
         message: '选择的提示词已经成功删除。',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
     } catch (e) {
@@ -91,7 +86,6 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         title: '删除提示词失败',
         message: `未能删除选择的提示词，${e.message}`,
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }

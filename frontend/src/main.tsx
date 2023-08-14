@@ -31,7 +31,7 @@ function AppMain() {
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={updateColorScheme}>
           <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-            <Notifications position="bottom-right" limit={5} zIndex={999} />
+            <Notifications position="bottom-right" limit={5} autoClose={3000} zIndex={999} />
             <ModalsProvider>
               <RouterProvider router={AppRoute} />
             </ModalsProvider>

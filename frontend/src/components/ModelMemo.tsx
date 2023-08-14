@@ -26,7 +26,6 @@ export const ModelMemo: FC<ModelMemoProps> = ({ fileId, fileMemo, onComplete }) 
       notifications.show({
         title: '模型备注已更新',
         message: `成功更新模型的备注。`,
-        autoClose: 5000,
         color: 'green',
         withCloseButton: false
       });
@@ -35,7 +34,6 @@ export const ModelMemo: FC<ModelMemoProps> = ({ fileId, fileMemo, onComplete }) 
       notifications.show({
         title: '记录模型备注失败',
         message: `未能成功记录模型的备注，${e.message}`,
-        autoClose: 5000,
         color: 'red',
         withCloseButton: false
       });

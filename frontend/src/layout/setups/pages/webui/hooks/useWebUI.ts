@@ -48,7 +48,6 @@ export function usePersistWebUIConfig(): (config: WebUISetting) => Promise<void>
         title: '保存成功',
         message: 'SD WebUI设置已保存',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
       revalidator.revalidate();
@@ -57,7 +56,6 @@ export function usePersistWebUIConfig(): (config: WebUISetting) => Promise<void>
         title: '保存失败',
         message: 'SD WebUI设置保存失败',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }
@@ -74,7 +72,6 @@ export function useClearWebUIConfig(): () => Promise<void> {
         title: '清除成功',
         message: 'SD WebUI设置已清除',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
       revalidator.revalidate();
@@ -83,7 +80,6 @@ export function useClearWebUIConfig(): () => Promise<void> {
         title: '清除失败',
         message: 'SD WebUI设置清除失败',
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }

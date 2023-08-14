@@ -112,7 +112,6 @@ export function ModelSelection() {
             id: 'uncached-files-scan',
             title: '扫描完成',
             message: `已经完成未扫描模型文件的扫描。`,
-            autoClose: 3000,
             withCloseButton: false,
             loading: false,
             color: 'green'

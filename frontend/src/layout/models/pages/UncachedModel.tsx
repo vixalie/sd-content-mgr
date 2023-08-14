@@ -45,7 +45,6 @@ export const UncachedModel: FC = () => {
         title: '设置封面失败',
         message: `未能成功复制并记录缩略图文件，${e.message}`,
         color: 'red',
-        autoClose: 5000,
         withCloseButton: false
       });
     }
@@ -59,7 +58,6 @@ export const UncachedModel: FC = () => {
         title: '缓存模型成功',
         message: `已成功缓存模型，现在模型将转入已缓存模型展示页面。`,
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
     } catch (e) {
@@ -68,7 +66,6 @@ export const UncachedModel: FC = () => {
         title: '缓存模型失败',
         message: `未能成功缓存模型，${e.message}`,
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }

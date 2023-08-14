@@ -58,7 +58,6 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
           notifications.show({
             title: '重命名文件失败',
             message: `未能成功获取文件名的分解，${e.message}`,
-            autoClose: 5000,
             color: 'red',
             withCloseButton: false
           });
@@ -77,7 +76,6 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
         title: '加载提示词已复制',
         message:
           '加载提示词已复制到剪贴板，请到Stable Diffusion WebUI或者Stable Diffusion ComfyUI中粘贴使用。',
-        autoClose: 5000,
         color: 'green',
         withCloseButton: false
       });
@@ -86,7 +84,6 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       notifications.show({
         title: '复制加载提示词失败',
         message: `未能成功复制加载提示词，${e.message}`,
-        autoClose: 5000,
         color: 'red',
         withCloseButton: false
       });

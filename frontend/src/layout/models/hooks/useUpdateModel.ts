@@ -26,7 +26,6 @@ export function useUpdateModel(modelId: number): () => void {
         title: '模型信息更新成功',
         message: '模型信息已经完成更新。',
         color: 'green',
-        autoClose: 3000,
         withCloseButton: false
       });
     } catch (e) {
@@ -37,7 +36,6 @@ export function useUpdateModel(modelId: number): () => void {
         title: '模型信息更新失败',
         message: `模型信息更新失败，${e}`,
         color: 'red',
-        autoClose: 3000,
         withCloseButton: false
       });
     }
