@@ -4,6 +4,7 @@ import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
+import { ScanModel } from './layout/maintain/pages/ScanModel';
 import { ModelHost } from './layout/models/ModelHost';
 import { CachedModel } from './layout/models/pages/CachedModel';
 import { UncachedModel } from './layout/models/pages/UncachedModel';
@@ -59,6 +60,10 @@ export const AppRoute = createHashRouter([
           {
             path: 'download',
             element: <DownloadModel />
+          },
+          {
+            path: 'scan',
+            element: <ScanModel />
           }
         ]
       },

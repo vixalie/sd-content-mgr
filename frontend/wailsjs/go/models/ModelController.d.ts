@@ -26,6 +26,8 @@ export function FetchModelImage(arg1:string):Promise<entities.Image>;
 
 export function FetchModelInfo(arg1:number):Promise<entities.Model>;
 
+export function FetchModelInfoByFileHash(arg1:string):Promise<entities.Model>;
+
 export function FetchModelLocalFiles(arg1:number):Promise<Array<entities.ModelFile>>;
 
 export function FetchModelTags(arg1:number):Promise<Array<string>>;
@@ -53,6 +55,10 @@ export function RecordFileMemo(arg1:string,arg2:string):Promise<void>;
 export function RecordFilePrompts(arg1:string,arg2:string):Promise<void>;
 
 export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
+
+export function ScanAllResouces():Promise<void>;
+
+export function ScanDuplicateFiles():Promise<{[key: string]: Array<models.DuplicateRecord>}>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
 

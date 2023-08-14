@@ -46,6 +46,10 @@ export function FetchModelInfo(arg1) {
   return window['go']['models']['ModelController']['FetchModelInfo'](arg1);
 }
 
+export function FetchModelInfoByFileHash(arg1) {
+  return window['go']['models']['ModelController']['FetchModelInfoByFileHash'](arg1);
+}
+
 export function FetchModelLocalFiles(arg1) {
   return window['go']['models']['ModelController']['FetchModelLocalFiles'](arg1);
 }
@@ -100,6 +104,14 @@ export function RecordFilePrompts(arg1, arg2) {
 
 export function RenameModelFile(arg1, arg2) {
   return window['go']['models']['ModelController']['RenameModelFile'](arg1, arg2);
+}
+
+export function ScanAllResouces() {
+  return window['go']['models']['ModelController']['ScanAllResouces']();
+}
+
+export function ScanDuplicateFiles() {
+  return window['go']['models']['ModelController']['ScanDuplicateFiles']();
 }
 
 export function SetContext(arg1) {

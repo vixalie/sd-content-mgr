@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -249,4 +250,28 @@ func (m ModelController) CheckModelVersionPrimaryFileSize(modelVersionId int) (u
 		return 0, fmt.Errorf("未找到指定模型版本对应的首要文件信息")
 	}
 	return modelVersion.PrimaryFile.Size, nil
+}
+
+func (m ModelController) FetchModelInfoByFileHash(fileHash string) (*entities.Model, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.ModelFile
+	result := dbConn.Joins("Version").Joins("Version.Model").Where("identity_hash = ?", fileHash).First(&file)
+	if result.Error != nil {
+		return nil, fmt.Errorf("未找到给定的Hash对应的模型文件信息，%w", result.Error)
+	}
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return file.Version.Model, nil
+}
+
+// 本方法用于对全部可管理模型进行全面扫描，将所有的模型信息都记录到数据库中。可能花费时间非常长，使用时注意提供界面进度提示。
+func (m ModelController) ScanAllResouces() error {
+	return fullScanEverything(m.ctx)
+}
+
+// 本方法用于扫描全部可管理目录中的重复文件，重复文件的判断基于Sha256 Hash值，故不能保证文件一定相同，但可以保证基本与Civitai的判断一致。
+// 本方法中包含大量的文件扫描操作和反复的数据库检索操作，所以会消耗非常长的时间。
+func (m ModelController) ScanDuplicateFiles() (map[string][]DuplicateRecord, error) {
+	return scanDuplicateModelFiles(m.ctx)
 }

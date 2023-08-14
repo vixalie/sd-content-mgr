@@ -42,7 +42,7 @@ const TaskPaper: FC<TaskItem> = ({ filePath, status }) => {
 
 export const ScanModel: FC = () => {
   const theme = useMantineTheme();
-  const [taskList, { push, updateFirst, filter }] = useList<TaskItem>({});
+  const [taskList, { push, updateFirst, filter }] = useList<TaskItem>([]);
   const [state, { execute }] = useAsync(async () => {
     try {
       await ScanAllResouces();
@@ -59,8 +59,9 @@ export const ScanModel: FC = () => {
 
   useEffect(() => {
     EventsOn('mass-scan-file', ({ state, file, message }: ScanEventPayload) => {
+      console.log('[debug]MassScan: ', state, file, message);
       switch (state) {
-        case 'scanning':
+        case 'start':
           push({ filePath: file, status: 'scanning' });
           break;
         case 'skipped':
@@ -105,11 +106,18 @@ export const ScanModel: FC = () => {
         </Text>
       </Alert>
       <Group spacing="sm">
-        <Button color="blue" variant="filled">
+        <Button
+          color="blue"
+          variant="filled"
+          loading={equals(state.status, 'loading')}
+          onClick={execute}
+        >
           扫描所有模型
         </Button>
       </Group>
-      {taskList.length > 0 && taskList.map(task => <TaskPaper {...task} />)}
+      {taskList.map(task => (
+        <TaskPaper {...task} />
+      ))}
     </Stack>
   );
 };
