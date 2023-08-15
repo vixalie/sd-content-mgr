@@ -38,6 +38,10 @@ export function DeleteFilePrompts(arg1, arg2) {
   return window['go']['models']['ModelController']['DeleteFilePrompts'](arg1, arg2);
 }
 
+export function DeleteInvalidCaches() {
+  return window['go']['models']['ModelController']['DeleteInvalidCaches']();
+}
+
 export function DeleteModelFiles(arg1) {
   return window['go']['models']['ModelController']['DeleteModelFiles'](arg1);
 }

@@ -308,3 +308,26 @@ func (m ModelController) DeleteCaches(cacheIds []string) error {
 	}
 	return nil
 }
+
+type duplicatedFileCache struct {
+	FileIdentityHash string
+	Amount           int64
+}
+
+// 本方法用来删除因为不当的模型扫描产生的文件重复记录，这些记录虽然没有任何影响，但是会影响模型列表。
+func (m ModelController) DeleteInvalidCaches() error {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var duplicatedFiles []duplicatedFileCache
+	result := dbConn.Model(&entities.FileCache{}).Select("file_identity_hash, count(*) as amount").Group("file_identity_hash").Having("amount > 1").Find(&duplicatedFiles)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if result.Error != nil {
+		return fmt.Errorf("查询重复文件信息失败，%w", result.Error)
+	}
+	for _, duplicatedFile := range duplicatedFiles {
+		minTimeQuery := dbConn.Model(&entities.FileCache{}).Select("min(created_at) as created_at").Where("file_identity_hash = ?", duplicatedFile.FileIdentityHash)
+		dbConn.Unscoped().Where("file_identity_hash = ? AND created_at != (?)", duplicatedFile.FileIdentityHash, minTimeQuery).Delete(&entities.FileCache{})
+	}
+	return nil
+}

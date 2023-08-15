@@ -2,6 +2,7 @@ import { useMeasureElement } from '@/hooks/useMeasureElement';
 import { Alert, Box, Flex, Tabs, Text } from '@mantine/core';
 import { IconAlertHexagon } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
+import { ClearInvalidCache } from './components/ClearInvalidCache';
 import { DuplicatedModels } from './components/DuplicatedModels';
 import { UnexistModels } from './components/UnexistModels';
 import { useCleanModelsMeasure } from './states/clean-models-measure';
@@ -43,6 +44,7 @@ export const CleanModels: FC = () => {
         <Tabs.List ref={tabsRef}>
           <Tabs.Tab value="duplicate">清理重复模型</Tabs.Tab>
           <Tabs.Tab value="unexists">清理已经不存在的模型</Tabs.Tab>
+          <Tabs.Tab value="invalid">清理无效的缓存记录</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="duplicate" py="xs">
@@ -51,6 +53,10 @@ export const CleanModels: FC = () => {
 
         <Tabs.Panel value="unexists" py="xs">
           <UnexistModels />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="invalid" py="xs">
+          <ClearInvalidCache />
         </Tabs.Panel>
       </Tabs>
     </Flex>
