@@ -18,6 +18,8 @@ export function CopyModelFileLoader(arg1:number):Promise<void>;
 
 export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
+export function DeleteModelFiles(arg1:Array<string>):Promise<void>;
+
 export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;
 
 export function FetchDownloadModelVersion(arg1:number):Promise<Array<number>>;
@@ -58,7 +60,7 @@ export function RenameModelFile(arg1:string,arg2:string):Promise<void>;
 
 export function ScanAllResouces():Promise<void>;
 
-export function ScanDuplicateFiles():Promise<{[key: string]: Array<models.DuplicateRecord>}>;
+export function ScanDuplicateFiles():Promise<Array<models.DuplicateRecord>>;
 
 export function SetContext(arg1:context.Context):Promise<void>;
 

@@ -1,7 +1,22 @@
 import { useMeasureElement } from '@/hooks/useMeasureElement';
-import { Box, Button, Flex, Group, Paper, ScrollArea } from '@mantine/core';
-import { repeat } from 'ramda';
-import { FC, useRef } from 'react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  Group,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  Tooltip
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { EventsOff, EventsOn } from '@wails/runtime/runtime';
+import { nanoid } from 'nanoid';
+import { includes, isEmpty, isNil } from 'ramda';
+import { FC, useEffect, useRef } from 'react';
+import { useDuplicatedModels } from '../hooks/duplicate-models-state';
 import { useCleanModelsMeasure } from '../states/clean-models-measure';
 
 export const DuplicatedModels: FC = () => {
@@ -12,12 +27,35 @@ export const DuplicatedModels: FC = () => {
     state =>
       state.page.height - state.alert.height - state.tabs.height - state.control.height - 24 * 2
   );
-  console.log('[debug]Scroll Height: ', scrollAreaheight);
-  console.log('[debug]Measure State: ', useCleanModelsMeasure.getState());
+  const [loading, deleting, duplicates, loadDuplicates, selectFile, selectedFiles, deleteSelected] =
+    useDuplicatedModels(state => [
+      state.loading,
+      state.deleting,
+      state.duplicates,
+      state.loadDuplicatedModels,
+      state.selectFile,
+      state.selectedFiles,
+      state.deleteSelected
+    ]);
 
   useMeasureElement(panelRef, useCleanModelsMeasure, 'panel');
   useMeasureElement(controlRef, useCleanModelsMeasure, 'control');
   useMeasureElement(contentContanerRef, useCleanModelsMeasure, 'content');
+
+  useEffect(() => {
+    EventsOn('duplicated-model-deleted', () => {
+      notifications.show({
+        title: '删除成功',
+        message: '已选择的重复模型极其关联文件已经删除。',
+        color: 'green',
+        withCloseButton: false
+      });
+    });
+
+    return () => {
+      EventsOff('duplicated-model-deleted');
+    };
+  });
 
   return (
     <Flex
@@ -29,15 +67,48 @@ export const DuplicatedModels: FC = () => {
       ref={panelRef}
     >
       <Group spacing="sm" ref={controlRef} sx={{ minHeight: 'max-content' }}>
-        <Button variant="filled" color="blue">
+        <Button variant="filled" color="blue" onClick={loadDuplicates} loading={loading}>
           扫描重复模型
+        </Button>
+        <Button
+          variant="filled"
+          color="red"
+          onClick={deleteSelected}
+          disabled={loading || isEmpty(selectedFiles)}
+          loading={deleting}
+        >
+          删除选定模型
         </Button>
       </Group>
       <Box w="100%" sx={{ flexGrow: 1, overflow: 'hidden' }} ref={contentContanerRef}>
         <ScrollArea h={scrollAreaheight}>
-          {repeat('abcd', 30).map((value, index) => (
-            <Paper key={index}>{value}</Paper>
-          ))}
+          <Stack spacing="sm">
+            {duplicates.map(duplicate => (
+              <Paper key={duplicate.hash} px="md" py="md">
+                <Stack spacing="xs">
+                  <Text>
+                    {isNil(duplicate.model) ? `Hash: ${duplicate.hash}` : duplicate.model.name}
+                  </Text>
+                  {!isNil(duplicate.version) && !isNil(duplicate.model) && (
+                    <Text>{duplicate.version.versionName}</Text>
+                  )}
+                  {duplicate.files.map(file => (
+                    <Checkbox
+                      key={nanoid()}
+                      value={file.filePath}
+                      label={
+                        <Tooltip label={file.filePath} key={nanoid()}>
+                          <Text fz="xs">{file.fileName}</Text>
+                        </Tooltip>
+                      }
+                      checked={includes(file.filePath)(selectedFiles)}
+                      onChange={event => selectFile(event.currentTarget.value)}
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
         </ScrollArea>
       </Box>
     </Flex>

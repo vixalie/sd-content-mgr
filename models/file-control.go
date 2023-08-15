@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -206,5 +207,49 @@ func copyModelImageAsModelThumbnail(ctx context.Context, modelId int, imageId st
 	}
 	model.CoverUsed = &imageFile.Id
 	result = dbConn.Save(&model)
+	return result.Error
+}
+
+func deleteModel(ctx context.Context, filePath string) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var file entities.FileCache
+	result := dbConn.Where("full_path = ?", filePath).First(&file)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("未找到指定的文件记录，%w", result.Error)
+	}
+	if result.Error != nil {
+		return fmt.Errorf("查询文件记录失败，%w", result.Error)
+	}
+	thumbnailPath, descriptionPath, err := collectAccompanyFile(filePath)
+	if err != nil {
+		return fmt.Errorf("收集模型附属文件失败，%w", err)
+	}
+	if file.ThumbnailPath != nil {
+		err := os.Remove(*file.ThumbnailPath)
+		if err != nil {
+			return fmt.Errorf("删除记录模型缩略图失败，%w", err)
+		}
+	} else if thumbnailPath != nil {
+		err := os.Remove(*thumbnailPath)
+		if err != nil {
+			return fmt.Errorf("删除物理模型缩略图失败，%w", err)
+		}
+	}
+	if file.CivitaiInfoPath != nil {
+		err := os.Remove(*file.CivitaiInfoPath)
+		if err != nil {
+			return fmt.Errorf("删除记录模型Civitai信息文件失败，%w", err)
+		}
+	} else if descriptionPath != nil {
+		err := os.Remove(*descriptionPath)
+		if err != nil {
+			return fmt.Errorf("删除物理模型描述文件失败，%w", err)
+		}
+	}
+	err = os.Remove(filePath)
+	if err != nil {
+		return fmt.Errorf("删除模型文件失败，%w", err)
+	}
+	result = dbConn.Unscoped().Delete(&file)
 	return result.Error
 }

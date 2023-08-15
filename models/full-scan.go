@@ -191,19 +191,19 @@ TERMINATE_PARSE:
 }
 
 type DuplicateFile struct {
-	FilePath      string
-	FileName      string
-	ThumbnailPath *string
-	InfoPath      *string
-	Hash          string
-	CacheId       *string
+	FilePath      string  `json:"filePath"`
+	FileName      string  `json:"fileName"`
+	ThumbnailPath *string `json:"thumbnailPath"`
+	InfoPath      *string `json:"infoPath"`
+	Hash          string  `json:"hash"`
+	CacheId       *string `json:"cacheId"`
 }
 
 type DuplicateRecord struct {
-	Model   *entities.Model
-	Version *entities.ModelVersion
-	Hash    string
-	Files   []DuplicateFile
+	Model   *entities.Model        `json:"model"`
+	Version *entities.ModelVersion `json:"version"`
+	Hash    string                 `json:"hash"`
+	Files   []DuplicateFile        `json:"files"`
 }
 
 func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
@@ -240,16 +240,19 @@ func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
 			if entry.IsDir() {
 				scanQueue = append(scanQueue, filepath.Join(dir, entry.Name()))
 			} else {
-				fileAbsPath := filepath.Join(dir, entry.Name())
-				fileHash, err := sha256.SumFile256Hex(fileAbsPath)
-				if err != nil {
-					runtime.LogErrorf(ctx, "计算文件 [%s] 哈希值失败，%s", fileAbsPath, err)
-					continue
-				}
-				if _, ok := duplicates[fileHash]; !ok {
-					duplicates[fileHash] = []string{fileAbsPath}
-				} else {
-					duplicates[fileHash] = append(duplicates[fileHash], fileAbsPath)
+				fileExt := strings.ToLower(filepath.Ext(entry.Name()))
+				if lo.Contains(modelExts, fileExt) {
+					fileAbsPath := filepath.Join(dir, entry.Name())
+					fileHash, err := sha256.SumFile256Hex(fileAbsPath)
+					if err != nil {
+						runtime.LogErrorf(ctx, "计算文件 [%s] 哈希值失败，%s", fileAbsPath, err)
+						continue
+					}
+					if _, ok := duplicates[fileHash]; !ok {
+						duplicates[fileHash] = []string{fileAbsPath}
+					} else {
+						duplicates[fileHash] = append(duplicates[fileHash], fileAbsPath)
+					}
 				}
 			}
 		}
@@ -283,12 +286,14 @@ func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
 		}
 		// 检索文件对应的Model和ModelVersion信息，并合成
 		var file entities.ModelFile
-		result := dbConn.Preload("Version").Preload("Version.Files").Where("identity_hash = ?", hash).First(&file)
+		result := dbConn.Preload("Version").Preload("Version.Files").Where("identity_hash = ?", strings.ToUpper(hash)).First(&file)
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) || result.Error == nil {
 			record.Model = file.Version.Model
 			record.Version = file.Version
 		}
-		duplicateRecords = append(duplicateRecords, record)
+		if len(record.Files) > 1 {
+			duplicateRecords = append(duplicateRecords, record)
+		}
 	}
 	return duplicateRecords, nil
 }

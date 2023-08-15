@@ -275,3 +275,13 @@ func (m ModelController) ScanAllResouces() error {
 func (m ModelController) ScanDuplicateFiles() ([]DuplicateRecord, error) {
 	return scanDuplicateModelFiles(m.ctx)
 }
+
+func (m ModelController) DeleteModelFiles(filePathes []string) error {
+	for _, f := range filePathes {
+		err := deleteModel(m.ctx, f)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
