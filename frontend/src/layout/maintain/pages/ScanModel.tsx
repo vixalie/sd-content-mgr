@@ -1,4 +1,15 @@
-import { Alert, Button, Group, Paper, Stack, Text, useMantineTheme } from '@mantine/core';
+import { useMeasureElement } from '@/hooks/useMeasureElement';
+import {
+  Alert,
+  Box,
+  Button,
+  Group,
+  Paper,
+  ScrollArea,
+  Stack,
+  Text,
+  useMantineTheme
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useAsync, useList } from '@react-hookz/web';
 import {
@@ -11,7 +22,8 @@ import {
 import { ScanAllResouces } from '@wails/go/models/ModelController';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { equals } from 'ramda';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
+import { useScanModelsMeasure } from './states/scan-models-measure';
 
 type TaskItem = {
   filePath: string;
@@ -42,6 +54,13 @@ const TaskPaper: FC<TaskItem> = ({ filePath, status }) => {
 
 export const ScanModel: FC = () => {
   const theme = useMantineTheme();
+  const pageRef = useRef<HTMLDivElement>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
+  const controlRef = useRef<HTMLDivElement>(null);
+  const scrollAreaHeight = useScanModelsMeasure(
+    state => state.page.height - state.alert.height - state.control.height - 24 * 2
+  );
+
   const [taskList, { push, updateFirst, filter }] = useList<TaskItem>([]);
   const [state, { execute }] = useAsync(async () => {
     try {
@@ -56,6 +75,10 @@ export const ScanModel: FC = () => {
       });
     }
   }, []);
+
+  useMeasureElement(pageRef, useScanModelsMeasure, 'page');
+  useMeasureElement(alertRef, useScanModelsMeasure, 'alert');
+  useMeasureElement(controlRef, useScanModelsMeasure, 'control');
 
   useEffect(() => {
     EventsOn('mass-scan-file', ({ state, file, message }: ScanEventPayload) => {
@@ -98,14 +121,21 @@ export const ScanModel: FC = () => {
   }, []);
 
   return (
-    <Stack px="md" py="lg" spacing="md">
-      <Alert icon={<IconAlertHexagon stroke={1} size={24} />} color="red" title="缓慢操作警告">
-        <Text>
-          扫描全部模型会根据当前缓存数据库中的已经保存的内容决定所需处理的内容数量。如果应用是全新使用状态，而且Stable
-          Diffusion WebUI中已经放置了较多的模型，那么将会扫描很长的时间。
-        </Text>
-      </Alert>
-      <Group spacing="sm">
+    <Stack px="md" py="lg" spacing="md" h="100vh" ref={pageRef}>
+      <Box sx={{ minHeight: 'max-content' }}>
+        <Alert
+          icon={<IconAlertHexagon stroke={1} size={24} />}
+          color="red"
+          title="缓慢操作警告"
+          ref={alertRef}
+        >
+          <Text>
+            扫描全部模型会根据当前缓存数据库中的已经保存的内容决定所需处理的内容数量。如果应用是全新使用状态，而且Stable
+            Diffusion WebUI中已经放置了较多的模型，那么将会扫描很长的时间。
+          </Text>
+        </Alert>
+      </Box>
+      <Group spacing="sm" ref={controlRef}>
         <Button
           color="blue"
           variant="filled"
@@ -115,9 +145,13 @@ export const ScanModel: FC = () => {
           扫描所有模型
         </Button>
       </Group>
-      {taskList.map(task => (
-        <TaskPaper {...task} />
-      ))}
+      <ScrollArea h={scrollAreaHeight}>
+        <Stack spacing="sm">
+          {taskList.map(task => (
+            <TaskPaper {...task} />
+          ))}
+        </Stack>
+      </ScrollArea>
     </Stack>
   );
 };
