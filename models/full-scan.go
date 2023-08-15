@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,41 +61,45 @@ func scanModel(ctx context.Context, uiTools, modelType string) error {
 		targetScanDir, _ = config.GetWebUIModelPath(modelType)
 	}
 	var (
-		scanQueue = make([]string, 0)
+		scanQueue = make(chan string, 500)
 		semaphore = semaphore.NewWeighted(10)
 		wg        sync.WaitGroup
 	)
-	scanQueue = append(scanQueue, targetScanDir...)
-	for _, dir := range scanQueue {
-		runtime.LogDebugf(ctx, "正在扫描: [%s][%s] %s", uiTools, modelType, dir)
-		// 扫描指定目录下的所有子目录，将所有的子目录都放入扫描队列中，将对所有的文件调用模型扫描函数
-		entries, err := os.ReadDir(dir)
-		if err != nil {
-			runtime.LogErrorf(ctx, "无法读取目录 [%s]，%s", dir, err)
-			continue
+	go scanDir(scanQueue, targetScanDir)
+	for dir := range scanQueue {
+		runtime.LogDebugf(ctx, "正在扫描文件：[%s][%s] %s", uiTools, modelType, dir)
+		if err := semaphore.Acquire(ctx, 1); err != nil {
+			runtime.LogErrorf(ctx, "无法执行扫描过程控制，%s", err)
+			return fmt.Errorf("无法执行扫描过程控制，%w", err)
 		}
-		runtime.LogDebugf(ctx, "在目录 %s 下发现了 %d 个子级内容", dir, len(entries))
-		for _, entry := range entries {
-			runtime.LogDebugf(ctx, "正在扫描: [%s][%s] %s", uiTools, modelType, entry.Name())
-			if entry.IsDir() {
-				scanQueue = append(scanQueue, filepath.Join(dir, entry.Name()))
-			} else {
-				fileExt := strings.ToLower(filepath.Ext(entry.Name()))
-				if lo.Contains(modelExts, fileExt) {
-					runtime.LogDebugf(ctx, "正在扫描文件：[%s][%s] %s", uiTools, modelType, entry.Name())
-					if err := semaphore.Acquire(ctx, 1); err != nil {
-						runtime.LogErrorf(ctx, "无法执行扫描过程控制，%s", err)
-						return fmt.Errorf("无法执行扫描过程控制，%w", err)
-					}
-					wg.Add(1)
-					// 调用简易模型扫描函数，放入文件的绝对路径
-					go simplifiedScanModelFiles(ctx, semaphore, &wg, modelType, filepath.Join(dir, entry.Name()))
-				}
-			}
-		}
+		wg.Add(1)
+		// 调用简易模型扫描函数，放入文件的绝对路径
+		go simplifiedScanModelFiles(ctx, semaphore, &wg, modelType, dir)
 	}
 	wg.Wait()
 	return nil
+}
+
+func scanDir(queue chan string, targetDirs []string) {
+	for _, dir := range targetDirs {
+		// 扫描指定目录下的所有子目录，将所有的子目录都放入扫描队列中，将对所有的文件调用模型扫描函数
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			return
+		}
+		for _, entry := range entries {
+			filepath.WalkDir(filepath.Join(dir, entry.Name()), func(path string, d fs.DirEntry, err error) error {
+				if !d.IsDir() {
+					fileExt := strings.ToLower(filepath.Ext(d.Name()))
+					if lo.Contains(modelExts, fileExt) {
+						queue <- path
+					}
+				}
+				return nil
+			})
+		}
+	}
+	close(queue)
 }
 
 func simplifiedScanModelFiles(ctx context.Context, weighted *semaphore.Weighted, wg *sync.WaitGroup, modelType, targetFilePath string) {
