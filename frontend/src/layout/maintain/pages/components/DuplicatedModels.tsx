@@ -18,8 +18,8 @@ import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { includes, isEmpty, isNil } from 'ramda';
 import { FC, useEffect, useRef } from 'react';
-import { useDuplicatedModels } from '../hooks/duplicate-models-state';
 import { useCleanModelsMeasure } from '../states/clean-models-measure';
+import { useDuplicatedModels } from '../states/duplicate-models-state';
 
 export const DuplicatedModels: FC = () => {
   const theme = useMantineTheme();

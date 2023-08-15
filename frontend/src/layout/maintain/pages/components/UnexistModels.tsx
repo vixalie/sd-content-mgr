@@ -16,8 +16,8 @@ import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { includes, isEmpty } from 'ramda';
 import { FC, useEffect, useRef } from 'react';
-import { useUnexistModels } from '../hooks/unexist-models-state';
 import { useCleanModelsMeasure } from '../states/clean-models-measure';
+import { useUnexistModels } from '../states/unexist-models-state';
 
 export const UnexistModels: FC = () => {
   const theme = useMantineTheme();
