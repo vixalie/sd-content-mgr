@@ -285,3 +285,26 @@ func (m ModelController) DeleteModelFiles(filePathes []string) error {
 	}
 	return nil
 }
+
+func (m ModelController) CheckUnexistCaches() ([]*entities.FileCache, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var caches []*entities.FileCache
+	dbConn.Find(&caches)
+	var unexistCaches []*entities.FileCache = make([]*entities.FileCache, 0)
+	for _, cache := range caches {
+		_, err := os.Stat(cache.FullPath)
+		if os.IsNotExist(err) {
+			unexistCaches = append(unexistCaches, cache)
+		}
+	}
+	return unexistCaches, nil
+}
+
+func (m ModelController) DeleteCaches(cacheIds []string) error {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	result := dbConn.Unscoped().Where("id IN ?", cacheIds).Delete(&entities.FileCache{})
+	if result.Error != nil {
+		return fmt.Errorf("删除缓存文件信息失败，%w", result.Error)
+	}
+	return nil
+}

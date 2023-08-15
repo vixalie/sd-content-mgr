@@ -18,12 +18,20 @@ export function CheckModelVersionPrimaryFileSize(arg1) {
   return window['go']['models']['ModelController']['CheckModelVersionPrimaryFileSize'](arg1);
 }
 
+export function CheckUnexistCaches() {
+  return window['go']['models']['ModelController']['CheckUnexistCaches']();
+}
+
 export function ChooseAndSetFileThumbnail(arg1) {
   return window['go']['models']['ModelController']['ChooseAndSetFileThumbnail'](arg1);
 }
 
 export function CopyModelFileLoader(arg1) {
   return window['go']['models']['ModelController']['CopyModelFileLoader'](arg1);
+}
+
+export function DeleteCaches(arg1) {
+  return window['go']['models']['ModelController']['DeleteCaches'](arg1);
 }
 
 export function DeleteFilePrompts(arg1, arg2) {

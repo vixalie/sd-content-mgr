@@ -12,9 +12,13 @@ export function CheckFileNameExists(arg1:string,arg2:string,arg3:number,arg4:str
 
 export function CheckModelVersionPrimaryFileSize(arg1:number):Promise<number>;
 
+export function CheckUnexistCaches():Promise<Array<entities.FileCache>>;
+
 export function ChooseAndSetFileThumbnail(arg1:string):Promise<boolean>;
 
 export function CopyModelFileLoader(arg1:number):Promise<void>;
+
+export function DeleteCaches(arg1:Array<string>):Promise<void>;
 
 export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 

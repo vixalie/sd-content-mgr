@@ -3,6 +3,7 @@ import { Alert, Box, Flex, Tabs, Text } from '@mantine/core';
 import { IconAlertHexagon } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { DuplicatedModels } from './components/DuplicatedModels';
+import { UnexistModels } from './components/UnexistModels';
 import { useCleanModelsMeasure } from './states/clean-models-measure';
 
 export const CleanModels: FC = () => {
@@ -49,7 +50,7 @@ export const CleanModels: FC = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="unexists" py="xs">
-          <Text>检查不存在的模型文件</Text>
+          <UnexistModels />
         </Tabs.Panel>
       </Tabs>
     </Flex>
