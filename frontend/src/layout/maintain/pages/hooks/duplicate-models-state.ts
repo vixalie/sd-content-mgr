@@ -26,7 +26,7 @@ export const useDuplicatedModels = createStore<DuplicatedModelsState & Duplicate
     async loadDuplicatedModels() {
       set(state => ({ loading: true }));
       const duplicates = await ScanDuplicateFiles();
-      set(state => ({ duplicates, loading: false }));
+      set(state => ({ duplicates, selectedFiles: [], loading: false }));
     },
     selectFile(file) {
       if (!includes(file, get().selectedFiles)) {
