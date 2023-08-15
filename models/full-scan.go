@@ -21,6 +21,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sync/semaphore"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var (
@@ -186,7 +187,7 @@ TERMINATE_PARSE:
 		// 当模型描述不等于空的时候，需要向文件中登记其对应的模型信息。
 		fileCache.RelatedModelVersionId = &modelDescription.Id
 	}
-	dbConn.Create(&fileCache)
+	dbConn.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "file_identity_hash"}}, DoNothing: true}).Create(&fileCache)
 	runtime.EventsEmit(ctx, "mass-scan-file", map[string]string{"state": "done", "file": targetFilePath})
 }
 

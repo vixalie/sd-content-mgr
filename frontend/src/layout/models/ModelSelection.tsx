@@ -42,6 +42,7 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
     },
     select: data => sortByName(data ?? [])
   });
+  console.log('[debug]Model List: ', modelList);
 
   return (
     <>
