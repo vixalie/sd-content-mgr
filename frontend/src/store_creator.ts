@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { create, State, StateCreator, StoreApi, UseBoundStore } from 'zustand';
 
-interface EnhancedStoreType<StoreType> {
+export interface EnhancedStoreType<StoreType> {
   use: {
     [key in keyof StoreType]: () => StoreType[key];
   };

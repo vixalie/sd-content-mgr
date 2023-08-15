@@ -3,6 +3,7 @@ import { About } from './layout/About.';
 import { MainLayout } from './layout/MainLayout';
 import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
+import { CleanModels } from './layout/maintain/pages/CleanModels';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
 import { ScanModel } from './layout/maintain/pages/ScanModel';
 import { ModelHost } from './layout/models/ModelHost';
@@ -64,6 +65,10 @@ export const AppRoute = createHashRouter([
           {
             path: 'scan',
             element: <ScanModel />
+          },
+          {
+            path: 'cleanup',
+            element: <CleanModels />
           }
         ]
       },
