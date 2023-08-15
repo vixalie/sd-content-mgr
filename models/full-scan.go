@@ -206,10 +206,10 @@ type DuplicateRecord struct {
 	Files   []DuplicateFile
 }
 
-func scanDuplicateModelFiles(ctx context.Context) (map[string][]DuplicateRecord, error) {
+func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
 	var (
 		duplicates = make(map[string][]string, 0)
-		scanQueue  = make(chan string, 500)
+		scanQueue  = make([]string, 0)
 	)
 	// 缓存需要扫描的初始目录集合
 	for _, ui := range []string{"comfyui", "webui"} {
@@ -221,13 +221,11 @@ func scanDuplicateModelFiles(ctx context.Context) (map[string][]DuplicateRecord,
 			case config.WebUI:
 				targetScanDir, _ = config.GetWebUIModelPath(modelType)
 			}
-			for _, dir := range targetScanDir {
-				scanQueue <- dir
-			}
+			scanQueue = append(scanQueue, targetScanDir...)
 		}
 	}
 	// 开始扫描
-	for dir := range scanQueue {
+	for _, dir := range scanQueue {
 		stat, err := os.Stat(dir)
 		// 如果目录不存在或者不是目录，跳过
 		if err != nil || !stat.IsDir() {
@@ -240,7 +238,7 @@ func scanDuplicateModelFiles(ctx context.Context) (map[string][]DuplicateRecord,
 		}
 		for _, entry := range entries {
 			if entry.IsDir() {
-				scanQueue <- entry.Name()
+				scanQueue = append(scanQueue, filepath.Join(dir, entry.Name()))
 			} else {
 				fileAbsPath := filepath.Join(dir, entry.Name())
 				fileHash, err := sha256.SumFile256Hex(fileAbsPath)
@@ -257,7 +255,7 @@ func scanDuplicateModelFiles(ctx context.Context) (map[string][]DuplicateRecord,
 		}
 	}
 	// 合成重复文件记录
-	var duplicateRecords = make(map[string][]DuplicateRecord, 0)
+	var duplicateRecords = make([]DuplicateRecord, 0)
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	for hash, files := range duplicates {
 		// 检索Hash重复的各个文件的信息，形成DuplicateFile记录
@@ -290,6 +288,7 @@ func scanDuplicateModelFiles(ctx context.Context) (map[string][]DuplicateRecord,
 			record.Model = file.Version.Model
 			record.Version = file.Version
 		}
+		duplicateRecords = append(duplicateRecords, record)
 	}
 	return duplicateRecords, nil
 }

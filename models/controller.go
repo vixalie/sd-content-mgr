@@ -272,6 +272,6 @@ func (m ModelController) ScanAllResouces() error {
 
 // 本方法用于扫描全部可管理目录中的重复文件，重复文件的判断基于Sha256 Hash值，故不能保证文件一定相同，但可以保证基本与Civitai的判断一致。
 // 本方法中包含大量的文件扫描操作和反复的数据库检索操作，所以会消耗非常长的时间。
-func (m ModelController) ScanDuplicateFiles() (map[string][]DuplicateRecord, error) {
+func (m ModelController) ScanDuplicateFiles() ([]DuplicateRecord, error) {
 	return scanDuplicateModelFiles(m.ctx)
 }
