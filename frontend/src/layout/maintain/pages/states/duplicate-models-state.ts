@@ -2,7 +2,7 @@ import { createStore } from '@/store_creator';
 import { models } from '@wails/go/models';
 import { DeleteModelFiles, ScanDuplicateFiles } from '@wails/go/models/ModelController';
 import { EventsEmit } from '@wails/runtime/runtime';
-import { equals, filter, includes, not } from 'ramda';
+import { equals, filter, includes, map, not } from 'ramda';
 
 type DuplicatedModelsState = {
   loading: boolean;
@@ -39,8 +39,14 @@ export const useDuplicatedModels = createStore<DuplicatedModelsState & Duplicate
       set(state => ({ deleting: true }));
       await DeleteModelFiles(get().selectedFiles);
       EventsEmit('duplicated-model-deleted');
-      set(state => ({ selectedFiles: [], duplicates: [], deleting: false }));
-      await get().loadDuplicatedModels();
+      const filteredDuplicates = map(
+        d => ({
+          files: filter(f => not(includes(f.filePath, get().selectedFiles)), d.files),
+          ...d
+        }),
+        get().duplicates
+      );
+      set(state => ({ selectedFiles: [], duplicates: filteredDuplicates, deleting: false }));
     }
   })
 );
