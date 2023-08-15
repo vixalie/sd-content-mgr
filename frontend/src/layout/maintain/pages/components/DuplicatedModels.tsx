@@ -9,9 +9,11 @@ import {
   ScrollArea,
   Stack,
   Text,
-  Tooltip
+  Tooltip,
+  useMantineTheme
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconBoxOff } from '@tabler/icons-react';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { includes, isEmpty, isNil } from 'ramda';
@@ -20,6 +22,7 @@ import { useDuplicatedModels } from '../hooks/duplicate-models-state';
 import { useCleanModelsMeasure } from '../states/clean-models-measure';
 
 export const DuplicatedModels: FC = () => {
+  const theme = useMantineTheme();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const controlRef = useRef<HTMLDivElement | null>(null);
   const contentContanerRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +111,12 @@ export const DuplicatedModels: FC = () => {
                 </Stack>
               </Paper>
             ))}
+            {isEmpty(duplicates) && (
+              <Stack align="center" py="2.5rem">
+                <IconBoxOff stroke={1} color={theme.colors.red[6]} size={64} />
+                <Text>暂无需要清理的内容。</Text>
+              </Stack>
+            )}
           </Stack>
         </ScrollArea>
       </Box>
