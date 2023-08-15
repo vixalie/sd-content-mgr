@@ -215,7 +215,8 @@ type DuplicateRecord struct {
 func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
 	var (
 		duplicates = make(map[string][]string, 0)
-		scanQueue  = make([]string, 0)
+		allDirs    = make([]string, 0)
+		scanQueue  = make(chan string, 500)
 	)
 	// 缓存需要扫描的初始目录集合
 	for _, ui := range []string{"comfyui", "webui"} {
@@ -227,40 +228,21 @@ func scanDuplicateModelFiles(ctx context.Context) ([]DuplicateRecord, error) {
 			case config.WebUI:
 				targetScanDir, _ = config.GetWebUIModelPath(modelType)
 			}
-			scanQueue = append(scanQueue, targetScanDir...)
+			allDirs = append(allDirs, targetScanDir...)
 		}
 	}
+	go scanDir(scanQueue, allDirs)
 	// 开始扫描
-	for _, dir := range scanQueue {
-		stat, err := os.Stat(dir)
-		// 如果目录不存在或者不是目录，跳过
-		if err != nil || !stat.IsDir() {
-			continue
-		}
-		// 扫描指定目录下的所有子目录，将所有的子目录都放入扫描队列中，将对所有的文件调用模型扫描函数
-		entries, err := os.ReadDir(dir)
+	for dir := range scanQueue {
+		fileHash, err := sha256.SumFile256Hex(dir)
 		if err != nil {
+			runtime.LogErrorf(ctx, "计算文件 [%s] 哈希值失败，%s", dir, err)
 			continue
 		}
-		for _, entry := range entries {
-			if entry.IsDir() {
-				scanQueue = append(scanQueue, filepath.Join(dir, entry.Name()))
-			} else {
-				fileExt := strings.ToLower(filepath.Ext(entry.Name()))
-				if lo.Contains(modelExts, fileExt) {
-					fileAbsPath := filepath.Join(dir, entry.Name())
-					fileHash, err := sha256.SumFile256Hex(fileAbsPath)
-					if err != nil {
-						runtime.LogErrorf(ctx, "计算文件 [%s] 哈希值失败，%s", fileAbsPath, err)
-						continue
-					}
-					if _, ok := duplicates[fileHash]; !ok {
-						duplicates[fileHash] = []string{fileAbsPath}
-					} else {
-						duplicates[fileHash] = append(duplicates[fileHash], fileAbsPath)
-					}
-				}
-			}
+		if _, ok := duplicates[fileHash]; !ok {
+			duplicates[fileHash] = []string{dir}
+		} else {
+			duplicates[fileHash] = append(duplicates[fileHash], dir)
 		}
 	}
 	// 合成重复文件记录
