@@ -30,9 +30,9 @@ export const useDuplicatedModels = createStore<DuplicatedModelsState & Duplicate
     },
     selectFile(file) {
       if (!includes(file, get().selectedFiles)) {
-        set(state => ({ selectedFiles: [...get().selectedFiles, file] }));
+        set(state => ({ selectedFiles: [...state.selectedFiles, file] }));
       } else {
-        set(state => ({ selectedFiles: filter(f => not(equals(file, f)), get().selectedFiles) }));
+        set(state => ({ selectedFiles: filter(f => not(equals(file, f)), state.selectedFiles) }));
       }
     },
     async deleteSelected() {
