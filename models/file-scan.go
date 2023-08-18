@@ -20,7 +20,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sync/semaphore"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type SimpleModelDescript struct {
@@ -179,7 +178,11 @@ TERMINATE_PARSE:
 		// 当模型描述不等于空的时候，需要向文件中登记其对应的模型信息。
 		fileCache.RelatedModelVersionId = &modelDescription.Id
 	}
-	dbConn.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "file_identity_hash"}}, DoNothing: true}).Create(&fileCache)
+	var count int64
+	dbConn.Model(&entities.FileCache{}).Where("file_identity_hash = ?", fileCache.FileIdentityHash).Count(&count)
+	if count == 0 {
+		dbConn.Create(&fileCache)
+	}
 }
 
 // 返回值分别为伴随模型的缩略图路径和Civitai描述文件路径。需要传入的模型文件路径为绝对路径。如果模型没有对应的缩略图或描述文件，则返回nil。
