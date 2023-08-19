@@ -472,4 +472,4 @@ config.yml
 config.yaml
 model-images/
 build/**
-!build/appicon.png
+!build/*.png
