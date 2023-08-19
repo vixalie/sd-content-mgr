@@ -1,11 +1,10 @@
 import { ActionIcon, Chip, Flex, Stack, TextInput, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useUnmountEffect } from '@react-hookz/web';
 import { IconCheck, IconClearAll, IconCopy, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
 import { DeleteFilePrompts, RecordFilePrompts } from '@wails/go/models/ModelController';
 import { ClipboardSetText } from '@wails/runtime/runtime';
 import { isEmpty } from 'ramda';
-import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 import { TwoLineInfoCell } from './TwoLineInfoCell';
 
@@ -97,10 +96,9 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
       ref.current?.focus();
     }
   }, [editable, editing]);
-
-  useUnmountEffect(() => {
+  useEffect(() => {
     setSelectedPrompts([]);
-  });
+  }, [prompts]);
 
   return (
     <TwoLineInfoCell
