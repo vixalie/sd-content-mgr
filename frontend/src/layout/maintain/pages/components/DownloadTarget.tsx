@@ -1,8 +1,18 @@
-import { Button, Divider, Group, Stack, Text, TextInput, useMantineTheme } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Divider,
+  Group,
+  Stack,
+  Text,
+  TextInput,
+  useMantineTheme
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconX } from '@tabler/icons-react';
 import { DownloadModelVersion } from '@wails/go/remote/RemoteController';
 import { EventsEmit, EventsOff, EventsOn } from '@wails/runtime/runtime';
-import { equals, isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil, not } from 'ramda';
 import { FC, useCallback, useEffect, useMemo } from 'react';
 import { useDownloadState } from '../states/download-state';
 import { CachedIcon } from './CachedIcon';
@@ -115,6 +125,13 @@ export const DownloadTarget: FC = () => {
         placeholder="粘贴模型的Civitai URL"
         value={url}
         onChange={event => useDownloadState.setState(st => ({ url: event.currentTarget.value }))}
+        rightSection={
+          not(isEmpty(url)) && (
+            <ActionIcon variant="transparent" onClick={resetDownload}>
+              <IconX stroke={1} size="0.8rem" />
+            </ActionIcon>
+          )
+        }
       />
       <Button onClick={fetchRequestModelInfo}>检索模型信息</Button>
       <Group spacing="sm" grow>
