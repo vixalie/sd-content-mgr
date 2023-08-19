@@ -76,7 +76,7 @@ export function ModelSelection() {
     defaultValue: '/'
   });
   const [keyword, setKeyword] = useState('');
-  const [debouncedKeyword] = useDebouncedValue(keyword, 500);
+  const [debouncedKeyword] = useDebouncedValue(keyword, 1500);
   const [modelList, setModelList] = useState<models.SimpleModelDescript[]>([]);
   const { data: modelCatePath } = useQuery({
     queryKey: ['cate-path-list', uiTools, modelCategory],
