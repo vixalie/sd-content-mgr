@@ -6,6 +6,7 @@ import { MaintainHost } from './layout/maintain/MaintainHost';
 import { CleanModels } from './layout/maintain/pages/CleanModels';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
 import { ScanModel } from './layout/maintain/pages/ScanModel';
+import { UpdateWebUI } from './layout/maintain/pages/UpdateWebUI';
 import { ModelHost } from './layout/models/ModelHost';
 import { CachedModel } from './layout/models/pages/CachedModel';
 import { UncachedModel } from './layout/models/pages/UncachedModel';
@@ -69,6 +70,10 @@ export const AppRoute = createHashRouter([
           {
             path: 'cleanup',
             element: <CleanModels />
+          },
+          {
+            path: 'update/webui',
+            element: <UpdateWebUI />
           }
         ]
       },
