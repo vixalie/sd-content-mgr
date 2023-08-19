@@ -7,6 +7,7 @@ import (
 	"archgrid.xyz/ag/toolsbox/serial_code/hail"
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/vixalie/sd-content-manager/db"
+	"github.com/vixalie/sd-content-manager/git"
 	"github.com/vixalie/sd-content-manager/models"
 	"github.com/vixalie/sd-content-manager/remote"
 	"github.com/wailsapp/wails/v2"
@@ -35,6 +36,8 @@ func main() {
 	remoteController := remote.NewRemoteController()
 	// 创建本地文件加载功能
 	fileLoader := NewFileLoader()
+	// 创建Git版本库控制功能
+	gitController := git.NewGitController()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -78,12 +81,14 @@ func main() {
 			fileLoader.SetContext(ctx)
 			modelController.SetContext(ctx)
 			remoteController.SetContext(ctx)
+			gitController.SetContext(ctx)
 		},
 		Bind: []interface{}{
 			app,
 			settings,
 			modelController,
 			remoteController,
+			gitController,
 		},
 		Debug: options.Debug{
 			OpenInspectorOnStartup: true,
