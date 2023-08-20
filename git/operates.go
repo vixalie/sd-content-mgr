@@ -3,10 +3,12 @@ package git
 import (
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/go-git/go-git/v5"
 	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/config"
@@ -124,7 +126,60 @@ func (r *GitRepository) Fetch() (RepositoryOperateStatus, error) {
 }
 
 func (r *GitRepository) Difference() (int64, RepositoryOperateStatus, error) {
-	return 0, Success, nil
+	// 获取远程最新的提交。
+	remoteRefs, err := r.activeRemote.List(&git.ListOptions{
+		ProxyOptions: assembleProxyOptions(),
+	})
+	if err != nil {
+		return 0, InvalidRemote, fmt.Errorf("未能获取远程仓库引用列表，%w", err)
+	}
+	var masterRef *plumbing.Reference
+	for _, ref := range remoteRefs {
+		if ref.Name().IsBranch() && ref.Name() == *r.activeBranch {
+			masterRef = ref
+			break
+		}
+	}
+	remoteCommits, err := r.Repository.Log(&git.LogOptions{
+		From:  masterRef.Hash(),
+		Order: git.LogOrderCommitterTime,
+	})
+	if err != nil {
+		return 0, InvalidCommit, fmt.Errorf("未能获取远程分支的提交记录，%w", err)
+	}
+
+	// 获取本地最新的提交。
+	localRefs, err := r.Repository.Reference(*r.activeBranch, true)
+	if err != nil {
+		return 0, InvalidBranch, fmt.Errorf("未能获取本地分支引用，%w", err)
+	}
+	localCommits, err := r.Repository.Log(&git.LogOptions{
+		From:  localRefs.Hash(),
+		Order: git.LogOrderCommitterTime,
+	})
+	if err != nil {
+		return 0, InvalidCommit, fmt.Errorf("未能获取本地分支的提交记录，%w", err)
+	}
+
+	// 计算两个提交之间的差异。
+	var difference int64 = 0
+	localCommits.ForEach(func(commit *object.Commit) error {
+		found := false
+		remoteCommits.ForEach(func(remoteCommit *object.Commit) error {
+			if commit.Hash == remoteCommit.Hash {
+				found = true
+				return io.EOF
+			}
+			difference++
+			return nil
+		})
+		if found {
+			return io.EOF
+		}
+		return nil
+	})
+
+	return difference, Success, nil
 }
 
 func (r *GitRepository) Pull() (RepositoryOperateStatus, error) {

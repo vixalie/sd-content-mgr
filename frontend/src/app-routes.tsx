@@ -22,6 +22,7 @@ import {
   loadCachedVersionInfo,
   loadSameSerialVersions
 } from './queries/cached-files';
+import { loadWebUISettings } from './queries/load-settings';
 import { loadUncachedFileInfo } from './queries/uncached-file';
 
 export const AppRoute = createHashRouter([
@@ -73,7 +74,8 @@ export const AppRoute = createHashRouter([
           },
           {
             path: 'update/webui',
-            element: <UpdateWebUI />
+            element: <UpdateWebUI />,
+            loader: loadWebUISettings
           }
         ]
       },
