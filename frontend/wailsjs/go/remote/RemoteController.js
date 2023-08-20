@@ -6,6 +6,10 @@ export function DownloadModelVersion(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['remote']['RemoteController']['DownloadModelVersion'](arg1, arg2, arg3, arg4, arg5);
 }
 
+export function RecheckModelExistence(arg1) {
+  return window['go']['remote']['RemoteController']['RecheckModelExistence'](arg1);
+}
+
 export function RefreshModelInfo(arg1) {
   return window['go']['remote']['RemoteController']['RefreshModelInfo'](arg1);
 }

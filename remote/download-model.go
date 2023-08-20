@@ -40,6 +40,10 @@ func downloadModelVersion(ctx context.Context, uiTools, targetCatePath, fileName
 	go downloadModelVersionThumbnail(ctx, &wg, &modelVersion, targetModelPath, fileName)
 	go downloadModelVersionInfo(ctx, &wg, &modelVersion, targetModelPath, fileName)
 	wg.Wait()
+	err := recheckModelExistenceState(ctx, *modelVersion.ModelId)
+	if err != nil {
+		return fmt.Errorf("检查模型是否已经下载失败，%w", err)
+	}
 	return nil
 }
 
@@ -130,10 +134,11 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 	}
 	runtime.LogDebug(ctx, "下载检查点4：下载完成")
 	downloadEvent.Finish()
+	runtime.EventsEmit(ctx, "version-downloaded", "downloaded")
+	runtime.EventsEmit(ctx, "model-downloaded", "downloaded")
 }
 
 func downloadModelVersionThumbnail(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string) {
-	wg.Add(1)
 	defer wg.Done()
 	usedCover, ok := lo.Find(modelVersion.Covers, func(cover entities.Image) bool {
 		return cover.Id == *modelVersion.CoverUsed
@@ -188,7 +193,6 @@ func downloadModelVersionThumbnail(ctx context.Context, wg *sync.WaitGroup, mode
 }
 
 func downloadModelVersionInfo(ctx context.Context, wg *sync.WaitGroup, modelVersion *entities.ModelVersion, targetModelPath, fileName string) {
-	wg.Add(1)
 	defer wg.Done()
 	infoPath := filepath.Join(targetModelPath, fileName+".civitai.info")
 	var file *os.File
@@ -212,4 +216,20 @@ func downloadModelVersionInfo(ctx context.Context, wg *sync.WaitGroup, modelVers
 		runtime.EventsEmit(ctx, "model-info-download-error", fmt.Errorf("写入模型信息文件失败，%w", err))
 		return
 	}
+}
+
+func recheckModelExistenceState(ctx context.Context, modelId int) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	runtime.LogDebugf(ctx, "检查模型是否存在：模型ID：%d", modelId)
+	// 检查数据库中是否存在指定模型的记录，但是这个判断结果并不参与后续的模型信息更新。
+	var model entities.Model
+	result := dbConn.First(&model, "models.id = ?", modelId)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		runtime.EventsEmit(ctx, "cache-status", "not-cached")
+	} else if result.Error != nil {
+		return fmt.Errorf("无法检查模型是否存在，%w", result.Error)
+	} else {
+		runtime.EventsEmit(ctx, "cache-status", "cached")
+	}
+	return nil
 }

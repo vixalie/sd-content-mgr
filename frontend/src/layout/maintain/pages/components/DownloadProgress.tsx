@@ -82,8 +82,6 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
         label={`${currentProgress}%`}
         color="green"
         value={currentProgress}
-        striped
-        animate
       />
     </>
   );

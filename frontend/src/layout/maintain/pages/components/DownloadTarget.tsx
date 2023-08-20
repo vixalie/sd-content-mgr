@@ -95,7 +95,7 @@ export const DownloadTarget: FC = () => {
         withCloseButton: false
       });
     }
-  }, [selectedVersion, fileName, overwrite, targetSubPath, lock]);
+  }, [selectedVersion, fileName, overwrite, targetSubPath, model, lock]);
 
   useEffect(() => {
     EventsOn('model-primary-file-download-error', err => {

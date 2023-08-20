@@ -4,6 +4,8 @@ import {context} from '../models';
 
 export function DownloadModelVersion(arg1:string,arg2:string,arg3:string,arg4:number,arg5:boolean):Promise<void>;
 
+export function RecheckModelExistence(arg1:number):Promise<void>;
+
 export function RefreshModelInfo(arg1:number):Promise<void>;
 
 export function RefreshModelVersionInfoByHash(arg1:string):Promise<any>;

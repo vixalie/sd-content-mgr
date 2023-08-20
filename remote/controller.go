@@ -30,3 +30,7 @@ func (r RemoteController) DownloadModelVersion(uiTools, cateSubPath, fileName st
 	runtime.LogDebugf(r.ctx, "Download Model: %s, %s, %s, %d, %t", uiTools, cateSubPath, fileName, versionId, overwrite)
 	return downloadModelVersion(r.ctx, uiTools, cateSubPath, fileName, versionId, overwrite)
 }
+
+func (r RemoteController) RecheckModelExistence(modelId int) error {
+	return recheckModelExistenceState(r.ctx, modelId)
+}
