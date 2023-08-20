@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { IconCheck, IconClearAll, IconCopy, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
 import { DeleteFilePrompts, RecordFilePrompts } from '@wails/go/models/ModelController';
 import { ClipboardSetText } from '@wails/runtime/runtime';
-import { isEmpty } from 'ramda';
+import { isEmpty, uniq } from 'ramda';
 import { FC, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 import { TwoLineInfoCell } from './TwoLineInfoCell';
@@ -157,7 +157,7 @@ export const ActivatePrompts: FC<ActivatePromptsProps> = ({
         )}
         <Flex direction="row" justify="flex-start" align="flex-start" wrap="wrap" gap="md">
           <Chip.Group multiple value={selectedPrompts} onChange={setSelectedPrompts}>
-            {(prompts ?? []).map(prompt => (
+            {(uniq(prompts) ?? []).map(prompt => (
               <Chip variant="filled" value={prompt} key={prompt}>
                 {prompt}
               </Chip>
