@@ -3,7 +3,7 @@ import {
   GetCurrentComfyUIConfig,
   GetCurrentWebUIConfig
 } from '@wails/go/config/ApplicationSettings';
-import { AllWebUIExtensions } from '@wails/go/git/GitController';
+import { AllComfyUICustomNodes, AllWebUIExtensions } from '@wails/go/git/GitController';
 import { config } from '@wails/go/models';
 
 export async function loadWebUISettings(): Promise<config.A111StableDiffusionWebUIConfig> {
@@ -16,6 +16,10 @@ export async function loadComfyUISettings(): Promise<config.ComfyUIConfig> {
 
 export async function loadWebUIExtensions(): Promise<Record<string, string>> {
   return await AllWebUIExtensions();
+}
+
+export async function loadComfyUICustomNodes(): Promise<Record<string, string>> {
+  return await AllComfyUICustomNodes();
 }
 
 export async function loadAppBehaviours(): Promise<config.AppBehaviours> {

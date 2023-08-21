@@ -264,3 +264,11 @@ func (c *GitController) AllWebUIExtensions() (map[string]string, error) {
 	extensionDir := filepath.Join(config.ApplicationSetup.WebUIConfig.BasePath, "extensions")
 	return c.scanSubDirs(extensionDir)
 }
+
+func (c *GitController) AllComfyUICustomNodes() (map[string]string, error) {
+	if len(config.ApplicationSetup.ComfyUIConfig.BasePath) == 0 {
+		return nil, fmt.Errorf("未设置SD ComfyUI的基础路径")
+	}
+	customNodeDir := filepath.Join(config.ApplicationSetup.ComfyUIConfig.BasePath, "custom_nodes")
+	return c.scanSubDirs(customNodeDir)
+}

@@ -7,6 +7,7 @@ import { CleanModels } from './layout/maintain/pages/CleanModels';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
 import { ScanModel } from './layout/maintain/pages/ScanModel';
 import { UpdateComfyUI } from './layout/maintain/pages/UpdateComfyUI';
+import { UpdateComfyUINodes } from './layout/maintain/pages/UpdateComfyUINodes';
 import { UpdateErrors } from './layout/maintain/pages/UpdateErrors';
 import { UpdateWebUI } from './layout/maintain/pages/UpdateWebUI';
 import { UpdateWebUIExtension } from './layout/maintain/pages/UpdateWebUIExtension';
@@ -28,6 +29,7 @@ import {
 } from './queries/cached-files';
 import {
   loadAppBehaviours,
+  loadComfyUICustomNodes,
   loadComfyUISettings,
   loadWebUIExtensions,
   loadWebUISettings
@@ -96,6 +98,12 @@ export const AppRoute = createHashRouter([
             path: 'update/comfy',
             element: <UpdateComfyUI />,
             loader: loadComfyUISettings
+          },
+          {
+            path: 'update/comfy-nodes',
+            element: <UpdateComfyUINodes />,
+            loader: loadComfyUICustomNodes,
+            errorElement: <UpdateErrors />
           }
         ]
       },
