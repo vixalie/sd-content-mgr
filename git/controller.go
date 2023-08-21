@@ -3,7 +3,10 @@ package git
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 
+	"github.com/vixalie/sd-content-manager/config"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -179,4 +182,82 @@ func (c *GitController) CheckDifference(dir, remote, branch string) (int64, erro
 		return 0, err
 	}
 	return difference, nil
+}
+
+func (c *GitController) Checkout(dir, branchName string) (bool, error) {
+	repo, status, err := OpenRepository(dir)
+	switch status {
+	case InvalidRepository, InvalidRemote, InvalidBranch:
+		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
+		return false, c.checkStatus(status)
+	}
+	if err != nil {
+		return false, fmt.Errorf("打开指定目录中的Git版本库失败，%w", err)
+	}
+	status, err = repo.Checkout(branchName)
+	if status == InvalidBranch {
+		runtime.LogErrorf(c.ctx, "设置Git版本库的活动分支失败，%s", err.Error())
+		return false, err
+	}
+	if status == Failed {
+		return false, fmt.Errorf("切换Git版本库的活动分支失败，%w", err)
+	}
+	return true, nil
+}
+
+func (c *GitController) Pull(dir, remote string) (bool, error) {
+	repo, status, err := OpenRepository(dir)
+	switch status {
+	case InvalidRepository, InvalidRemote, InvalidBranch:
+		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
+		return false, c.checkStatus(status)
+	}
+	if err != nil {
+		return false, fmt.Errorf("打开指定目录中的Git版本库失败，%w", err)
+	}
+	currentRemote, err := repo.CurrentRemote()
+	if err != nil {
+		return false, fmt.Errorf("获取Git版本库的当前远程仓库失败，%w", err)
+	}
+	if currentRemote != remote {
+		status, err = repo.SetActiveRemote(remote)
+		if status == InvalidRemote {
+			runtime.LogErrorf(c.ctx, "设置Git版本库的活动远程仓库失败，%s", err.Error())
+			return false, err
+		}
+	}
+	status, err = repo.Pull()
+	if status == Failed {
+		return false, fmt.Errorf("拉取远程仓库的更新失败，%w", err)
+	}
+	if status == SuccessButNothingChanged {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (c *GitController) scanSubDirs(parentPath string) (map[string]string, error) {
+	_, err := os.Stat(parentPath)
+	if os.IsNotExist(err) {
+		return nil, fmt.Errorf("指定的目录不存在")
+	}
+	subPaths, err := os.ReadDir(parentPath)
+	if err != nil {
+		return nil, fmt.Errorf("读取指定目录的子目录失败，%w", err)
+	}
+	var subDirs = make(map[string]string, 0)
+	for _, subPath := range subPaths {
+		if subPath.IsDir() {
+			subDirs[subPath.Name()] = filepath.Join(parentPath, subPath.Name())
+		}
+	}
+	return subDirs, nil
+}
+
+func (c *GitController) AllWebUIExtensions() (map[string]string, error) {
+	if len(config.ApplicationSetup.WebUIConfig.BasePath) == 0 {
+		return nil, fmt.Errorf("未设置SD WebUI的基础路径")
+	}
+	extensionDir := filepath.Join(config.ApplicationSetup.WebUIConfig.BasePath, "extensions")
+	return c.scanSubDirs(extensionDir)
 }

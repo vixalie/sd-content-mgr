@@ -3,9 +3,11 @@ import { notifications } from '@mantine/notifications';
 import {
   Branches,
   CheckDifference,
+  Checkout,
   CurrentBranch,
   CurrentRemote,
   Fetch,
+  Pull,
   Remotes
 } from '@wails/go/git/GitController';
 import { isEmpty } from 'ramda';
@@ -25,6 +27,8 @@ type UpdateWebUIAction = {
   loadBranches(webUiDir: string): Promise<void>;
   refreshDifference(webUiDir: string): Promise<void>;
   fetchUpdates(webUiDir: string): Promise<void>;
+  checkoutBranch(webUiDir: string): Promise<void>;
+  doUpdate(webUiDir: string): Promise<void>;
 };
 
 export const useUpdateWebUI = createStore<UpdateWebUIState & UpdateWebUIAction>((set, get) => ({
@@ -92,6 +96,46 @@ export const useUpdateWebUI = createStore<UpdateWebUIState & UpdateWebUIAction>(
         throw new Error('不能确定SD WebUI的远程版本库。');
       }
       await Fetch(webUiDir, get().selectedRemote);
+      const difference = await CheckDifference(
+        webUiDir,
+        get().selectedRemote,
+        get().selectedBranch
+      );
+      set(state => ({ difference }));
+    } catch (e) {
+      console.error('[error]更新WebUI版本库', e);
+      notifications.show({
+        title: '更新WebUI版本库',
+        message: `未能更新SD WebUI的版本库，${e.message}`,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  },
+  async checkoutBranch(webUiDir) {
+    try {
+      if (isEmpty(get().selectedBranch)) {
+        throw new Error('不能确定SD WebUI的分支。');
+      }
+      await Checkout(webUiDir, get().selectedBranch);
+      const currentBranch = await CurrentBranch(webUiDir);
+      set(state => ({ activeBranch: currentBranch }));
+    } catch (e) {
+      console.error('[error]检出WebUI分支', e);
+      notifications.show({
+        title: '检出WebUI分支',
+        message: `未能检出SD WebUI的分支，${e.message}`,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  },
+  async doUpdate(webUiDir) {
+    try {
+      if (isEmpty(get().selectedRemote) || isEmpty(get().selectedBranch)) {
+        throw new Error('不能确定SD WebUI的远程版本库或分支。');
+      }
+      await Pull(webUiDir, get().selectedRemote, get().selectedBranch);
       const difference = await CheckDifference(
         webUiDir,
         get().selectedRemote,

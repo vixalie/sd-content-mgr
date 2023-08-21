@@ -18,7 +18,9 @@ export const UpdateWebUI: FC = () => {
     loadBranches,
     difference,
     refreshDifference,
-    fetchUpdates
+    fetchUpdates,
+    checkout,
+    doUpdate
   ] = useUpdateWebUI(state => [
     state.remotes,
     state.selectedRemote,
@@ -30,7 +32,9 @@ export const UpdateWebUI: FC = () => {
     state.loadBranches,
     state.difference,
     state.refreshDifference,
-    state.fetchUpdates
+    state.fetchUpdates,
+    state.checkoutBranch,
+    state.doUpdate
   ]);
 
   useEffect(() => {
@@ -61,10 +65,18 @@ export const UpdateWebUI: FC = () => {
       </Group>
       <Group spacing="md" align="flex-end">
         <Select label="本地活跃分支" value={selectedBranch} data={branches} />
-        <Button variant="light" disabled={equals(selectedBranch, activeBranch)}>
+        <Button
+          variant="light"
+          disabled={equals(selectedBranch, activeBranch)}
+          onClick={() => checkout(settings.basePath)}
+        >
           切换分支
         </Button>
-        <Button variant="light" disabled={equals(difference, 0)}>
+        <Button
+          variant="light"
+          disabled={equals(difference, 0)}
+          onClick={() => doUpdate(settings.basePath)}
+        >
           部署更新
         </Button>
       </Group>
