@@ -6,6 +6,7 @@ import { MaintainHost } from './layout/maintain/MaintainHost';
 import { CleanModels } from './layout/maintain/pages/CleanModels';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
 import { ScanModel } from './layout/maintain/pages/ScanModel';
+import { UpdateComfyUI } from './layout/maintain/pages/UpdateComfyUI';
 import { UpdateErrors } from './layout/maintain/pages/UpdateErrors';
 import { UpdateWebUI } from './layout/maintain/pages/UpdateWebUI';
 import { UpdateWebUIExtension } from './layout/maintain/pages/UpdateWebUIExtension';
@@ -25,7 +26,12 @@ import {
   loadCachedVersionInfo,
   loadSameSerialVersions
 } from './queries/cached-files';
-import { loadAppBehaviours, loadWebUIExtensions, loadWebUISettings } from './queries/load-settings';
+import {
+  loadAppBehaviours,
+  loadComfyUISettings,
+  loadWebUIExtensions,
+  loadWebUISettings
+} from './queries/load-settings';
 import { loadUncachedFileInfo } from './queries/uncached-file';
 
 export const AppRoute = createHashRouter([
@@ -85,6 +91,11 @@ export const AppRoute = createHashRouter([
             element: <UpdateWebUIExtension />,
             loader: loadWebUIExtensions,
             errorElement: <UpdateErrors />
+          },
+          {
+            path: 'update/comfy',
+            element: <UpdateComfyUI />,
+            loader: loadComfyUISettings
           }
         ]
       },

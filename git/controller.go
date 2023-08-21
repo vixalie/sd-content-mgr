@@ -226,11 +226,14 @@ func (c *GitController) Pull(dir, remote string) (bool, error) {
 			return false, err
 		}
 	}
+	runtime.LogDebugf(c.ctx, "拉取指定仓库的更新，远程：%s", remote)
 	status, err = repo.Pull()
 	if status == Failed {
+		runtime.LogErrorf(c.ctx, "拉取远程仓库的更新失败，%s", err.Error())
 		return false, fmt.Errorf("拉取远程仓库的更新失败，%w", err)
 	}
 	if status == SuccessButNothingChanged {
+		runtime.LogWarningf(c.ctx, "拉取远程仓库的更新成功，但是没有任何更新")
 		return false, nil
 	}
 	return true, nil
