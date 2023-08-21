@@ -45,13 +45,13 @@ wails build
 - [x] 模型版本关系构建。
 - [x] 模型激活提示词快速复制。
 - [x] 模型下载。
-- [ ] A111 SD WebUI版本更新。
-- [ ] A111 SD WebUi扩展更新。
+- [x] A111 SD WebUI版本更新。
+- [x] A111 SD WebUi扩展更新。
 - [ ] A111 SD WebUI扩展安装。
-- [ ] SD ComfyUI版本更新功能。
+- [x] SD ComfyUI版本更新功能。
 - [ ] SD ComfyUI读取A111 SD WebUI配置。
-- [ ] SD ComfyUI自定义节点更新。
+- [x] SD ComfyUI自定义节点更新。
 - [ ] SD ComfyUI自定义节点安装。
-- [ ] 模型清理。
+- [x] 模型清理。
 - [ ] 批量模型信息补录。
 
