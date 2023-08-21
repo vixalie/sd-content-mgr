@@ -1,4 +1,5 @@
 import {
+  GetCurrentAppBehaviours,
   GetCurrentComfyUIConfig,
   GetCurrentWebUIConfig
 } from '@wails/go/config/ApplicationSettings';
@@ -15,4 +16,8 @@ export async function loadComfyUISettings(): Promise<config.ComfyUIConfig> {
 
 export async function loadWebUIExtensions(): Promise<Record<string, string>> {
   return await AllWebUIExtensions();
+}
+
+export async function loadAppBehaviours(): Promise<config.AppBehaviours> {
+  return await GetCurrentAppBehaviours();
 }

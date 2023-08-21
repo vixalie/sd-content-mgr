@@ -34,6 +34,18 @@ export namespace config {
 	        this.swinIR = source["swinIR"];
 	    }
 	}
+	export class AppBehaviours {
+	    treatLoconAsLora: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new AppBehaviours(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.treatLoconAsLora = source["treatLoconAsLora"];
+	    }
+	}
 	export class ComfyUIConfig {
 	    basePath: string;
 	    checkpoint: string;

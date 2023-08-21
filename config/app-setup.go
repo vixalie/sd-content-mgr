@@ -159,3 +159,20 @@ func (a ApplicationSettings) ClearComfyUIConfig() bool {
 	ApplicationSetup = LoadConfiguration()
 	return true
 }
+
+func (a ApplicationSettings) GetCurrentAppBehaviours() *AppBehaviours {
+	if ApplicationSetup == nil {
+		return nil
+	}
+	return ApplicationSetup.Behaviours
+}
+
+func (a ApplicationSettings) SaveNewAppBehaviours(behaviours AppBehaviours) bool {
+	ApplicationSetup.Behaviours = &behaviours
+	err := ApplicationSetup.Save()
+	if err != nil {
+		return false
+	}
+	ApplicationSetup = LoadConfiguration()
+	return true
+}

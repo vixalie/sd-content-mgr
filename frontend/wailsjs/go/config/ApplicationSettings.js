@@ -10,6 +10,10 @@ export function ClearWebUIConfig() {
   return window['go']['config']['ApplicationSettings']['ClearWebUIConfig']();
 }
 
+export function GetCurrentAppBehaviours() {
+  return window['go']['config']['ApplicationSettings']['GetCurrentAppBehaviours']();
+}
+
 export function GetCurrentComfyUIConfig() {
   return window['go']['config']['ApplicationSettings']['GetCurrentComfyUIConfig']();
 }
@@ -28,6 +32,10 @@ export function GetProxyServiceProtocols() {
 
 export function IsPathValid(arg1) {
   return window['go']['config']['ApplicationSettings']['IsPathValid'](arg1);
+}
+
+export function SaveNewAppBehaviours(arg1) {
+  return window['go']['config']['ApplicationSettings']['SaveNewAppBehaviours'](arg1);
 }
 
 export function SaveNewComfyUIConfig(arg1) {

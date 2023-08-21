@@ -7,6 +7,8 @@ export function ClearComfyUIConfig():Promise<boolean>;
 
 export function ClearWebUIConfig():Promise<boolean>;
 
+export function GetCurrentAppBehaviours():Promise<config.AppBehaviours>;
+
 export function GetCurrentComfyUIConfig():Promise<config.ComfyUIConfig>;
 
 export function GetCurrentProxySetting():Promise<config.ProxyConfig>;
@@ -16,6 +18,8 @@ export function GetCurrentWebUIConfig():Promise<config.A111StableDiffusionWebUIC
 export function GetProxyServiceProtocols():Promise<{[key: string]: string}>;
 
 export function IsPathValid(arg1:string):Promise<boolean>;
+
+export function SaveNewAppBehaviours(arg1:config.AppBehaviours):Promise<boolean>;
 
 export function SaveNewComfyUIConfig(arg1:config.ComfyUIConfig):Promise<boolean>;
 

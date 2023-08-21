@@ -140,7 +140,11 @@ func (m ModelController) CopyModelFileLoader(modelVersionId int) error {
 	case "lora":
 		runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lora:%s:1>", fileName))
 	case "locon":
-		runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lyco:%s:1>", fileName))
+		if config.ApplicationSetup.Behaviours != nil && config.ApplicationSetup.Behaviours.TreatLoconAsLora {
+			runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lora:%s:1>", fileName))
+		} else {
+			runtime.ClipboardSetText(m.ctx, fmt.Sprintf("<lyco:%s:1>", fileName))
+		}
 	case "textualinversion":
 		fallthrough
 	case "hypernet":

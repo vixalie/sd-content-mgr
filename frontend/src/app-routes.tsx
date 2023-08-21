@@ -13,6 +13,7 @@ import { ModelHost } from './layout/models/ModelHost';
 import { CachedModel } from './layout/models/pages/CachedModel';
 import { UncachedModel } from './layout/models/pages/UncachedModel';
 import { SetupHost } from './layout/setups/SetupHost';
+import { Behaviours } from './layout/setups/pages/app/Behaviours';
 import { SetupComfyUI } from './layout/setups/pages/comfyui/SetupComfyUI';
 import { loadComfyUIConfig } from './layout/setups/pages/comfyui/hooks/useComfyUI';
 import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
@@ -24,7 +25,7 @@ import {
   loadCachedVersionInfo,
   loadSameSerialVersions
 } from './queries/cached-files';
-import { loadWebUIExtensions, loadWebUISettings } from './queries/load-settings';
+import { loadAppBehaviours, loadWebUIExtensions, loadWebUISettings } from './queries/load-settings';
 import { loadUncachedFileInfo } from './queries/uncached-file';
 
 export const AppRoute = createHashRouter([
@@ -91,6 +92,11 @@ export const AppRoute = createHashRouter([
         path: 'setup',
         element: <SetupHost />,
         children: [
+          {
+            path: 'app',
+            element: <Behaviours />,
+            loader: loadAppBehaviours
+          },
           {
             path: 'proxy',
             element: <SetupProxy />,

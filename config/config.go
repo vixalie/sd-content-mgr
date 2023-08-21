@@ -20,6 +20,7 @@ const (
 )
 
 type Configuration struct {
+	Behaviours    *AppBehaviours                  `yaml:"behaviours"`
 	ComfyUIConfig *ComfyUIConfig                  `yaml:"comfy_ui"`
 	ProxyConfig   *ProxyConfig                    `yaml:"proxy"`
 	WebUIConfig   *A111StableDiffusionWebUIConfig `yaml:"a111_web_ui"`
