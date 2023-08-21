@@ -1,14 +1,16 @@
-import { Box, Center, Group, Loader, Text } from '@mantine/core';
+import { Box, Center, Group, Loader, ScrollArea, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { FetchModelVersionDescription } from '@wails/go/models/ModelController';
 import { isEmpty } from 'ramda';
 import { FC } from 'react';
+import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 
 type ModelDescriptionProps = {
   modelVersionId: number;
 };
 
 export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) => {
+  const descriptionHeight = useCachedModelMeasure(infoZoneHeightSelector());
   const { data: description, isFetching } = useQuery({
     queryKey: ['model-description', modelVersionId],
     queryFn: async ({ queryKey }) => {
@@ -17,7 +19,7 @@ export const ModelDescription: FC<ModelDescriptionProps> = ({ modelVersionId }) 
     }
   });
   return (
-    <Box py="1rem" px="5rem" h="90%" sx={{ overflowY: 'auto' }}>
+    <Box py="1rem" px="5rem" h={descriptionHeight} component={ScrollArea}>
       {isFetching && (
         <Center>
           <Group>

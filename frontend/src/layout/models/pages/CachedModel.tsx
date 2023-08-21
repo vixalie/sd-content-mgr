@@ -1,3 +1,4 @@
+import { useMeasureElement } from '@/hooks/useMeasureElement';
 import { Badge, Flex, Stack, Tabs, Text, Tooltip, useMantineTheme } from '@mantine/core';
 import { IconDeviceFloppy, IconError404, IconEyeExclamation } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -5,16 +6,30 @@ import { entities, models } from '@wails/go/models';
 import { FetchModelTags } from '@wails/go/models/ModelController';
 import { nanoid } from 'nanoid';
 import { isEmpty, isNil } from 'ramda';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { ModelActivates } from './components/ModelActivates';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelOperates } from './components/ModelOperates';
 import { ModelSummay } from './components/ModelSummary';
 import { SameModelVersions } from './components/SameModelVersions';
+import { useCachedModelMeasure } from './states/cached-model-measure';
 
 export const CachedModel: FC = () => {
   const theme = useMantineTheme();
+
+  const pageRef = useRef<HTMLDivElement | null>(null);
+  const modelNameRef = useRef<HTMLDivElement | null>(null);
+  const versionRef = useRef<HTMLDivElement | null>(null);
+  const tagsRef = useRef<HTMLDivElement | null>(null);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
+
+  useMeasureElement(pageRef, useCachedModelMeasure, 'page');
+  useMeasureElement(modelNameRef, useCachedModelMeasure, 'modelName');
+  useMeasureElement(versionRef, useCachedModelMeasure, 'versionName');
+  useMeasureElement(tagsRef, useCachedModelMeasure, 'tags');
+  useMeasureElement(tabsRef, useCachedModelMeasure, 'tabs');
+
   const [activeTab, setActiveTab] = useState<string | null>('summary');
   const [modelVersion, versions, versionDownloaded]: [
     entities.ModelVersion,
@@ -34,11 +49,11 @@ export const CachedModel: FC = () => {
   }, [modelVersion]);
 
   return (
-    <Stack px="md" py="lg" spacing="sm" h="100%">
-      <Text fz="lg" weight={500}>
+    <Stack px="md" py="lg" spacing="sm" h="100vh" ref={pageRef}>
+      <Text fz="lg" weight={500} ref={modelNameRef}>
         {modelVersion.model?.name ?? ''}
       </Text>
-      <Flex direction="row" justify="flex-start" align="center" gap="md">
+      <Flex direction="row" justify="flex-start" align="center" gap="md" ref={versionRef}>
         <Text fz="sm" color="gray">
           版本
         </Text>
@@ -76,7 +91,14 @@ export const CachedModel: FC = () => {
         )}
       </Flex>
       {!isEmpty(tags) && (
-        <Flex direction="row" justify="flex-start" align="flex-start" wrap="nowrap" gap="md">
+        <Flex
+          direction="row"
+          justify="flex-start"
+          align="flex-start"
+          wrap="nowrap"
+          gap="md"
+          ref={tagsRef}
+        >
           <Text fz="sm" color="gray" sx={{ minWidth: 'max-content' }}>
             Civitai 标签
           </Text>
@@ -90,7 +112,7 @@ export const CachedModel: FC = () => {
         </Flex>
       )}
       <Tabs variant="outline" h="100%" value={activeTab} onTabChange={setActiveTab}>
-        <Tabs.List position="right">
+        <Tabs.List position="right" ref={tabsRef}>
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>
           <Tabs.Tab value="activate">模型激活</Tabs.Tab>
           <Tabs.Tab value="description">描述</Tabs.Tab>

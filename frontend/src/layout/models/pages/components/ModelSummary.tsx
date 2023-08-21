@@ -3,6 +3,7 @@ import { Badge, Grid, ScrollArea, Stack } from '@mantine/core';
 import { entities } from '@wails/go/models';
 import { isNil } from 'ramda';
 import { FC } from 'react';
+import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 import { ImageSlide } from './ModelImage';
 import { ModelVersionLocalFiles } from './ModelVersionLocalFiles';
 
@@ -11,13 +12,14 @@ type ModelSummaryProps = {
 };
 
 export const ModelSummay: FC<ModelSummaryProps> = ({ modelVersion }) => {
+  const summaryHeight = useCachedModelMeasure(infoZoneHeightSelector());
   return (
-    <Grid gutter="md" h="100%">
-      <Grid.Col span={7} h="100%" p="md">
+    <Grid gutter="md" h={summaryHeight}>
+      <Grid.Col span={7} h={summaryHeight} p="md">
         <ImageSlide images={modelVersion.covers} currentCover={modelVersion.coverUsed} />
       </Grid.Col>
-      <Grid.Col span={5} h="100%">
-        <ScrollArea>
+      <Grid.Col span={5} h={summaryHeight}>
+        <ScrollArea h={summaryHeight}>
           <Stack spacing="md">
             <TwoLineInfoCell title="类型" level={5}>
               {modelVersion.model?.type ?? '未知'}

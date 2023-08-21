@@ -1,4 +1,5 @@
 import { TwoLineInfoCell } from '@/components/TwoLineInfoCell';
+import { useMeasureElement } from '@/hooks/useMeasureElement';
 import styled from '@emotion/styled';
 import {
   ActionIcon,
@@ -18,7 +19,7 @@ import {
   Tooltip,
   useMantineTheme
 } from '@mantine/core';
-import { useDisclosure, useElementSize } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertTriangleFilled,
@@ -35,8 +36,9 @@ import { IsImageAsThumbnail, SetModelVersionThumbnail } from '@wails/go/models/M
 import { EventsOff, EventsOn } from '@wails/runtime';
 import { nanoid } from 'nanoid';
 import { has, not, prop } from 'ramda';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
+import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 
 const ImageContainer = styled.div`
   flex-grow: 1;
@@ -127,9 +129,21 @@ type ImageSlideProps = {
 
 export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
   const theme = useMantineTheme();
+
+  const imageHandleRef = useRef<HTMLDivElement | null>(null);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useMeasureElement(imageHandleRef, useCachedModelMeasure, 'imageHandle');
+  useMeasureElement(imageContainerRef, useCachedModelMeasure, 'imageContainer');
+
+  const imageZoneHeight = useCachedModelMeasure(infoZoneHeightSelector());
+  const [imageHeight, imageWidth] = useCachedModelMeasure(state => [
+    state.imageContainer.height - 4 * 2,
+    state.imageContainer.width
+  ]);
+
   const [activeImageIndex, setActiveImageIndex] = useState<number>(() => 0);
   const [opened, { open, close }] = useDisclosure(false);
-  const { ref, width, height } = useElementSize();
   const revalidator = useRevalidator();
   const queryClient = useQueryClient();
   const [nsfwColor, nsfwDescription] = useMemo(() => {
@@ -190,11 +204,22 @@ export const ImageSlide: FC<ImageSlideProps> = ({ images, currentCover }) => {
     setActiveImageIndex(0);
   }, [images]);
   return (
-    <Flex direction="column" justify="flex-start" align="stretch" h="95%" w="100%" gap="md">
-      <ImageContainer ref={ref}>
-        <ModelImage image={images[activeImageIndex]} maxWidth={width} maxHeight={height} />
+    <Flex
+      direction="column"
+      justify="flex-start"
+      align="stretch"
+      h={imageZoneHeight}
+      w="100%"
+      gap="md"
+    >
+      <ImageContainer ref={imageContainerRef}>
+        <ModelImage
+          image={images[activeImageIndex]}
+          maxWidth={imageWidth}
+          maxHeight={imageHeight}
+        />
       </ImageContainer>
-      <Group position="left" spacing="md" w="100%">
+      <Group position="left" spacing="md" w="100%" ref={imageHandleRef}>
         <Tooltip label="上一张" position="top">
           <ActionIcon onClick={handlePreviousImage}>
             <IconChevronLeft stroke={1} />

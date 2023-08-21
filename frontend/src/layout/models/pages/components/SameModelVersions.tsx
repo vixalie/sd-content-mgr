@@ -1,8 +1,9 @@
-import { Box, Paper, Stack, Text } from '@mantine/core';
+import { Box, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { models } from '@wails/go/models';
 import { equals } from 'ramda';
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
+import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 
 type SameModelVersionsProps = {
   currentVersionId: number;
@@ -13,8 +14,9 @@ export const SameModelVersions: FC<SameModelVersionsProps> = ({
   currentVersionId,
   modelVersions
 }) => {
+  const versionsHeight = useCachedModelMeasure(infoZoneHeightSelector());
   return (
-    <Box py="1rem" px="5rem" h="100%" sx={{ overflowY: 'auto' }}>
+    <Box py="1rem" px="5rem" h={versionsHeight} component={ScrollArea}>
       <Stack spacing="md" align="stretch">
         {(modelVersions ?? []).map(version => {
           return (
