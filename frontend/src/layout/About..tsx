@@ -16,7 +16,7 @@ export function About() {
         <h1>SD Content Manager</h1>
       </Box>
       <Box py={8}>
-        <Text>Version 0.4.7</Text>
+        <Text>Version 0.4.8</Text>
       </Box>
     </Flex>
   );

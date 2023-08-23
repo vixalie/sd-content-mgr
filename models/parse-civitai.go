@@ -120,7 +120,6 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 	hailEngine := ctx.Value("hail").(*hail.HailAlgorithm)
 	var regroupFiles = make([]ModelFileEntry, 0)
 	for _, file := range versionInfo.Files {
-		runtime.LogDebugf(ctx, "文件Hash: %+v", file.Hashes)
 		if item, ok := lo.Find(regroupFiles, func(f ModelFileEntry) bool {
 			return f.Hashes != nil && file.Hashes != nil && f.Hashes.Sha256 == file.Hashes.Sha256
 		}); ok {
