@@ -18,6 +18,10 @@ export function CheckModelVersionPrimaryFileSize(arg1) {
   return window['go']['models']['ModelController']['CheckModelVersionPrimaryFileSize'](arg1);
 }
 
+export function CheckModelVersionType(arg1) {
+  return window['go']['models']['ModelController']['CheckModelVersionType'](arg1);
+}
+
 export function CheckUnexistCaches() {
   return window['go']['models']['ModelController']['CheckUnexistCaches']();
 }
@@ -28,6 +32,10 @@ export function ChooseAndSetFileThumbnail(arg1) {
 
 export function CopyModelFileLoader(arg1) {
   return window['go']['models']['ModelController']['CopyModelFileLoader'](arg1);
+}
+
+export function CopyTextureInversionEmbeddingPrompts(arg1) {
+  return window['go']['models']['ModelController']['CopyTextureInversionEmbeddingPrompts'](arg1);
 }
 
 export function DeleteCaches(arg1) {

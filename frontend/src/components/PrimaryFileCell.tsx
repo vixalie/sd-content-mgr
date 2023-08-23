@@ -1,13 +1,15 @@
 import { ActionIcon, Badge, Group, Loader, Text, TextInput, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy, IconEdit, IconX } from '@tabler/icons-react';
+import { IconCheck, IconCopy, IconEdit, IconHexagonLetterE, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   BreakModelFileParts,
+  CheckModelVersionType,
   CopyModelFileLoader,
+  CopyTextureInversionEmbeddingPrompts,
   FetchModelVersionPrimaryFile
 } from '@wails/go/models/ModelController';
-import { isEmpty, isNil, not } from 'ramda';
+import { equals, isEmpty, isNil, not } from 'ramda';
 import { FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRevalidator } from 'react-router-dom';
 import { TwoLineInfoCell } from './TwoLineInfoCell';
@@ -36,6 +38,21 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       console.error('[error]获取模型版本的首要文件：', e);
     }
   });
+  const {
+    data: modelType,
+    isFetching: isTypeFetching,
+    isFetched: isTypeFetched
+  } = useQuery({
+    queryKey: ['model-type', modelVersionId],
+    queryFn: async () => {
+      const type = await CheckModelVersionType(modelVersionId);
+      return type;
+    },
+    onError: e => {
+      console.error('[error]获取模型版本的类型：', e);
+    }
+  });
+  console.log('[debug]Model Type: ', modelType);
   console.log('[debug]Model Primary File: ', modelVersionId, modelPrimaryFile);
   const funcNotAvaliable = useMemo(() => isEmpty(modelPrimaryFile?.fileName), [modelPrimaryFile]);
   const [editing, setEditing] = useState<boolean>(false);
@@ -90,6 +107,28 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       });
     }
   }, [modelVersionId, modelPrimaryFile, isFetching, isFetched]);
+  const copyEmbeddingLoaderPrompt = useCallback(async () => {
+    if (isNil(modelPrimaryFile)) {
+      return;
+    }
+    try {
+      await CopyTextureInversionEmbeddingPrompts(modelVersionId);
+      notifications.show({
+        title: '加载提示词已复制',
+        message: '加载提示词已复制到剪贴板，请到Stable Diffusion ComfyUI中粘贴使用。',
+        color: 'green',
+        withCloseButton: false
+      });
+    } catch (e) {
+      console.error('[error]复制加载提示词：', e);
+      notifications.show({
+        title: '复制加载提示词失败',
+        message: `未能成功复制加载提示词，${e.message}`,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  }, [modelVersionId, modelPrimaryFile, isFetching, isFetched, isTypeFetching, isTypeFetched]);
   useLayoutEffect(() => {
     if (editing) {
       ref.current?.focus();
@@ -125,6 +164,16 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
                 </ActionIcon>
               </Tooltip>
             )}
+            {not(editing) &&
+              not(isTypeFetching) &&
+              isTypeFetched &&
+              equals(modelType, 'textualinversion') && (
+                <Tooltip label="复制用于SD ComfyUI的加载提示词">
+                  <ActionIcon onClick={copyEmbeddingLoaderPrompt}>
+                    <IconHexagonLetterE stroke={1} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
           </>
         )
       }

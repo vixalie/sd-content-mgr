@@ -335,3 +335,38 @@ func (m ModelController) DeleteInvalidCaches() error {
 	}
 	return nil
 }
+
+// 检查指定模型版本对应的模型类别
+func (m ModelController) CheckModelVersionType(modelVersionId int) (string, error) {
+	dbConn := m.ctx.Value(db.DBConnection).(*gorm.DB)
+	var modelVersion entities.ModelVersion
+	result := dbConn.Joins("Model").First(&modelVersion, "model_versions.id = ?", modelVersionId)
+	if result.Error != nil {
+		return "", fmt.Errorf("未找到指定模型版本信息，%w", result.Error)
+	}
+	return strings.ToLower(modelVersion.Model.Type), nil
+}
+
+// 对TextureInversion模型复制`embedding:`前缀的提示词，用于ComfyUI。
+func (m ModelController) CopyTextureInversionEmbeddingPrompts(modelVersionId int) error {
+	modelVersion, err := fetchCachedModelInfo(m.ctx, modelVersionId)
+	if err != nil {
+		return err
+	}
+	versionPrimaryFile, err := fetchModelVersionPrimaryFile(m.ctx, modelVersionId)
+	if err != nil {
+		return err
+	}
+	if versionPrimaryFile == nil {
+		return fmt.Errorf("未找到模型文件")
+	}
+	fileName, _, err := breakModelFileParts(m.ctx, versionPrimaryFile.Id)
+	if err != nil {
+		return err
+	}
+	if strings.ToLower(modelVersion.Model.Type) != "textualinversion" {
+		return fmt.Errorf("只能用于TextureInversion类型模型")
+	}
+	runtime.ClipboardSetText(m.ctx, fmt.Sprintf("embedding:%s", fileName))
+	return nil
+}
