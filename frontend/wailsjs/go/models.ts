@@ -414,7 +414,7 @@ export namespace entities {
 	    identityHash: string;
 	    metadata?: ModelFileMeta;
 	    hashes?: ModelFileHashes;
-	    primary?: boolean;
+	    primary: boolean;
 	    localFile?: FileCache;
 	
 	    static createFrom(source: any = {}) {

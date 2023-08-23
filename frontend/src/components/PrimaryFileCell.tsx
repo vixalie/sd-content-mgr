@@ -36,6 +36,7 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
       console.error('[error]获取模型版本的首要文件：', e);
     }
   });
+  console.log('[debug]Model Primary File: ', modelVersionId, modelPrimaryFile);
   const funcNotAvaliable = useMemo(() => isEmpty(modelPrimaryFile?.fileName), [modelPrimaryFile]);
   const [editing, setEditing] = useState<boolean>(false);
   const [namePart, setNamePart] = useState<string>('');

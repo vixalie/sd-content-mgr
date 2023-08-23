@@ -44,7 +44,7 @@ type ModelFile struct {
 	IdentityHash string           `gorm:"type:text;uniqueIndex:file_indentity" json:"identityHash"`
 	Metadata     *ModelFileMeta   `gorm:"type:text;serializer:json" json:"metadata"`
 	Hashes       *ModelFileHashes `gorm:"type:text;serializer:json" json:"hashes"`
-	Primary      *bool            `gorm:"type:boolean" json:"primary"`
+	Primary      bool             `gorm:"type:boolean" json:"primary"`
 	DownloadUrl  *string          `gorm:"type:text" json:"-"`
 	LocalFile    *FileCache       `gorm:"foreignKey:FileIdentityHash;references:IdentityHash" json:"localFile"`
 }

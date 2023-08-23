@@ -84,7 +84,7 @@ func persistModelVersion(ctx context.Context, versionInfo *ModelVersion, origina
 	}
 	var versionPrimaryFile *int64
 	if primaryFile, found := lo.Find(files, func(file entities.ModelFile) bool {
-		return file.Primary != nil && *file.Primary
+		return file.Primary
 	}); found {
 		versionPrimaryFile = lo.ToPtr(primaryFile.Id)
 	}
@@ -118,7 +118,28 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
 	var modelFiles = make([]entities.ModelFile, 0)
 	hailEngine := ctx.Value("hail").(*hail.HailAlgorithm)
+	var regroupFiles = make([]ModelFileEntry, 0)
 	for _, file := range versionInfo.Files {
+		if item, ok := lo.Find(regroupFiles, func(f ModelFileEntry) bool {
+			return f.Hashes != nil && file.Hashes != nil && f.Hashes.Sha256 == file.Hashes.Sha256
+		}); ok {
+			if item.Primary != nil && !*item.Primary {
+				regroupFiles = lo.Reject(regroupFiles, func(f ModelFileEntry, _ int) bool {
+					return f.Hashes != nil && file.Hashes != nil && f.Hashes.Sha256 == file.Hashes.Sha256
+				})
+				regroupFiles = append(regroupFiles, file)
+			}
+		} else {
+			regroupFiles = append(regroupFiles, file)
+		}
+	}
+	for _, file := range regroupFiles {
+		if lo.ContainsBy(modelFiles, func(f entities.ModelFile) bool {
+			return f.IdentityHash == *file.Hashes.Sha256
+		}) {
+			continue
+		}
+		runtime.LogDebugf(ctx, "文件信息：%+v", file)
 		fileRecord := entities.ModelFile{
 			VersionId:    versionInfo.Id,
 			Name:         lo.FromPtrOr[string](file.Name, ""),
@@ -127,7 +148,7 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 			IdentityHash: lo.FromPtrOr[string](file.Hashes.Sha256, ""),
 			Metadata:     file.Metadata,
 			Hashes:       file.Hashes,
-			Primary:      file.Primary,
+			Primary:      lo.IfF(file.Primary != nil, func() bool { return *file.Primary }).Else(false),
 			DownloadUrl:  file.DownloadUrl,
 		}
 		if file.Id != nil {
@@ -284,7 +305,7 @@ func refreshModelVersion(ctx context.Context, modelVersion *ModelVersion) error 
 	var versionPrimaryFile *int64
 	if len(files) > 0 {
 		primaryFile, ok := lo.Find(files, func(f entities.ModelFile) bool {
-			return f.Primary != nil && *f.Primary
+			return f.Primary
 		})
 		if ok {
 			versionPrimaryFile = lo.ToPtr(primaryFile.Id)
