@@ -120,6 +120,10 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 	hailEngine := ctx.Value("hail").(*hail.HailAlgorithm)
 	var regroupFiles = make([]ModelFileEntry, 0)
 	for _, file := range versionInfo.Files {
+		if strings.ToLower(file.PickleScanResult) == "pending" {
+			runtime.EventsEmit(ctx, "file-scanned", "not-scanned")
+			return modelFiles, fmt.Errorf("模型文件尚未扫描完成，建议稍后再尝试下载")
+		}
 		if item, ok := lo.Find(regroupFiles, func(f ModelFileEntry) bool {
 			return f.Hashes != nil && file.Hashes != nil && f.Hashes.Sha256 == file.Hashes.Sha256
 		}); ok {
@@ -133,6 +137,7 @@ func persistModelFiles(ctx context.Context, versionInfo *ModelVersion) ([]entiti
 			regroupFiles = append(regroupFiles, file)
 		}
 	}
+	runtime.EventsEmit(ctx, "file-scanned", "scanned")
 	for _, file := range regroupFiles {
 		if lo.ContainsBy(modelFiles, func(f entities.ModelFile) bool {
 			return file.Hashes.Sha256 != nil && f.IdentityHash == *file.Hashes.Sha256

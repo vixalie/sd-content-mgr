@@ -1,5 +1,5 @@
 import { createStore } from '@/store_creator';
-import type { CacheStatus, DownloadStatus, FoundStatus } from '@/types';
+import type { CacheStatus, DownloadStatus, FileScanStatus, FoundStatus } from '@/types';
 import { SelectItem } from '@mantine/core';
 import { entities } from '@wails/go/models';
 import {
@@ -30,6 +30,7 @@ type DownloadState = {
   modelDownloaded: DownloadStatus;
   versionDownloaded: DownloadStatus;
   modelFound: FoundStatus;
+  fileScanned: FileScanStatus;
   overwrite: boolean;
   lockdown: boolean;
 };
@@ -63,6 +64,7 @@ const initialState: DownloadState = {
   modelDownloaded: 'unknown',
   versionDownloaded: 'unknown',
   modelFound: 'unknown',
+  fileScanned: 'unknown',
   overwrite: false,
   lockdown: false
 };
@@ -84,7 +86,8 @@ export const useDownloadState = createStore<DownloadState & DownloadStateActions
       cacheStatus: 'unknown',
       modelDownloaded: 'unknown',
       versionDownloaded: 'unknown',
-      modelFound: 'unknown'
+      modelFound: 'unknown',
+      fileScanned: 'unknown'
     }));
   },
   setCategory(category) {

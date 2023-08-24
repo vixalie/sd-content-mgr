@@ -19,6 +19,7 @@ import { CachedIcon } from './CachedIcon';
 import { DownloadFileName } from './DownloadFileName';
 import { DownloadProgress } from './DownloadProgress';
 import { DownloadSetup } from './DownloadSetup';
+import { FileScanIcon } from './FileScanIcon';
 import { ModelDownloadedIcon } from './ModelDownloadedIcon';
 import { NotFoundIcon } from './NotFoundIcon';
 import { SomeVersionDownloadedIcon } from './SomeVersionDownloadedIcon';
@@ -145,6 +146,7 @@ export const DownloadTarget: FC = () => {
           <ModelDownloadedIcon />
           <SomeVersionDownloadedIcon />
           <NotFoundIcon />
+          <FileScanIcon />
         </Group>
       </Group>
       <Group spacing="sm" grow>
