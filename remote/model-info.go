@@ -75,7 +75,7 @@ func batchUpdateModelInfo(ctx context.Context) error {
 		now       = time.Now()
 	)
 	for _, model := range models {
-		if !model.CivitailDeleted || model.LastSyncedAt == nil || model.LastSyncedAt.Add(30*24*time.Hour).Before(now) {
+		if !model.CivitailDeleted && (model.LastSyncedAt == nil || model.LastSyncedAt.Add(30*24*time.Hour).Before(now)) {
 			taskQueue = append(taskQueue, model)
 		}
 	}
