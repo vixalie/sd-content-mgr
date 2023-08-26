@@ -21,7 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { BatchUpdateModelInfo } from '@wails/go/remote/RemoteController';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
-import { any, equals, gt, propEq, toLower, values } from 'ramda';
+import { equals, gt, propEq, toLower, values } from 'ramda';
 import { FC, useEffect, useMemo, useRef } from 'react';
 import { useRefreshModel } from './states/refresh-model-state';
 
@@ -156,7 +156,12 @@ export const RefreshModel: FC = () => {
         </Alert>
       </Box>
       <Group spacing="sm" ref={controlRef}>
-        <Button color="blue" variant="filled" loading={equals(state, 'loading')} onClick={execute}>
+        <Button
+          color="blue"
+          variant="filled"
+          loading={equals(state.status, 'loading')}
+          onClick={execute}
+        >
           刷新所有模型信息
         </Button>
       </Group>
