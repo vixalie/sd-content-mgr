@@ -104,7 +104,7 @@ func batchUpdateModelTask(ctx context.Context, weighted *semaphore.Weighted, wg 
 		},
 	}
 	var retries int64
-	for retries = 0; retries < 5; retries++ {
+	for retries = 0; retries < 3; retries++ {
 		runtime.EventsEmit(ctx, "model-update", BatchUpdateEventPayload{modelId, modelName, "start", retries, "正在获取模型信息……"})
 		var originalModelContent []byte
 		resp, err := client.Get(modelInfoUrl)
@@ -147,10 +147,10 @@ func batchUpdateModelTask(ctx context.Context, weighted *semaphore.Weighted, wg 
 
 func intPow(n, x int64) int64 {
 	var (
-		result int64 = n
+		result int64 = 1
 		i      int64
 	)
-	for i = 2; i <= x; i++ {
+	for i = 1; i <= x; i++ {
 		result *= n
 	}
 	return result
