@@ -5,6 +5,7 @@ import { Welcome } from './layout/Welcome';
 import { MaintainHost } from './layout/maintain/MaintainHost';
 import { CleanModels } from './layout/maintain/pages/CleanModels';
 import { DownloadModel } from './layout/maintain/pages/DownloadModel';
+import { RefreshModel } from './layout/maintain/pages/RefreshModel';
 import { ScanModel } from './layout/maintain/pages/ScanModel';
 import { UpdateComfyUI } from './layout/maintain/pages/UpdateComfyUI';
 import { UpdateComfyUINodes } from './layout/maintain/pages/UpdateComfyUINodes';
@@ -104,6 +105,10 @@ export const AppRoute = createHashRouter([
             element: <UpdateComfyUINodes />,
             loader: loadComfyUICustomNodes,
             errorElement: <UpdateErrors />
+          },
+          {
+            path: 'refresh',
+            element: <RefreshModel />
           }
         ]
       },

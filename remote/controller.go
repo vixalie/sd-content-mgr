@@ -34,3 +34,7 @@ func (r RemoteController) DownloadModelVersion(uiTools, cateSubPath, fileName st
 func (r RemoteController) RecheckModelExistence(modelId int) error {
 	return recheckModelExistenceState(r.ctx, modelId)
 }
+
+func (r RemoteController) BatchUpdateModelInfo() error {
+	return batchUpdateModelInfo(r.ctx)
+}
