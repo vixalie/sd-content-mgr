@@ -193,7 +193,7 @@ func GetProxyUrl() *url.URL {
 		Scheme: string(ApplicationSetup.ProxyConfig.Protocol),
 		Host:   host,
 	}
-	if ApplicationSetup.ProxyConfig.User != nil {
+	if ApplicationSetup.ProxyConfig.User != nil && len(*ApplicationSetup.ProxyConfig.User) > 0 {
 		proxyUrl.User = url.UserPassword(*ApplicationSetup.ProxyConfig.User, ApplicationSetup.ProxyConfig.GetPassword())
 	}
 	return &proxyUrl
