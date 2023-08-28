@@ -3,7 +3,8 @@ import {
   IconAdjustmentsHorizontal,
   IconBoxModel,
   IconMenu2,
-  IconStack3
+  IconStack3,
+  IconTools
 } from '@tabler/icons-react';
 import { equals } from 'ramda';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -50,6 +51,16 @@ export function MainLayout() {
             icon={
               <ThemeIcon size="lg" variant="light">
                 <IconStack3 stroke={1} />
+              </ThemeIcon>
+            }
+          />
+        </Tooltip>
+        <Tooltip label="实用工具" position="right">
+          <ActivatableNavLink
+            to="/tools"
+            icon={
+              <ThemeIcon size="lg" variant="light">
+                <IconTools stroke={1} />
               </ThemeIcon>
             }
           />

@@ -23,6 +23,7 @@ import { SetupProxy } from './layout/setups/pages/proxy/SetupProxy';
 import { loadProxyConfigData } from './layout/setups/pages/proxy/hooks/useProtocols';
 import { SetupWebUI } from './layout/setups/pages/webui/SetupWebUI';
 import { loadWebUIConfig } from './layout/setups/pages/webui/hooks/useWebUI';
+import { ToolsHost } from './layout/tools/ToolsHost';
 import {
   checkModelVersionDownloaded,
   loadCachedVersionInfo,
@@ -111,6 +112,11 @@ export const AppRoute = createHashRouter([
             element: <RefreshModel />
           }
         ]
+      },
+      {
+        path: 'tools',
+        element: <ToolsHost />,
+        children: []
       },
       {
         path: 'setup',
