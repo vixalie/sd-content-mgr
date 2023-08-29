@@ -65,7 +65,8 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 		startOffset = 0
 		file, err = os.OpenFile(targetModelFile, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("创建模型文件失败，%w", err))
+			runtime.LogErrorf(ctx, "创建模型文件失败，%s", err.Error())
+			runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("创建模型文件失败，%s", err.Error()))
 			return
 		}
 	} else {
@@ -77,7 +78,8 @@ func downloadModelVersionPrimaryFile(ctx context.Context, wg *sync.WaitGroup, mo
 			file, err = os.OpenFile(targetModelFile, os.O_APPEND|os.O_WRONLY, 0644)
 		}
 		if err != nil {
-			runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("打开模型文件失败，%w", err))
+			runtime.LogErrorf(ctx, "打开模型文件失败，%s", err.Error())
+			runtime.EventsEmit(ctx, "model-primary-file-download-error", fmt.Errorf("打开模型文件失败，%s", err.Error()))
 			return
 		}
 	}
