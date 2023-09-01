@@ -1,3 +1,4 @@
+import { DownloadProgress } from '@/components/DownloadProgress';
 import {
   ActionIcon,
   Button,
@@ -17,7 +18,6 @@ import { FC, useCallback, useEffect, useMemo } from 'react';
 import { useDownloadState } from '../states/download-state';
 import { CachedIcon } from './CachedIcon';
 import { DownloadFileName } from './DownloadFileName';
-import { DownloadProgress } from './DownloadProgress';
 import { DownloadSetup } from './DownloadSetup';
 import { FileScanIcon } from './FileScanIcon';
 import { ModelDownloadedIcon } from './ModelDownloadedIcon';
@@ -38,6 +38,7 @@ export const DownloadTarget: FC = () => {
     fileName,
     overwrite,
     lockdown,
+    total,
     lock,
     unlock
   ] = useDownloadState(st => [
@@ -50,6 +51,7 @@ export const DownloadTarget: FC = () => {
     st.modelVersionFileName,
     st.overwrite,
     st.lockdown,
+    st.modelVersionTotalSize,
     st.lockSetup,
     st.unlockSetup
   ]);
@@ -158,7 +160,7 @@ export const DownloadTarget: FC = () => {
         </Button>
       </Group>
       <DownloadFileName />
-      <DownloadProgress modelVersionId={selectedVersion} />
+      <DownloadProgress modelVersion={selectedVersion} total={total} lock={lock} unlock={unlock} />
       <Divider color="gray" />
     </Stack>
   );

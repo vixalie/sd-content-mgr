@@ -4,9 +4,6 @@ import { fromBytes } from '@tsmx/human-readable';
 import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { max } from 'ramda';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { useDownloadState } from '../states/download-state';
-
-type DownloadProgressProps = {};
 
 type ProgressEventPayload = {
   state: string;
@@ -15,14 +12,12 @@ type ProgressEventPayload = {
   error?: string;
 };
 
-export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
-  const modelVersionId = useDownloadState.use.selectedVersion();
-  const total = useDownloadState.use.modelVersionTotalSize();
-  const [lock, unlock] = useDownloadState(st => [st.lockSetup, st.unlockSetup]);
+function useDownloadProgressControl(
+  modelVersionId: number,
+  lock: () => void,
+  unlock: () => void
+): [number] {
   const [downloaded, setDownloaded] = useState(0);
-  const currentProgress = useMemo(() => {
-    return Math.round((downloaded / max(1, total)) * 100);
-  }, [total, downloaded]);
 
   useEffect(() => {
     EventsOn(`model-primary-file-${modelVersionId}`, (payload: ProgressEventPayload) => {
@@ -49,7 +44,7 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
       }
     });
     return () => {
-      EventsOff(`model-primary-file-${modelVersionId}`, () => {});
+      EventsOff(`model-primary-file-${modelVersionId}`);
     };
   }, [modelVersionId, lock, unlock]);
   useEffect(() => {
@@ -61,6 +56,27 @@ export const DownloadProgress: FC<DownloadProgressProps> = ({}) => {
       EventsOff('reset-download');
     };
   }, []);
+
+  return [downloaded];
+}
+
+type DownloadProgressProps = {
+  modelVersion: number;
+  total: number;
+  lock: () => void;
+  unlock: () => void;
+};
+
+export const DownloadProgress: FC<DownloadProgressProps> = ({
+  modelVersion,
+  total,
+  lock,
+  unlock
+}) => {
+  const [downloaded] = useDownloadProgressControl(modelVersion, lock, unlock);
+  const currentProgress = useMemo(() => {
+    return Math.round((downloaded / max(1, total)) * 100);
+  }, [total, downloaded]);
 
   return (
     <>
