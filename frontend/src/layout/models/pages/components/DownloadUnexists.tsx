@@ -8,8 +8,10 @@ import {
   Select,
   Stack,
   TextInput,
+  Tooltip,
   useMantineTheme
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -18,8 +20,11 @@ import {
   CheckModelVersionPrimaryFileSize,
   GetModelSubCategoryDirs
 } from '@wails/go/models/ModelController';
+import { DownloadModelVersion } from '@wails/go/remote/RemoteController';
+import { nanoid } from 'nanoid';
 import { isEmpty, isNil, toLower } from 'ramda';
 import { FC, useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 
 const hostPathSelection: string = '/';
@@ -44,6 +49,7 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
   const [modelFileExt, setModelFileExt] = useState<string>('');
   const lock = useCallback(() => setLockdown(true), []);
   const unlock = useCallback(() => setLockdown(false), []);
+  const navigate = useNavigate();
 
   const { data: modelCatePath } = useQuery({
     queryKey: ['model-target-cate', 'webui', modelCategory],
@@ -96,6 +102,30 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
       return data;
     }
   });
+  const handleDownload = useCallback(async () => {
+    try {
+      if (isNil(targetSubPath) || isEmpty(targetSubPath)) {
+        notifications.show({
+          title: '目标分类目录未选择',
+          message: '请先选择目标分类目录。',
+          color: 'red',
+          withCloseButton: false
+        });
+        return;
+      }
+      lock();
+      await DownloadModelVersion('webui', targetSubPath, modelFileName, modelVersionId, true);
+    } catch (e) {
+      unlock();
+      console.error('[error]下载模型：', e);
+      notifications.show({
+        title: '模型下载失败',
+        message: `模型下载失败，请检查网络是否正常并再次尝试。${e}`,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  }, [modelVersionId, targetSubPath, modelFileName]);
 
   return (
     <Stack py="1rem" px="5rem" h={operatesHeight}>
@@ -114,7 +144,9 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
           value={targetSubPath}
           onChange={setTargetSubPath}
         />
-        <Button variant="filled">下载</Button>
+        <Button variant="filled" onClick={handleDownload}>
+          下载
+        </Button>
       </Group>
       <Group spacing="sm" w="100%">
         <TextInput
@@ -141,6 +173,7 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
         total={totalSize}
         lock={lock}
         unlock={unlock}
+        onFinish={() => navigate(`/model/version/${modelVersionId}?${nanoid()}`)}
       />
     </Stack>
   );

@@ -15,7 +15,9 @@ type ProgressEventPayload = {
 function useDownloadProgressControl(
   modelVersionId: number,
   lock: () => void,
-  unlock: () => void
+  unlock: () => void,
+  onStart?: () => void,
+  onFinish?: () => void
 ): [number] {
   const [downloaded, setDownloaded] = useState(0);
 
@@ -25,6 +27,7 @@ function useDownloadProgressControl(
         case 'start':
           lock();
           setDownloaded(0);
+          onStart?.();
           break;
         case 'finish':
           notifications.show({
@@ -34,6 +37,7 @@ function useDownloadProgressControl(
             withCloseButton: false
           });
           unlock();
+          onFinish?.();
           break;
         case 'progress':
           setDownloaded(payload.completed ?? 0);
@@ -65,15 +69,19 @@ type DownloadProgressProps = {
   total: number;
   lock: () => void;
   unlock: () => void;
+  onStart?: () => void;
+  onFinish?: () => void;
 };
 
 export const DownloadProgress: FC<DownloadProgressProps> = ({
   modelVersion,
   total,
   lock,
-  unlock
+  unlock,
+  onStart,
+  onFinish
 }) => {
-  const [downloaded] = useDownloadProgressControl(modelVersion, lock, unlock);
+  const [downloaded] = useDownloadProgressControl(modelVersion, lock, unlock, onStart, onFinish);
   const currentProgress = useMemo(() => {
     return Math.round((downloaded / max(1, total)) * 100);
   }, [total, downloaded]);
