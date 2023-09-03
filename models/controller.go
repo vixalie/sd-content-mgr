@@ -370,3 +370,8 @@ func (m ModelController) CopyTextureInversionEmbeddingPrompts(modelVersionId int
 	runtime.ClipboardSetText(m.ctx, fmt.Sprintf("embedding:%s", fileName))
 	return nil
 }
+
+// 删除指定模型版本中的所有相关本地文件和本地文件记录，但不删除模型版本的记录
+func (m ModelController) DeleteLocalFiles(modelVersionId int) error {
+	return deleteModelVersionLocalFiles(m.ctx, modelVersionId)
+}

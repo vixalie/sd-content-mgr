@@ -50,6 +50,10 @@ export function DeleteInvalidCaches() {
   return window['go']['models']['ModelController']['DeleteInvalidCaches']();
 }
 
+export function DeleteLocalFiles(arg1) {
+  return window['go']['models']['ModelController']['DeleteLocalFiles'](arg1);
+}
+
 export function DeleteModelFiles(arg1) {
   return window['go']['models']['ModelController']['DeleteModelFiles'](arg1);
 }

@@ -28,6 +28,8 @@ export function DeleteFilePrompts(arg1:string,arg2:Array<string>):Promise<void>;
 
 export function DeleteInvalidCaches():Promise<void>;
 
+export function DeleteLocalFiles(arg1:number):Promise<void>;
+
 export function DeleteModelFiles(arg1:Array<string>):Promise<void>;
 
 export function FetchCachedFileInfo(arg1:number):Promise<entities.ModelVersion>;

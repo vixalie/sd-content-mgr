@@ -251,3 +251,44 @@ func deleteModel(ctx context.Context, filePath string) error {
 	result = dbConn.Unscoped().Where("full_path = ?", filePath).Delete(&file)
 	return result.Error
 }
+
+func deleteModelVersionLocalFiles(ctx context.Context, versionId int) error {
+	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
+	var localFiles []entities.FileCache
+	result := dbConn.Where(&entities.FileCache{RelatedModelVersionId: &versionId}).Find(&localFiles)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return errors.New("指定模型版本未找到对应的本地文件")
+	}
+	if result.Error != nil {
+		return fmt.Errorf("查询指定模型版本对应的本地文件失败，%w", result.Error)
+	}
+	for _, localFile := range localFiles {
+		if localFile.ThumbnailPath != nil {
+			_, err := os.Stat(*localFile.ThumbnailPath)
+			if !errors.Is(err, os.ErrNotExist) {
+				err = os.Remove(*localFile.ThumbnailPath)
+				if err != nil {
+					return fmt.Errorf("删除模型缩略图失败，%w", err)
+				}
+			}
+		}
+		if localFile.CivitaiInfoPath != nil {
+			_, err := os.Stat(*localFile.CivitaiInfoPath)
+			if !errors.Is(err, os.ErrNotExist) {
+				err = os.Remove(*localFile.CivitaiInfoPath)
+				if err != nil {
+					return fmt.Errorf("删除模型Civitai信息文件失败，%w", err)
+				}
+			}
+		}
+		_, err := os.Stat(localFile.FullPath)
+		if !errors.Is(err, os.ErrNotExist) {
+			err = os.Remove(localFile.FullPath)
+			if err != nil {
+				return fmt.Errorf("删除模型文件失败，%w", err)
+			}
+		}
+		dbConn.Delete(&localFile)
+	}
+	return nil
+}
