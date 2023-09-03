@@ -2,7 +2,9 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/db"
@@ -87,7 +89,7 @@ func fetchModelTags(ctx context.Context, modelId int) ([]string, error) {
 	return tags, nil
 }
 
-// 本项检查仅仅是检查数据库中指定模型版本是否存在对应的本地文件记录，而不是真正的在本地文件系统中寻找文件。
+// 本项检查仅仅是检查数据库中指定模型版本是否存在对应的本地文件记录，并且这些记录是否存在本地对应的文件。
 // 对于本地已经存在但是本函数报文件不存在的情况，访问一次对应的文件夹扫描一次即可解决。
 func checkModelVersionDownloaded(ctx context.Context, modelVersionId int) (bool, error) {
 	dbConn := ctx.Value(db.DBConnection).(*gorm.DB)
@@ -99,10 +101,18 @@ func checkModelVersionDownloaded(ctx context.Context, modelVersionId int) (bool,
 	if modelVersion.PrimaryFile == nil {
 		return false, nil
 	}
-	var localFileCount int64
-	result = dbConn.Model(&entities.FileCache{}).Where("file_identity_hash = ?", modelVersion.PrimaryFile.IdentityHash).Count(&localFileCount)
+	var localFiles []*entities.FileCache
+	result = dbConn.Where("file_identity_hash = ?", modelVersion.PrimaryFile.IdentityHash).Find(&localFiles)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
 	if result.Error != nil {
 		return false, fmt.Errorf("未能获取本地文件记录，%w", result.Error)
 	}
-	return localFileCount > 0, nil
+	var exists bool
+	for _, file := range localFiles {
+		_, err := os.Stat(file.FullPath)
+		exists = exists || !os.IsNotExist(err)
+	}
+	return exists, nil
 }
