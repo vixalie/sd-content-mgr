@@ -33,7 +33,11 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
 }) => {
   const theme = useMantineTheme();
   const rerender = useRerender();
-  const { data: modelList, isFetching } = useQuery({
+  const {
+    data: modelList,
+    isFetching,
+    refetch
+  } = useQuery({
     queryKey: ['model-list', ui, cate, subPath, keyword],
     enabled: !isNil(cate) && !isNil(subPath),
     queryFn: async ({ queryKey }) => {
@@ -43,6 +47,16 @@ const ModelListLoader: FC<{ ui: string; cate?: string; subPath?: string; keyword
     select: data => sortByName(data ?? [])
   });
   console.log('[debug]Model List: ', modelList);
+
+  useEffect(() => {
+    EventsOn('reloadModelList', () => {
+      refetch();
+    });
+
+    return () => {
+      EventsOff('reloadModelList');
+    };
+  }, []);
 
   return (
     <>

@@ -21,6 +21,7 @@ import {
   GetModelSubCategoryDirs
 } from '@wails/go/models/ModelController';
 import { DownloadModelVersion } from '@wails/go/remote/RemoteController';
+import { EventsEmit } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { isEmpty, isNil, toLower } from 'ramda';
 import { FC, useCallback, useMemo, useState } from 'react';
@@ -173,7 +174,10 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
         total={totalSize}
         lock={lock}
         unlock={unlock}
-        onFinish={() => navigate(`/model/version/${modelVersionId}?${nanoid()}`)}
+        onFinish={() => {
+          navigate(`/model/version/${modelVersionId}?${nanoid()}`);
+          EventsEmit('reloadModelList');
+        }}
       />
     </Stack>
   );
