@@ -21,8 +21,9 @@ import { fromBytes } from '@tsmx/human-readable';
 import { entities } from '@wails/go/models';
 import { ChooseAndSetFileThumbnail } from '@wails/go/models/ModelController';
 import { RefreshModelVersionInfoByHash } from '@wails/go/remote/RemoteController';
+import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { BaseModelDescription } from './components/BaseModelDescription';
 
@@ -70,6 +71,16 @@ export const UncachedModel: FC = () => {
       });
     }
   }, [fileInfo]);
+
+  useEffect(() => {
+    EventsOn('reloadModelDetail', () => {
+      revalidator.revalidate();
+    });
+
+    return () => {
+      EventsOff('reloadModelDetail');
+    };
+  }, [revalidator]);
 
   return (
     <Stack px="md" py="lg" spacing="md">

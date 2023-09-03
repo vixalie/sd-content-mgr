@@ -17,7 +17,7 @@ import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { models } from '@wails/go/models';
 import { GetModelSubCategoryDirs, ListModelFiles } from '@wails/go/models/ModelController';
-import { EventsOff, EventsOn } from '@wails/runtime';
+import { EventsEmit, EventsOff, EventsOn } from '@wails/runtime';
 import { isEmpty, isNil, prop, props, sortBy } from 'ramda';
 import { FC, useEffect, useState } from 'react';
 import { ModelListItem } from './components/ModelListItem';
@@ -131,6 +131,7 @@ export function ModelSelection() {
             loading: false,
             color: 'green'
           });
+          EventsEmit('reloadModelDetail');
           break;
         case 'error':
           console.error('[error]模型扫描出现错误：', props('message', msg), props('error', msg));

@@ -4,10 +4,11 @@ import { IconDeviceFloppy, IconError404, IconEyeExclamation } from '@tabler/icon
 import { useQuery } from '@tanstack/react-query';
 import { entities, models } from '@wails/go/models';
 import { FetchModelTags } from '@wails/go/models/ModelController';
+import { EventsOff, EventsOn } from '@wails/runtime/runtime';
 import { nanoid } from 'nanoid';
 import { isEmpty, isNil, not } from 'ramda';
 import { FC, useEffect, useRef, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { DownloadUnexists } from './components/DownloadUnexists';
 import { ModelActivates } from './components/ModelActivates';
 import { ModelDescription } from './components/ModelDeacription';
@@ -18,6 +19,7 @@ import { useCachedModelMeasure } from './states/cached-model-measure';
 
 export const CachedModel: FC = () => {
   const theme = useMantineTheme();
+  const revalidator = useRevalidator();
 
   const pageRef = useRef<HTMLDivElement | null>(null);
   const modelNameRef = useRef<HTMLDivElement | null>(null);
@@ -48,6 +50,15 @@ export const CachedModel: FC = () => {
   useEffect(() => {
     setActiveTab('summary');
   }, [modelVersion]);
+  useEffect(() => {
+    EventsOn('reloadModelDetail', () => {
+      revalidator.revalidate();
+    });
+
+    return () => {
+      EventsOff('reloadModelDetail');
+    };
+  }, [revalidator]);
 
   return (
     <Stack px="md" py="lg" spacing="sm" h="100vh" ref={pageRef}>

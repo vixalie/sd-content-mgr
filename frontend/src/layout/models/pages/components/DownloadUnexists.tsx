@@ -22,10 +22,8 @@ import {
 } from '@wails/go/models/ModelController';
 import { DownloadModelVersion } from '@wails/go/remote/RemoteController';
 import { EventsEmit } from '@wails/runtime/runtime';
-import { nanoid } from 'nanoid';
 import { isEmpty, isNil, toLower } from 'ramda';
 import { FC, useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { infoZoneHeightSelector, useCachedModelMeasure } from '../states/cached-model-measure';
 
 const hostPathSelection: string = '/';
@@ -50,7 +48,6 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
   const [modelFileExt, setModelFileExt] = useState<string>('');
   const lock = useCallback(() => setLockdown(true), []);
   const unlock = useCallback(() => setLockdown(false), []);
-  const navigate = useNavigate();
 
   const { data: modelCatePath } = useQuery({
     queryKey: ['model-target-cate', 'webui', modelCategory],
@@ -175,7 +172,6 @@ export const DownloadUnexists: FC<DownloadUnexistsProps> = ({
         lock={lock}
         unlock={unlock}
         onFinish={() => {
-          navigate(`/model/version/${modelVersionId}?${nanoid()}`);
           EventsEmit('reloadModelList');
         }}
       />
