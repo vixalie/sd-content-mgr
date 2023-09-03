@@ -5,9 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { entities, models } from '@wails/go/models';
 import { FetchModelTags } from '@wails/go/models/ModelController';
 import { nanoid } from 'nanoid';
-import { isEmpty, isNil } from 'ramda';
+import { isEmpty, isNil, not } from 'ramda';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
+import { DownloadUnexists } from './components/DownloadUnexists';
 import { ModelActivates } from './components/ModelActivates';
 import { ModelDescription } from './components/ModelDeacription';
 import { ModelOperates } from './components/ModelOperates';
@@ -116,6 +117,7 @@ export const CachedModel: FC = () => {
           <Tabs.Tab value="summary">模型概要</Tabs.Tab>
           <Tabs.Tab value="activate">模型激活</Tabs.Tab>
           <Tabs.Tab value="description">描述</Tabs.Tab>
+          {not(versionDownloaded) && <Tabs.Tab value="download">下载模型文件</Tabs.Tab>}
           <Tabs.Tab value="versions">同系列</Tabs.Tab>
           <Tabs.Tab value="operates">操作</Tabs.Tab>
         </Tabs.List>
@@ -135,8 +137,16 @@ export const CachedModel: FC = () => {
           <ModelDescription modelVersionId={modelVersion.id} />
         </Tabs.Panel>
 
+        <Tabs.Panel value="download" pt="xs" h="100%">
+          <DownloadUnexists
+            modelVersionId={modelVersion.id}
+            modelId={modelVersion.modelId}
+            modelType={modelVersion.model?.type ?? ''}
+          />
+        </Tabs.Panel>
+
         <Tabs.Panel value="versions" pt="xs" h="100%">
-          <SameModelVersions modelVersions={versions} currentVersionId={modelVersion.id} />
+          <SameModelVersions modelVersions={versions} currentVersionId={modelVersion.id} />D
         </Tabs.Panel>
 
         <Tabs.Panel value="operates" pt="xs" h="100%">
