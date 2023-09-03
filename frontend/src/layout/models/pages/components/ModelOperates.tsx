@@ -17,6 +17,9 @@ export const ModelOperates: FC<ModelOperatesProps> = ({ modelVersionId, modelId 
         <Button variant="light" color="blue" onClick={refreshModelInfo}>
           刷新模型信息
         </Button>
+        <Button variant="light" color="red">
+          删除当前模型版本
+        </Button>
       </Stack>
     </Box>
   );
