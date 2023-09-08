@@ -7,7 +7,8 @@ import {
   CheckModelVersionType,
   CopyModelFileLoader,
   CopyTextureInversionEmbeddingPrompts,
-  FetchModelVersionPrimaryFile
+  FetchModelVersionPrimaryFile,
+  RenameModelFile
 } from '@wails/go/models/ModelController';
 import { equals, isEmpty, isNil, not } from 'ramda';
 import { FC, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -60,6 +61,31 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
   const [extPart, setExtPart] = useState<string>('');
   const ref = useRef<TextInput>(null);
   const revalidator = useRevalidator();
+  const renameModelFile = useCallback(async () => {
+    if (isNil(modelPrimaryFile)) {
+      return;
+    }
+    try {
+      await RenameModelFile(modelPrimaryFile.id, `${namePart}`);
+      notifications.show({
+        title: '重命名成功',
+        message: `文件已重命名为${namePart}${extPart}`,
+        color: 'green',
+        withCloseButton: false
+      });
+      revalidator.revalidate();
+      setEditing(false);
+      onCompleted?.(`${namePart}`);
+    } catch (e) {
+      console.error('[error]重命名文件：', e);
+      notifications.show({
+        title: '重命名文件失败',
+        message: `未能成功重命名文件，${e.message}`,
+        color: 'red',
+        withCloseButton: false
+      });
+    }
+  }, [modelPrimaryFile?.id, namePart]);
   const switchEditState = useCallback(
     async (state: boolean) => {
       if (!state) {
@@ -145,7 +171,7 @@ export const PrimaryFileCell: FC<RenameableFileCellProps> = ({
           <>
             {editing ? (
               <>
-                <ActionIcon color="green">
+                <ActionIcon color="green" onClick={renameModelFile}>
                   <IconCheck stroke={1} />
                 </ActionIcon>
                 <ActionIcon color="red" onClick={() => switchEditState(false)}>
