@@ -143,7 +143,6 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 		runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能成功计算模型文件CRC32校验值。", "error": err.Error()})
 		return
 	}
-	var modelDescription *ModelVersion
 	if descriptionPath != nil {
 		// 这里处理的是Civitai Info文件已经被发现的情形。
 		modelInfoFileContent, err := os.ReadFile(*descriptionPath)
@@ -152,7 +151,7 @@ func scanModelFile(ctx context.Context, weighted *semaphore.Weighted, group *syn
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能打开模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
 		}
-		modelDescription, err = ParseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
+		_, err = ParseCivitaiModelVersionResponse(ctx, modelInfoFileContent)
 		if err != nil {
 			runtime.EventsEmit(ctx, "scanUncachedFiles", map[string]any{"state": "error", "message": "未能解析模型Civitai Info文件。", "error": err.Error()})
 			goto TERMINATE_PARSE
@@ -174,9 +173,10 @@ TERMINATE_PARSE:
 		Size:             uint64(fileInfo.Size()),
 		CRC32:            strings.ToUpper(hex.ToHex(lo.Reverse(fileCrc32))), // 这里需要转换成小端序，还需要转换成大写形式。
 	}
-	if modelDescription != nil && modelDescription.Id != 0 {
-		// 当模型描述不等于空的时候，需要向文件中登记其对应的模型信息。
-		fileCache.RelatedModelVersionId = &modelDescription.Id
+	var cachedModelFile *entities.ModelFile
+	dbConn.Where(&entities.ModelFile{IdentityHash: fileCache.FileIdentityHash}).First(&cachedModelFile)
+	if cachedModelFile != nil {
+		fileCache.RelatedModelVersionId = &cachedModelFile.VersionId
 	}
 	var count int64
 	dbConn.Model(&entities.FileCache{}).Where("file_identity_hash = ?", fileCache.FileIdentityHash).Count(&count)
