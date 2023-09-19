@@ -4,12 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
+	"os"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	gitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/mikkeloscar/sshconfig"
 	"github.com/samber/lo"
 	"github.com/vixalie/sd-content-manager/config"
 )
@@ -29,13 +34,14 @@ const (
 )
 
 type GitRepository struct {
+	authKeys     map[string]*sshconfig.SSHHost
 	Repository   *git.Repository
 	activeRemote *git.Remote
 	activeBranch *plumbing.ReferenceName
 	worktree     *git.Worktree
 }
 
-func OpenRepository(dirPath string) (*GitRepository, RepositoryOperateStatus, error) {
+func OpenRepository(dirPath string, keys map[string]*sshconfig.SSHHost) (*GitRepository, RepositoryOperateStatus, error) {
 	repo, err := git.PlainOpen(dirPath)
 	if errors.Is(err, git.ErrRepositoryNotExists) {
 		return nil, InvalidRepository, fmt.Errorf("指定目录中未找到Git版本库")
@@ -72,6 +78,7 @@ func OpenRepository(dirPath string) (*GitRepository, RepositoryOperateStatus, er
 	}
 
 	return &GitRepository{
+		authKeys:     keys,
 		Repository:   repo,
 		activeRemote: primaryRemote,
 		activeBranch: &branchName,
@@ -82,6 +89,51 @@ func OpenRepository(dirPath string) (*GitRepository, RepositoryOperateStatus, er
 func assembleProxyOptions() transport.ProxyOptions {
 	url := config.GetProxyUrl()
 	return lo.If(url != nil, transport.ProxyOptions{URL: url.String()}).Else(transport.ProxyOptions{})
+}
+
+func getHostFromSSHURL(sshURL string) string {
+	sshURL = strings.Replace(sshURL, ":", "/", 1)
+	// 添加协议前缀
+	sshURL = "ssh://" + sshURL
+
+	// 解析URL
+	parsedURL, err := url.Parse(sshURL)
+	if err != nil {
+		fmt.Printf("无法解析SSH URL：%v\n", err)
+		return ""
+	}
+
+	// 获取主机地址
+	host := parsedURL.Hostname()
+
+	return host
+}
+
+func loadSSHAuthKeys(url string, keys map[string]*sshconfig.SSHHost) transport.AuthMethod {
+	if strings.HasPrefix(url, "git@") {
+		host := getHostFromSSHURL(url)
+		if sshConfig, ok := keys[host]; ok {
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				fmt.Printf("无法获取当前用户的主目录：%v\n", err)
+				return nil
+			}
+			identityFile := strings.Replace(sshConfig.IdentityFile, "~", homeDir, 1)
+			prikey, err := os.ReadFile(identityFile)
+			if err != nil {
+				fmt.Printf("无法加载 SSH 私钥：%v\n", err)
+				return nil
+			}
+			pubKey, err := ssh.NewPublicKeys(sshConfig.User, prikey, "")
+			if err != nil {
+				fmt.Printf("无法加载SSH密钥：%v\n", err)
+				return nil
+			}
+			fmt.Printf("成功加载SSH密钥：%s\n", identityFile)
+			return pubKey
+		}
+	}
+	return nil
 }
 
 func (r *GitRepository) MakeSurePrimaryBranch() (string, RepositoryOperateStatus, error) {
@@ -115,6 +167,7 @@ func (r *GitRepository) Fetch() (RepositoryOperateStatus, error) {
 	err := r.Repository.Fetch(&git.FetchOptions{
 		RemoteName:   r.activeRemote.Config().Name,
 		ProxyOptions: assembleProxyOptions(),
+		Auth:         loadSSHAuthKeys(r.activeRemote.Config().URLs[0], r.authKeys),
 	})
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return SuccessButNothingChanged, nil
@@ -129,6 +182,7 @@ func (r *GitRepository) Difference() (int64, RepositoryOperateStatus, error) {
 	// 获取远程最新的提交。
 	remoteRefs, err := r.activeRemote.List(&git.ListOptions{
 		ProxyOptions: assembleProxyOptions(),
+		Auth:         loadSSHAuthKeys(r.activeRemote.Config().URLs[0], r.authKeys),
 	})
 	if err != nil {
 		return 0, InvalidRemote, fmt.Errorf("未能获取远程仓库引用列表，%w", err)
@@ -189,6 +243,7 @@ func (r *GitRepository) Pull() (RepositoryOperateStatus, error) {
 	err := r.worktree.Pull(&git.PullOptions{
 		RemoteName:   r.activeRemote.Config().Name,
 		ProxyOptions: assembleProxyOptions(),
+		Auth:         loadSSHAuthKeys(r.activeRemote.Config().URLs[0], r.authKeys),
 	})
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return SuccessButNothingChanged, nil
@@ -272,6 +327,7 @@ func (r *GitRepository) RemoteBranches() ([]string, RepositoryOperateStatus, err
 	}
 	refs, err := r.activeRemote.List(&git.ListOptions{
 		ProxyOptions: assembleProxyOptions(),
+		Auth:         loadSSHAuthKeys(r.activeRemote.Config().URLs[0], r.authKeys),
 	})
 	if err != nil {
 		return nil, Failed, fmt.Errorf("未能获取远程分支列表，%w", err)

@@ -6,16 +6,40 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/mikkeloscar/sshconfig"
 	"github.com/vixalie/sd-content-manager/config"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type GitController struct {
-	ctx context.Context
+	authKeys map[string]*sshconfig.SSHHost
+	ctx      context.Context
 }
 
 func NewGitController() *GitController {
-	return &GitController{}
+	currentUserHome, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("获取当前用户的主目录失败，%s\n", err.Error())
+		return &GitController{
+			authKeys: make(map[string]*sshconfig.SSHHost, 0),
+		}
+	}
+	sshConfigPath := filepath.Join(currentUserHome, ".ssh", "config")
+	config, err := sshconfig.Parse(sshConfigPath)
+	if err != nil {
+		fmt.Printf("解析SSH配置文件失败，%s\n", err.Error())
+		return &GitController{
+			authKeys: make(map[string]*sshconfig.SSHHost, 0),
+		}
+	}
+	keys := make(map[string]*sshconfig.SSHHost, 0)
+	for _, host := range config {
+		keys[host.Host[0]] = host
+	}
+	fmt.Printf("SSH配置文件解析成功，共找到%d个主机, %+v\n", len(keys), keys)
+	return &GitController{
+		authKeys: keys,
+	}
 }
 
 func (c *GitController) SetContext(ctx context.Context) {
@@ -35,7 +59,7 @@ func (c *GitController) checkStatus(status RepositoryOperateStatus) error {
 }
 
 func (c *GitController) CurrentRemote(dir string) (string, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -48,7 +72,7 @@ func (c *GitController) CurrentRemote(dir string) (string, error) {
 }
 
 func (c *GitController) Remotes(dir string) ([]string, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -65,7 +89,7 @@ func (c *GitController) Remotes(dir string) ([]string, error) {
 }
 
 func (c *GitController) CurrentBranch(dir string) (string, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -82,7 +106,7 @@ func (c *GitController) CurrentBranch(dir string) (string, error) {
 }
 
 func (c *GitController) Branches(dir string) ([]string, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -100,7 +124,7 @@ func (c *GitController) Branches(dir string) ([]string, error) {
 
 // 这个方法返回的布尔值所表达的含义需要根据其返回的错误来判断。如果返回的错误是`nil`，那么布尔值表示是否有新的提交。如果返回的错误不是`nil`，那么布尔值表示是否成功。
 func (c *GitController) Fetch(dir, remote string) (bool, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -131,7 +155,7 @@ func (c *GitController) Fetch(dir, remote string) (bool, error) {
 }
 
 func (c *GitController) CheckDifference(dir, remote, branch string) (int64, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	runtime.LogDebugf(c.ctx, "检查版本库的更新情况：远程：%s，分支：%s", remote, branch)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
@@ -185,7 +209,7 @@ func (c *GitController) CheckDifference(dir, remote, branch string) (int64, erro
 }
 
 func (c *GitController) Checkout(dir, branchName string) (bool, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
@@ -206,7 +230,7 @@ func (c *GitController) Checkout(dir, branchName string) (bool, error) {
 }
 
 func (c *GitController) Pull(dir, remote string) (bool, error) {
-	repo, status, err := OpenRepository(dir)
+	repo, status, err := OpenRepository(dir, c.authKeys)
 	switch status {
 	case InvalidRepository, InvalidRemote, InvalidBranch:
 		runtime.LogErrorf(c.ctx, "打开指定目录中的Git版本库失败，%s", err.Error())
