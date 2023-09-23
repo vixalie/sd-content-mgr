@@ -74,7 +74,7 @@ func main() {
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
-				Title:   "SD Content Manager",
+				Title:   "SD Content Manager V2",
 				Message: "",
 				Icon:    icon,
 			},
